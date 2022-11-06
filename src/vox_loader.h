@@ -19,8 +19,9 @@ struct MV_Entry {
 };
 
 struct MV_PBR {
+	bool alpha; // Transparency based on V channel of HSV
 	uint8_t flux;
-	float rough, metal, emit, alpha;
+	float rough, metal, emit;
 };
 
 struct MV_Model {

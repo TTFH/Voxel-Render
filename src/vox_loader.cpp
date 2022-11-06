@@ -163,9 +163,14 @@ VoxLoader::VoxLoader(const char* filename) {
 							y = (v >> 2) & 3;
 							z = 3 - x - y;
 							rot_matrix = mat3(0.0f);
-							rot_matrix[x][0] = (v >> 4) & 1 ? -1 : +1;
-							rot_matrix[y][1] = (v >> 5) & 1 ? -1 : +1;
-							rot_matrix[z][2] = (v >> 6) & 1 ? -1 : +1;
+							rot_matrix[x][0] = (v >> 4) & 1 ? -1 : 1;
+							rot_matrix[y][1] = (v >> 5) & 1 ? -1 : 1;
+							rot_matrix[z][2] = (v >> 6) & 1 ? -1 : 1;
+							/*printf("Rot byte: 0x%02X\n", v);
+							printf("    [%2d %2d %2d]\nR = [%2d %2d %2d]\n    [%2d %2d %2d]\n\n",
+								(int)rot_matrix[0][0], (int)rot_matrix[0][1], (int)rot_matrix[0][2],
+								(int)rot_matrix[1][0], (int)rot_matrix[1][1], (int)rot_matrix[1][2],
+								(int)rot_matrix[2][0], (int)rot_matrix[2][1], (int)rot_matrix[2][2]);*/
 						}
 					}
 				}
@@ -228,8 +233,8 @@ void VoxLoader::draw(Shader& shader, Camera& camera, string shape_name, vec3 pos
 	pair<mv_model_iterator, mv_model_iterator> homonym_shapes = models.equal_range(shape_name);
 	for (mv_model_iterator it = homonym_shapes.first; it != homonym_shapes.second; it++) {
 		int index = it->second.shape_index;
+		// TODO: fix position / rotation of some shapes
 		const MV_Shape& shape = shapes[index];
-		// TODO: fix vertical position of some shapes
 		vec3 pos = it->second.rotation * vec3(-shape.sizex / 2, -shape.sizey / 2, 0);
 		render[index]->setTransform(pos, it->second.rotation);
 		render[index]->setWorldTransform(position, rotation);

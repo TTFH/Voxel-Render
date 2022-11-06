@@ -8,6 +8,7 @@ const float FAR_PLANE = 500;
 const unsigned int WINDOW_WIDTH = 1024;
 const unsigned int WINDOW_HEIGHT = 720;
 
+// TODO: Load MV PBR
 // TODO: transparent glass
 // TODO: load from folder passed by argv
 
@@ -64,7 +65,7 @@ int main() {
 	Shader voxbox_shader("shaders/voxbox_vert.glsl", "shaders/voxbox_frag.glsl");
 	Shader skybox_shader("shaders/skybox_vert.glsl", "shaders/skybox_frag.glsl");
 
-	Skybox skybox(skybox_shader, (float)WINDOW_WIDTH / WINDOW_HEIGHT);
+	//Skybox skybox(skybox_shader, (float)WINDOW_WIDTH / WINDOW_HEIGHT);
 	camera.initialize(WINDOW_WIDTH, WINDOW_HEIGHT, vec3(0, 2.5, 10));
 	Scene scene("main.xml");
 
@@ -113,7 +114,7 @@ int main() {
 		scene.drawWater(water_shader, camera);
 		glDisable(GL_BLEND);
 
-		skybox.Draw(skybox_shader, camera);
+		//skybox.Draw(skybox_shader, camera);
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}

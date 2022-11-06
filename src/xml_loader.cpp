@@ -48,6 +48,10 @@ void Scene::RecursiveLoad(XMLElement* element, vec3 parent_pos, quat parent_rot)
 	if (strcmp(element->Name(), "vox") == 0) {
 		scene_t vox = { "", "", position, rotation, 1.0f };
 		const char* file = element->Attribute("file");
+		if (file == NULL) {
+			printf("[ERROR] No file specified for vox\n");
+			exit(EXIT_FAILURE);
+		}
 		if (strncmp(file, "MOD/", 4) == 0)
 			vox.file = file + 4;
 		else
