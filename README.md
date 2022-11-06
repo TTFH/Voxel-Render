@@ -16,3 +16,5 @@ It make use of the next libraries:
 ### How to compile
 
 Open a command prompt in the project folder and run the command: `make`
+
+![img2](https://github.com/TTFH/Voxel-Render/blob/e57db0be0b18ef2de9a2b6e52d53666dd5d5685e/img2.png)
