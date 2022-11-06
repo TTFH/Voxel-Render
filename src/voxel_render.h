@@ -6,10 +6,6 @@
 #include "camera.h"
 #include "shader.h"
 
-struct MV_Entry {
-	uint8_t r, g, b, a;
-};
-
 class VoxelRender {
 private:
 	VAO vao;

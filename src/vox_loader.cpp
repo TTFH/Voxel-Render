@@ -169,7 +169,7 @@ VoxLoader::VoxLoader(const char* filename) {
 						}
 					}
 				}
-				MV_Model data = { ref_model_id, position, rot_matrix };
+				MV_Model data = { ref_model_id, position, quat_cast(rot_matrix) };
 				last_inserted = models.emplace_hint(last_inserted, shape_name, data);
 			}
 			break;
@@ -200,11 +200,11 @@ VoxLoader::VoxLoader(const char* filename) {
 	glTexImage1D(GL_TEXTURE_1D, 0, GL_RGB, 256, 0, GL_RGBA, GL_UNSIGNED_BYTE, palette);
 
 	for (unsigned int i = 0; i < shapes.size(); i++) {
-		#if GREADY_MESHING_ENABLED
-			render.push_back(new FastRender(shapes[i], texture_id));
-		#else
-			render.push_back(new VoxelRender(shapes[i].voxels, texture_id));
-		#endif
+	#if GREADY_MESHING_ENABLED
+		render.push_back(new FastRender(shapes[i], texture_id));
+	#else
+		render.push_back(new VoxelRender(shapes[i].voxels, texture_id));
+	#endif
 	}
 }
 

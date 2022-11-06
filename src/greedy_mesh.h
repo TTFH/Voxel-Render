@@ -10,17 +10,6 @@
 #include "camera.h"
 #include "shader.h"
 
-/*
-struct MV_Voxel {
-	uint8_t x, y, z, index;
-};
-
-struct Vertex {
-	vec3 position;
-	vec3 normal;
-	uint8_t index;
-};
-*/
 struct MV_Shape {
 	int sizex, sizey, sizez;
 	vector<MV_Voxel> voxels;

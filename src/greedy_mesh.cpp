@@ -1,6 +1,5 @@
 #include "greedy_mesh.h"
 
-// TODO: fix missing parts of some shapes
 // Based on: https://0fps.net/2012/07/07/meshing-minecraft-part-2/
 GreedyMesh generateGreedyMesh(MV_Shape shape) {
 	uint8_t*** voxels = new uint8_t**[shape.sizex];
@@ -95,18 +94,19 @@ GreedyMesh generateGreedyMesh(MV_Shape shape) {
 						vec3 normal = -cross(p1 - p0, p2 - p0);
 						int16_t index = c > 0 ? c : -c; // In case of byte overflow
 
+						// Generate the indices first
+						int start_index = mesh.vertices.size();
+						mesh.indices.push_back(start_index + 0);
+						mesh.indices.push_back(start_index + 1);
+						mesh.indices.push_back(start_index + 2);
+						mesh.indices.push_back(start_index + 2);
+						mesh.indices.push_back(start_index + 1);
+						mesh.indices.push_back(start_index + 3);
+
 						mesh.vertices.push_back({ p0, normal, (uint8_t)index });
 						mesh.vertices.push_back({ p1, normal, (uint8_t)index });
 						mesh.vertices.push_back({ p2, normal, (uint8_t)index });
 						mesh.vertices.push_back({ p3, normal, (uint8_t)index });
-
-						int next_index = mesh.vertices.size();
-						mesh.indices.push_back(next_index + 0);
-						mesh.indices.push_back(next_index + 1);
-						mesh.indices.push_back(next_index + 2);
-						mesh.indices.push_back(next_index + 2);
-						mesh.indices.push_back(next_index + 1);
-						mesh.indices.push_back(next_index + 3);
 
 						// Clear part of the mask to avoid duplicated faces
 						for (int l = 0; l < h; l++)
@@ -180,6 +180,7 @@ void FastRender::draw(Shader& shader, Camera& camera, float scale) {
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_1D, texture_id);
 
+	//glLineWidth(5.0f);
 	glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_INT, 0);
 	vao.Unbind();
 }

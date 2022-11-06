@@ -9,6 +9,7 @@ const unsigned int WINDOW_WIDTH = 1024;
 const unsigned int WINDOW_HEIGHT = 720;
 
 // TODO: transparent glass
+// TODO: load from folder passed by argv
 
 GLFWwindow* InitOpenGL(const char* window_title) {
 	glfwInit();
@@ -53,8 +54,11 @@ void fullscreen_callback(GLFWwindow* window, int key, int scancode, int action, 
 
 int main() {
 	GLFWwindow* window = InitOpenGL("OpenGL");
+#if GREADY_MESHING_ENABLED
 	Shader voxel_shader("shaders/mesh_vert.glsl", "shaders/mesh_frag.glsl");
-	//Shader voxel_shader("shaders/voxel_vert.glsl", "shaders/voxel_frag.glsl");
+#else
+	Shader voxel_shader("shaders/voxel_vert.glsl", "shaders/voxel_frag.glsl");
+#endif
 	Shader rope_shader("shaders/rope_vert.glsl", "shaders/rope_frag.glsl");
 	Shader water_shader("shaders/water_vert.glsl", "shaders/water_frag.glsl");
 	Shader voxbox_shader("shaders/voxbox_vert.glsl", "shaders/voxbox_frag.glsl");

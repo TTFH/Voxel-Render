@@ -4,6 +4,7 @@
 
 #include "xml_loader.h"
 
+// Example of how to use tinyxml2
 void iterate_xml(XMLElement* root, int depth) {
 	for (int i = 0; i < depth; i++)
 		printf("    ");

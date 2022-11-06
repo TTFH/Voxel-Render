@@ -14,6 +14,10 @@
 
 using namespace std;
 
+struct MV_Entry {
+	uint8_t r, g, b, a;
+};
+
 struct MV_PBR {
 	uint8_t flux;
 	float rough, metal, emit, alpha;
