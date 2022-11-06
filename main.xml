@@ -1,0 +1,58 @@
+<scene>
+	<group>
+		<voxbox pos="-1.2 0.0 -1.3" size="25 2 2 "/>
+		<voxbox pos="1.1 0.0 -1.1" size="2 2 25 "/>
+		<voxbox pos="-1.4 0.0 1.2" size="25 2 2 "/>
+		<voxbox pos="-1.4 0.0 -1.3" size="2 2 25 "/>
+		<water type="polygon">
+			<vertex pos="-1.2 -1.1"/>
+			<vertex pos="1.1 -1.1"/>
+			<vertex pos="1.1 1.2"/>
+			<vertex pos="-1.2 1.2"/>
+		</water>
+		<water pos="4.7 0.0 0.1" type="polygon">
+			<vertex pos="-2.5 -1.2"/>
+			<vertex pos="2.3 -1.2"/>
+			<vertex pos="2.3 1.1"/>
+			<vertex pos="0.0 0.0"/>
+			<vertex pos="-2.5 1.1"/>
+		</water>
+		<voxbox pos="-1.2 0.0 -4.3" size="10 10 10"/>
+		<voxbox pos="-1.2 0.0 -3.3" size="10 10 10" color="0 0 1"/>
+		<voxbox pos="-1.2 1.0 -4.3" size="10 10 10" color="0 1 0"/>
+		<voxbox pos="-0.2 0.0 -4.3" size="10 10 10" color="1 0 0"/>
+		<voxbox pos="2.0 0.0 -1.3" size="2 2 25 "/>
+		<voxbox pos="2.2 0.0 -1.3" size="50 2 2 "/>
+		<voxbox pos="7.0 0.0 -1.1" size="2 2 25 "/>
+		<voxbox pos="4.6 0.0 0.1" size="2 2 11" color="1 0 1"/>
+		<voxbox pos="2.0 0.0 1.2" size="50 2 2 "/>
+	</group>
+	<group pos="4.5 -0.1 -3.0">
+		<voxbox pos="-1.3 0.1 -0.5" size="1 10 1" color="0 1 0">
+			<rope pos="0.1 0.95 0.05" color="1 0 1">
+				<location/>
+				<location pos="2.4 0.0 0.0"/>
+			</rope>
+		</voxbox>
+		<voxbox pos="-1.3 0.1 0.5" size="1 10 1" color="0 0 1"/>
+		<voxbox pos="1.2 0.1 -0.5" size="1 10 1" color="1 0 0"/>
+		<rope pos="-1.25 1.05 -0.4" color="1 1 0">
+			<location/>
+			<location pos="0.0 -0.9 0.9"/>
+		</rope>
+		<voxbox pos="-9.5 0.0 8.0" size="100 1 100"/>
+		<voxbox pos="-9.5 0.0 -2.0" size="100 1 100"/>
+		<voxbox pos="0.5 0.0 -2.0" size="100 1 100"/>
+		<voxbox pos="0.5 0.0 8.0" size="100 1 100"/>
+	</group>
+	<group>
+		<vox pos="-3.2 0.0 4.5" file="MOD/vox/semitruck-us.vox"/>
+		<vox pos="11.2 0.0 5.2" rot="0.0 90.0 0.0" file="MOD/vox/taxi.vox" object="wheel_br"/>
+		<vox pos="11.2 0.0 6.7" rot="0.0 90.0 0.0" file="MOD/vox/taxi.vox" object="wheel_bl"/>
+		<vox pos="8.6 -0.0 5.2" rot="0.0 90.0 0.0" file="MOD/vox/taxi.vox" object="wheel_fr"/>
+		<vox pos="8.6 -0.0 6.7" rot="0.0 90.0 0.0" file="MOD/vox/taxi.vox" object="wheel_fl"/>
+		<vox pos="9.9 0.1 6.0" rot="0.0 90.0 0.0" file="MOD/vox/taxi.vox" object="body"/>
+		<vox pos="10.0 0.0 10.0" rot="0.0 90.0 0.0" file="MOD/vox/taxi.vox" scale="2"/>
+		<vox pos="4.0 6.0 12.0" rot="-10.0 45.0 0.0" file="MOD/vox/chopper.vox"/>
+	</group>
+</scene>
