@@ -2,3 +2,4 @@
 obj/*.o
 vox_render
 vox_render.exe
+screenshot_*.png

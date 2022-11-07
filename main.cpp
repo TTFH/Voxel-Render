@@ -1,3 +1,4 @@
+#include <time.h>
 #include <stdio.h>
 #include "glad/glad.h"
 #include <GLFW/glfw3.h>
@@ -16,7 +17,6 @@ const unsigned int WINDOW_HEIGHT = 720;
 
 // TODO: Load MV PBR
 // TODO: transparent glass
-// TODO: load from folder passed by argv
 
 GLFWwindow* InitOpenGL(const char* window_title) {
 	glfwInit();
@@ -44,8 +44,8 @@ void FlipImageVertically(int width, int height, uint8_t* data) {
 	uint8_t rgb[3];
 	for (int y = 0; y < height / 2; y++) {
 		for (int x = 0; x < width; x++) {
-			int top = (x + y * width) * 3;
-			int bottom = (x + (height - y - 1) * width) * 3;
+			int top = 3 * (x + y * width);
+			int bottom = 3 * (x + (height - y - 1) * width);
 
 			memcpy(rgb, data + top, sizeof(rgb));
 			memcpy(data + top, data + bottom, sizeof(rgb));
@@ -63,7 +63,8 @@ void key_press_callback(GLFWwindow* window, int key, int scancode, int action, i
 		uint8_t* pixels = new uint8_t[width * height * 3];
 		glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, pixels);
 		FlipImageVertically(width, height, pixels);
-		stbi_write_png("screenshot.png", width, height, 3, pixels, 3 * width);
+		string filename = "screenshot_" + to_string(time(NULL)) + ".png";
+		stbi_write_png(filename.c_str(), width, height, 3, pixels, 3 * width);
 		delete[] pixels;
 	} else if (key == GLFW_KEY_F11) {
 		fullscreen = !fullscreen;
@@ -81,7 +82,7 @@ void key_press_callback(GLFWwindow* window, int key, int scancode, int action, i
 	}
 }
 
-int main() {
+int main(int argc, char* argv[]) {
 	GLFWwindow* window = InitOpenGL("OpenGL");
 #if GREADY_MESHING_ENABLED
 	Shader voxel_shader("shaders/mesh_vert.glsl", "shaders/mesh_frag.glsl");
@@ -95,7 +96,18 @@ int main() {
 
 	Skybox skybox(skybox_shader, (float)WINDOW_WIDTH / WINDOW_HEIGHT);
 	camera.initialize(WINDOW_WIDTH, WINDOW_HEIGHT, vec3(0, 2.5, 10));
-	Scene scene("main.xml");
+
+	string path = "main.xml";
+	if (argc > 1) {
+		path = argv[1];
+		if (path.find(".xml") == string::npos) {
+			if (path.back() == '/' || path.back() == '\\')
+				path += "main.xml";
+			else
+				path += "/main.xml";
+		}
+	}
+	Scene scene(path);
 
 	// FPS counter
 	double dt = 0;

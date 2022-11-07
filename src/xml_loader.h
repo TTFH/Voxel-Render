@@ -23,6 +23,7 @@ struct scene_t {
 
 class Scene {
 private:
+	string parent_folder;
 	vector<scene_t> shapes;
 	map<string, VoxLoader*> models;
 	vector<RopeRender*> ropes;
@@ -30,7 +31,7 @@ private:
 	vector<VoxboxRender*> voxboxes;
 	void RecursiveLoad(XMLElement* element, vec3 parent_pos, quat parent_rot);
 public:
-	Scene(const char* filename);
+	Scene(string path);
 	~Scene();
 	void draw(Shader& shader, Camera& camera);
 	void drawRope(Shader& shader, Camera& camera);

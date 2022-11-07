@@ -40,7 +40,6 @@ void Scene::RecursiveLoad(XMLElement* element, vec3 parent_pos, quat parent_rot)
 		//vec3 euler = eulerAngles(rotation);
 		//if (abs(x - degrees(euler.x)) > 1 || abs(y - degrees(euler.y)) > 1 || abs(z - degrees(euler.z)) > 1)
 		//	printf("[ERROR] Euler angles don't match: %d %d %d != %d %d %d\n", (int)x, (int)y, (int)z, (int)degrees(euler.x), (int)degrees(euler.y), (int)degrees(euler.z));
-		
 	}
 	position = parent_rot * position + parent_pos;
 	rotation = parent_rot * rotation;
@@ -53,7 +52,7 @@ void Scene::RecursiveLoad(XMLElement* element, vec3 parent_pos, quat parent_rot)
 			exit(EXIT_FAILURE);
 		}
 		if (strncmp(file, "MOD/", 4) == 0)
-			vox.file = file + 4;
+			vox.file = parent_folder + string(file + 4);
 		else
 			vox.file = file;
 		if (models.find(vox.file) == models.end()) {
@@ -133,12 +132,13 @@ void Scene::RecursiveLoad(XMLElement* element, vec3 parent_pos, quat parent_rot)
 		RecursiveLoad(child, position, rotation);
 }
 
-Scene::Scene(const char* filename) {
+Scene::Scene(string path) {
 	XMLDocument xml_file;
-	if (xml_file.LoadFile(filename) != XML_SUCCESS) {
-		printf("[WARNING] File %s not found.\n", filename);
+	if (xml_file.LoadFile(path.c_str()) != XML_SUCCESS) {
+		printf("[WARNING] File %s not found.\n", path.c_str());
 		return;
 	}
+	parent_folder = path.substr(0, path.find_last_of("/\\") + 1);
 	XMLElement* root = xml_file.RootElement();
 	//iterate_xml(root, 0);
 	vec3 position = vec3(0, 0, 0);
