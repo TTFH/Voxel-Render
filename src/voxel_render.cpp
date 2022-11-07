@@ -1,4 +1,6 @@
+#include "ebo.h"
 #include "voxel_render.h"
+#include <glm/gtc/type_ptr.hpp>
 
 VoxelRender::VoxelRender(vector<MV_Voxel> voxels, GLuint texture_id) {
 	this->texture_id = texture_id;

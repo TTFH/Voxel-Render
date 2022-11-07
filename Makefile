@@ -22,7 +22,7 @@ endif
 
 ifeq ($(OS), Windows_NT)
 	ECHO_MESSAGE = "MinGW"
-	CXXFLAGS += -Wno-array-bounds
+	CXXFLAGS += -Wno-array-bounds -Wno-missing-field-initializers
 	LIBS = -lglfw3
 endif
 

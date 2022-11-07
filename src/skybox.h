@@ -1,8 +1,10 @@
 #ifndef SKYBOX_H
 #define SKYBOX_H
 
-#include "shader.h"
+#include "../glad/glad.h"
+
 #include "camera.h"
+#include "shader.h"
 
 class Skybox {
 private:

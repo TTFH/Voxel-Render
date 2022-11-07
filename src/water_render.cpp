@@ -1,4 +1,5 @@
 #include "water_render.h"
+#include <glm/gtc/type_ptr.hpp>
 
 WaterRender::WaterRender(vector<vec2> vertices) {
 	vertex_count = vertices.size();

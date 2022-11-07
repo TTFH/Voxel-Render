@@ -1,7 +1,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
-
+#include <glm/gtx/euler_angles.hpp>
 #include "xml_loader.h"
 
 // Example of how to use tinyxml2

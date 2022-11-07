@@ -1,8 +1,14 @@
+#include <stdio.h>
+#include "glad/glad.h"
+#include <GLFW/glfw3.h>
+
+#include "src/camera.h"
+#include "src/shader.h"
 #include "src/skybox.h"
 #include "src/xml_loader.h"
 
-using namespace std;
-using namespace glm;
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "lib/stb_image_write.h"
 
 const float FAR_PLANE = 500;
 const unsigned int WINDOW_WIDTH = 1024;
@@ -34,10 +40,32 @@ GLFWwindow* InitOpenGL(const char* window_title) {
 Camera camera;
 bool fullscreen = false;
 
-void fullscreen_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+void FlipImageVertically(int width, int height, uint8_t* data) {
+	uint8_t rgb[3];
+	for (int y = 0; y < height / 2; y++) {
+		for (int x = 0; x < width; x++) {
+			int top = (x + y * width) * 3;
+			int bottom = (x + (height - y - 1) * width) * 3;
+
+			memcpy(rgb, data + top, sizeof(rgb));
+			memcpy(data + top, data + bottom, sizeof(rgb));
+			memcpy(data + bottom, rgb, sizeof(rgb));
+		}
+	}
+}
+
+void key_press_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
 	(void)window; (void)scancode; (void)mods;
     if (action == GLFW_RELEASE) return;
-    if (key == GLFW_KEY_F11) {
+	if (key == GLFW_KEY_F10) {
+		int width, height;
+		glfwGetFramebufferSize(window, &width, &height);
+		uint8_t* pixels = new uint8_t[width * height * 3];
+		glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, pixels);
+		FlipImageVertically(width, height, pixels);
+		stbi_write_png("screenshot.png", width, height, 3, pixels, 3 * width);
+		delete[] pixels;
+	} else if (key == GLFW_KEY_F11) {
 		fullscreen = !fullscreen;
 		if (fullscreen) {
 			GLFWmonitor* monitor = glfwGetPrimaryMonitor();
@@ -65,7 +93,7 @@ int main() {
 	Shader voxbox_shader("shaders/voxbox_vert.glsl", "shaders/voxbox_frag.glsl");
 	Shader skybox_shader("shaders/skybox_vert.glsl", "shaders/skybox_frag.glsl");
 
-	//Skybox skybox(skybox_shader, (float)WINDOW_WIDTH / WINDOW_HEIGHT);
+	Skybox skybox(skybox_shader, (float)WINDOW_WIDTH / WINDOW_HEIGHT);
 	camera.initialize(WINDOW_WIDTH, WINDOW_HEIGHT, vec3(0, 2.5, 10));
 	Scene scene("main.xml");
 
@@ -83,7 +111,7 @@ int main() {
 	glFrontFace(GL_CCW);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	glfwSetKeyCallback(window, fullscreen_callback);
+	glfwSetKeyCallback(window, key_press_callback);
 
 	while (!glfwWindowShouldClose(window)) {
 		actual_time = glfwGetTime();
@@ -114,7 +142,7 @@ int main() {
 		scene.drawWater(water_shader, camera);
 		glDisable(GL_BLEND);
 
-		//skybox.Draw(skybox_shader, camera);
+		skybox.Draw(skybox_shader, camera);
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}

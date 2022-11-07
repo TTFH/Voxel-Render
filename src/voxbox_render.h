@@ -2,9 +2,11 @@
 #define VOXBOX_RENDER_H
 
 #include "vao.h"
-#include "ebo.h"
 #include "camera.h"
 #include "shader.h"
+#include <glm/gtc/quaternion.hpp>
+
+using namespace glm;
 
 class VoxboxRender {
 private:

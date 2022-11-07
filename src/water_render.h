@@ -4,6 +4,9 @@
 #include "vao.h"
 #include "camera.h"
 #include "shader.h"
+#include <glm/gtc/quaternion.hpp>
+
+using namespace glm;
 
 class WaterRender {
 private:

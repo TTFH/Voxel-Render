@@ -1,8 +1,8 @@
 #ifndef EBO_H
 #define EBO_H
 
-#include <vector>
 #include "../glad/glad.h"
+#include <vector>
 
 using namespace std;
 

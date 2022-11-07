@@ -1,12 +1,10 @@
 #ifndef GREEDY_MESH_H
 #define GREEDY_MESH_H
 
-#include <vector>
-#include <stdint.h>
 #include <glm/glm.hpp>
+#include <vector>
 
 #include "vao.h"
-#include "ebo.h"
 #include "camera.h"
 #include "shader.h"
 

@@ -1,3 +1,5 @@
+#include <glm/gtc/type_ptr.hpp>
+#include "ebo.h"
 #include "greedy_mesh.h"
 
 // Based on: https://0fps.net/2012/07/07/meshing-minecraft-part-2/

@@ -3,9 +3,9 @@
 
 #define GREADY_MESHING_ENABLED 1
 
-#include <stdint.h>
-#include <string>
 #include <map>
+#include <string>
+#include <stdint.h>
 
 #include "camera.h"
 #include "shader.h"

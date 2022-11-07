@@ -1,13 +1,13 @@
 #ifndef VBO_H
 #define VBO_H
 
-#include <vector>
-
 #include "../glad/glad.h"
 #include <glm/glm.hpp>
+#include <stdint.h>
+#include <vector>
 
-using namespace glm;
 using namespace std;
+using namespace glm;
 
 struct MV_Voxel {
 	uint8_t x, y, z, index;

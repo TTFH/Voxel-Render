@@ -1,5 +1,4 @@
 #include <stdio.h>
-
 #include "vox_loader.h"
 
 constexpr int ID(char a, char b, char c, char d) {

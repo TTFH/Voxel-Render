@@ -1,3 +1,5 @@
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include "rope_render.h"
 
 RopeRender::RopeRender(vector<vec3> points, vec3 color) {

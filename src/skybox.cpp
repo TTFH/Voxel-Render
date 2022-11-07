@@ -1,5 +1,8 @@
 #include "skybox.h"
 
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
 #define STB_IMAGE_IMPLEMENTATION
 #include "../lib/stb_image.h"
 

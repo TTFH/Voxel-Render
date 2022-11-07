@@ -1,4 +1,6 @@
+#include "ebo.h"
 #include "voxbox_render.h"
+#include <glm/gtc/type_ptr.hpp>
 
 VoxboxRender::VoxboxRender(vec3 size, vec3 color) {
 	this->size = size;

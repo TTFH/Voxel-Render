@@ -2,13 +2,15 @@
 #define XML_LOADER_H
 
 #include <map>
+#include <string>
+#include <vector>
+
 #include "vox_loader.h"
 #include "rope_render.h"
 #include "water_render.h"
 #include "voxbox_render.h"
 #include "../lib/tinyxml2.h"
 
-using namespace std;
 using namespace tinyxml2;
 
 struct scene_t {
