@@ -16,13 +16,13 @@ const unsigned int WINDOW_WIDTH = 1024;
 const unsigned int WINDOW_HEIGHT = 720;
 
 // TODO: Load MV PBR
-// TODO: transparent glass
+// TODO: Transparent glass
 
 GLFWwindow* InitOpenGL(const char* window_title) {
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
-	//glfwWindowHint(GLFW_SAMPLES, 8); // MSAA
+	glfwWindowHint(GLFW_SAMPLES, 8); // MSAA
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	GLFWwindow* window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, window_title, NULL, NULL);

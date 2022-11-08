@@ -2,6 +2,8 @@
 #include "ebo.h"
 #include "greedy_mesh.h"
 
+const uint8_t HOLE = 255;
+
 // Based on: https://0fps.net/2012/07/07/meshing-minecraft-part-2/
 GreedyMesh generateGreedyMesh(MV_Shape shape) {
 	uint8_t*** voxels = new uint8_t**[shape.sizex];
@@ -16,7 +18,8 @@ GreedyMesh generateGreedyMesh(MV_Shape shape) {
 
 	for (unsigned int i = 0; i < shape.voxels.size(); i++) {
 		MV_Voxel v = shape.voxels[i];
-		voxels[v.x][v.y][v.z] = v.index;
+		if (v.index != HOLE)
+			voxels[v.x][v.y][v.z] = v.index;
 	}
 
 	auto GetVoxelAt = [&](int x, int y, int z) -> uint8_t {

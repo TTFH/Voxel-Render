@@ -3,5 +3,7 @@ obj/*.o
 vox_render
 vox_render.exe
 screenshot_*.png
-hub_carib_sandbox/
+
 castle.vox
+marina_sandbox/
+hub_carib_sandbox/
