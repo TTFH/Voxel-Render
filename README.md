@@ -24,7 +24,7 @@ Render the castle scene:
 Extract castle.7z  
 `./vox_render main.xml`  
 
-Render a converted Teardown map:
+Render a converted Teardown map:  
 `./vox_render marina_sandbox/main.xml`  
 
-![img0](https://github.com/TTFH/Voxel-Render/blob/e57db0be0b18ef2de9a2b6e52d53666dd5d5685e/img2.png)
+![img0](https://github.com/TTFH/Voxel-Render/blob/0975fe6f830e005a112d559c4a423612f18e579f/img0.png)
