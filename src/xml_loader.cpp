@@ -144,7 +144,7 @@ Scene::Scene(string path) {
 	vec3 position = vec3(0, 0, 0);
 	quat rotation = quat(1, 0, 0, 0);
 	RecursiveLoad(root, position, rotation);
-	printf("Loaded %d shapes, %d voxbox, %d water, %d rope\n", (int)shapes.size(), (int)voxboxes.size(), (int)waters.size(), (int)ropes.size());
+	printf("Loaded %d files, %d voxbox, %d water, %d rope\n", (int)shapes.size(), (int)voxboxes.size(), (int)waters.size(), (int)ropes.size());
 }
 
 void Scene::draw(Shader& shader, Camera& camera) {

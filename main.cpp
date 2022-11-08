@@ -143,6 +143,8 @@ int main(int argc, char* argv[]) {
 
 		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 			glfwSetWindowShouldClose(window, true);
+		if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
+			printf("Camera position: (%.2f, %.2f, %.2f)\r", camera.position.x, camera.position.y, camera.position.z);
 
 		camera.handleInputs(window);
 		camera.updateMatrix(45, 0.1, FAR_PLANE);

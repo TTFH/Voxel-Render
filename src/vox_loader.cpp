@@ -65,27 +65,25 @@ DICT ReadDict(FILE* file) {
 	return dict;
 }
 
-int ReadHeader(FILE* file) {
+int ReadHeader(const char* filename, FILE* file) {
 	int magic = ReadInt(file);
 	if (magic != VOX) {
-		printf("[ERROR] Invalid .vox file.\n");
+		printf("[ERROR] Invalid .vox file format.\n");
 		exit(EXIT_FAILURE);
 	}
 
 	int version = ReadInt(file);
-	if (version != VERSION) {
-		printf("[ERROR] Version does not match.\n");
-		exit(EXIT_FAILURE);
-	}
+	if (version != VERSION)
+		printf("[Warning] Version mismatch is file %s\n", filename);
 
 	Chunk mainChunk;
 	ReadChunk(file, mainChunk);
 	if (mainChunk.id != MAIN) {
-		printf("[ERROR] Main chunk not found.\n");
+		printf("[ERROR] MV Main chunk not found.\n");
 		exit(EXIT_FAILURE);
 	}
 	if (mainChunk.contentSize != 0) {
-		printf("[ERROR] Main chunk content size is not zero.\n");
+		printf("[ERROR] MV Main chunk content size is not zero.\n");
 		exit(EXIT_FAILURE);
 	}
 	return mainChunk.end;
@@ -105,7 +103,7 @@ VoxLoader::VoxLoader(const char* filename) {
 		printf("[ERROR] File %s not found.\n", filename);
 		return;
 	}
-	int file_size = ReadHeader(file);
+	int file_size = ReadHeader(filename, file);
 
 	while (ftell(file) < file_size) {
 		Chunk sub;
@@ -212,7 +210,6 @@ VoxLoader::VoxLoader(const char* filename) {
 	}
 }
 
-// TODO: calculate position and rotation only once
 void VoxLoader::draw(Shader& shader, Camera& camera, vec3 position, quat rotation, float scale) {
 	for (mv_model_iterator it = models.begin(); it != models.end(); it++) {
 		int index = it->second.shape_index;
@@ -232,7 +229,6 @@ void VoxLoader::draw(Shader& shader, Camera& camera, string shape_name, vec3 pos
 	pair<mv_model_iterator, mv_model_iterator> homonym_shapes = models.equal_range(shape_name);
 	for (mv_model_iterator it = homonym_shapes.first; it != homonym_shapes.second; it++) {
 		int index = it->second.shape_index;
-		// TODO: fix position / rotation of some shapes
 		const MV_Shape& shape = shapes[index];
 		vec3 pos = it->second.rotation * vec3(-shape.sizex / 2, -shape.sizey / 2, 0);
 		render[index]->setTransform(pos, it->second.rotation);

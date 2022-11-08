@@ -24,13 +24,27 @@ Skybox::Skybox(Shader& shader, float aspectRatio) {
 	glBindVertexArray(0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
+/*
+	./cmft --input "day.dds" --output0 "cmft_facelist" --output0params tga,bgra8,facelist
+	Convert tga to png
+	Rename:
+		neg_x	left
+		neg_y	bottom
+		neg_z	back
+		pos_x	right
+		pos_y	top
+		pos_z	front
+	Flip vertically
+	Apply gamma correction in shader
+*/
+
 	const char* facesCubemap[6] = {
-		"skybox/right.jpg",
-		"skybox/left.jpg",
-		"skybox/top.jpg",
-		"skybox/bottom.jpg",
-		"skybox/front.jpg",
-		"skybox/back.jpg"
+		"skybox/right.png",
+		"skybox/left.png",
+		"skybox/top.png",
+		"skybox/bottom.png",
+		"skybox/front.png",
+		"skybox/back.png",
 	};
 
 	glGenTextures(1, &cubemapTexture);

@@ -9,6 +9,7 @@ UNAME_S := $(shell uname -s)
 
 CXX = g++
 CXXFLAGS = -Wall -Wextra -Werror -Wpedantic -Ilib -O3
+CXXFLAGS += -Wno-missing-field-initializers
 
 ##---------------------------------------------------------------------
 ## BUILD FLAGS PER PLATFORM
@@ -22,7 +23,7 @@ endif
 
 ifeq ($(OS), Windows_NT)
 	ECHO_MESSAGE = "MinGW"
-	CXXFLAGS += -Wno-array-bounds -Wno-missing-field-initializers
+	CXXFLAGS += -Wno-array-bounds
 	LIBS = -lglfw3
 endif
 

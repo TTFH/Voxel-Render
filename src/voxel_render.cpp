@@ -39,7 +39,7 @@ void VoxelRender::draw(Shader& shader, Camera& camera, float scale) {
 	shader.Use();
 	vao.Bind();
 	camera.pushMatrix(shader, "camera");
-	glUniform3f(glGetUniformLocation(shader.id, "lightpos"), camera.position.x, camera.position.y, camera.position.z);
+	glUniform3f(glGetUniformLocation(shader.id, "lightpos"), 0, 180, -165);
 
 	mat4 pos = translate(mat4(1.0f), position);
 	mat4 rot = mat4_cast(rotation);

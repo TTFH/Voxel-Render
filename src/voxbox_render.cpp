@@ -25,7 +25,7 @@ void VoxboxRender::draw(Shader& shader, Camera& camera) {
 	vao.Bind();
 	camera.pushMatrix(shader, "camera");
 	glUniform3f(glGetUniformLocation(shader.id, "color"), color.x, color.y, color.z);
-	glUniform3f(glGetUniformLocation(shader.id, "lightpos"), 150, 110, -300);
+	glUniform3f(glGetUniformLocation(shader.id, "lightpos"), 0, 180, -165);
 
 	mat4 pos = translate(mat4(1.0f), position);
 	mat4 rot = mat4_cast(rotation);
@@ -34,6 +34,5 @@ void VoxboxRender::draw(Shader& shader, Camera& camera) {
 	glUniformMatrix4fv(glGetUniformLocation(shader.id, "rotation"), 1, GL_FALSE, value_ptr(rot));
 
 	glDrawElements(GL_TRIANGLES, sizeof(cube_indices) / sizeof(GLuint), GL_UNSIGNED_INT, 0);
-	//glDrawArrays(GL_QUADS, 0, 24);
 	vao.Unbind();
 }

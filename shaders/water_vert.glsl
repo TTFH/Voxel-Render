@@ -8,6 +8,6 @@ uniform mat4 rotation;
 out vec3 normal;
 
 void main() {
-	gl_Position = camera * position * rotation * vec4(aPos.x, 0.02f, aPos.y, 1.0f);
+	gl_Position = camera * position * rotation * vec4(aPos.x, 0.05f, aPos.y, 1.0f);
 	normal = (rotation * vec4(0.0f, 1.0f, 0.0f, 1.0f)).xyz;
 }
