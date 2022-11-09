@@ -14,8 +14,8 @@ const int TDCZ = ID('T', 'D', 'C', 'Z');
 const int RGBA = ID('R', 'G', 'B', 'A');
 const int nTRN = ID('n', 'T', 'R', 'N');
 const int nSHP = ID('n', 'S', 'H', 'P');
-const int IMAP = ID('I', 'M', 'A', 'P');
 
+const int IMAP = ID('I', 'M', 'A', 'P');
 const int MATL = ID('M', 'A', 'T', 'L');
 const int nGRP = ID('n', 'G', 'R', 'P');
 const int LAYR = ID('L', 'A', 'Y', 'R');
@@ -65,6 +65,14 @@ DICT ReadDict(FILE* file) {
 	return dict;
 }
 
+string GetDictValue(DICT& dict, string key) {
+	DICT::iterator it = dict.find(key);
+	if (it != dict.end()) {
+		return it->second;
+	}
+	return "";
+}
+
 int ReadHeader(const char* filename, FILE* file) {
 	int magic = ReadInt(file);
 	if (magic != VOX) {
@@ -74,7 +82,7 @@ int ReadHeader(const char* filename, FILE* file) {
 
 	int version = ReadInt(file);
 	if (version != VERSION)
-		printf("[Warning] Version mismatch is file %s\n", filename);
+		printf("[Warning] Version mismatch in file %s\n", filename);
 
 	Chunk mainChunk;
 	ReadChunk(file, mainChunk);
@@ -154,15 +162,14 @@ VoxLoader::VoxLoader(const char* filename) {
 							position[1] = stoi(pos.substr(end1), &end2);
 							position[2] = stoi(pos.substr(end1 + end2));
 						} else if (it->first == "_r") {
-							int v, x, y, z;
-							v = stoi(it->second);
-							x = (v >> 0) & 3;
-							y = (v >> 2) & 3;
-							z = 3 - x - y;
+							int v = stoi(it->second);
+							int x = (v >> 0) & 3;
+							int y = (v >> 2) & 3;
+							int z = 3 - x - y;
 							rot_matrix = mat3(0.0f);
-							rot_matrix[x][0] = (v >> 4) & 1 ? -1 : 1;
-							rot_matrix[y][1] = (v >> 5) & 1 ? -1 : 1;
-							rot_matrix[z][2] = (v >> 6) & 1 ? -1 : 1;
+							rot_matrix[0][x] = (v >> 4) & 1 ? -1 : 1;
+							rot_matrix[1][y] = (v >> 5) & 1 ? -1 : 1;
+							rot_matrix[2][z] = (v >> 6) & 1 ? -1 : 1;
 							/*printf("Rot byte: 0x%02X\n", v);
 							printf("    [%2d %2d %2d]\nR = [%2d %2d %2d]\n    [%2d %2d %2d]\n\n",
 								(int)rot_matrix[0][0], (int)rot_matrix[0][1], (int)rot_matrix[0][2],
@@ -175,7 +182,7 @@ VoxLoader::VoxLoader(const char* filename) {
 				last_inserted = models.emplace_hint(last_inserted, shape_name, data);
 			}
 			break;
-			case nSHP: {
+		case nSHP: {
 				ReadInt(file);
 				ReadDict(file);
 				int num_models = ReadInt(file);
@@ -186,6 +193,13 @@ VoxLoader::VoxLoader(const char* filename) {
 				}
 			}
 			break;
+		/*case MATL: {
+				int material_id = ReadInt(file);
+				DICT mat_properties = ReadDict(file);
+				if (GetDictValue(mat_properties, "_type") == "_glass" && GetDictValue(mat_properties, "_alpha") != "1.0")
+					palette[material_id % 256].a = 0.5;
+			}
+			break;*/
 		default:
 			break;
 		}

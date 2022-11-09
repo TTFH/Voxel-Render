@@ -85,7 +85,7 @@ void key_press_callback(GLFWwindow* window, int key, int scancode, int action, i
 int main(int argc, char* argv[]) {
 	GLFWwindow* window = InitOpenGL("OpenGL");
 #if GREADY_MESHING_ENABLED
-	Shader voxel_shader("shaders/mesh_vert.glsl", "shaders/mesh_frag.glsl");
+	Shader voxel_shader("shaders/voxel_gm_vert.glsl", "shaders/voxel_frag.glsl");
 #else
 	Shader voxel_shader("shaders/voxel_vert.glsl", "shaders/voxel_frag.glsl");
 #endif

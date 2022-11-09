@@ -14,8 +14,8 @@ VoxelRender::VoxelRender(vector<MV_Voxel> voxels, GLuint texture_id) {
 
 	VBO instaceVBO(voxels);
 	instaceVBO.Bind();
-	vao.LinkAttrib(instaceVBO, 2, 3, GL_UNSIGNED_BYTE, sizeof(MV_Voxel), (GLvoid*)0);					  // Relative position
-	vao.LinkAttrib(instaceVBO, 3, 1, GL_UNSIGNED_BYTE, sizeof(MV_Voxel), (GLvoid*)(3 * sizeof(uint8_t))); // Texture coord
+	vao.LinkAttrib(instaceVBO, 2, 1, GL_UNSIGNED_BYTE, sizeof(MV_Voxel), (GLvoid*)(3 * sizeof(uint8_t))); // Texture coord
+	vao.LinkAttrib(instaceVBO, 3, 3, GL_UNSIGNED_BYTE, sizeof(MV_Voxel), (GLvoid*)0);					  // Relative position
 	glVertexAttribDivisor(2, 1);
 	glVertexAttribDivisor(3, 1);
 	instaceVBO.Unbind();
