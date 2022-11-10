@@ -13,16 +13,22 @@ VBO::VBO(vector<vec3>& vertices) {
 	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(vec3), vertices.data(), GL_STATIC_DRAW);
 }
 
-VBO::VBO(vector<Vertex>& vertices) {
+VBO::VBO(vector<GM_Vertex>& vertices) {
 	glGenBuffers(1, &vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GM_Vertex), vertices.data(), GL_STATIC_DRAW);
 }
 
 VBO::VBO(vector<MV_Voxel>& vertices) {
 	glGenBuffers(1, &vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(MV_Voxel), vertices.data(), GL_STATIC_DRAW);
+}
+
+VBO::VBO(vector<MeshVertex>& vertices) {
+	glGenBuffers(1, &vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(MeshVertex), vertices.data(), GL_STATIC_DRAW);
 }
 
 VBO::VBO(const GLfloat* vertices, GLsizeiptr size) {

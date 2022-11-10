@@ -3,10 +3,14 @@
 #include "glad/glad.h"
 #include <GLFW/glfw3.h>
 
+#include "src/mesh.h"
 #include "src/camera.h"
 #include "src/shader.h"
 #include "src/skybox.h"
 #include "src/xml_loader.h"
+
+#define STB_IMAGE_IMPLEMENTATION
+#include "../lib/stb_image.h"
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "lib/stb_image_write.h"
@@ -16,7 +20,7 @@ const unsigned int WINDOW_WIDTH = 1024;
 const unsigned int WINDOW_HEIGHT = 720;
 
 // TODO: Load MV PBR
-// TODO: Transparent glass
+// TODO: Shadows and AO
 
 GLFWwindow* InitOpenGL(const char* window_title) {
 	glfwInit();
@@ -93,6 +97,7 @@ int main(int argc, char* argv[]) {
 	Shader water_shader("shaders/water_vert.glsl", "shaders/water_frag.glsl");
 	Shader voxbox_shader("shaders/voxbox_vert.glsl", "shaders/voxbox_frag.glsl");
 	Shader skybox_shader("shaders/skybox_vert.glsl", "shaders/skybox_frag.glsl");
+	//Shader mesh_shader("shaders/mesh_vert.glsl", "shaders/mesh_frag.glsl");
 
 	Skybox skybox(skybox_shader, (float)WINDOW_WIDTH / WINDOW_HEIGHT);
 	camera.initialize(WINDOW_WIDTH, WINDOW_HEIGHT, vec3(0, 2.5, 10));
@@ -108,6 +113,17 @@ int main(int argc, char* argv[]) {
 		}
 	}
 	Scene scene(path);
+
+	/*vector<Texture> model_textures = {
+		Texture("meshes/CAT_140M3.png", "diffuse", 0),
+		Texture("meshes/CAT_140M3_specular.png", "specular", 1),
+		//Texture("meshes/CAT_140M3_normal.png", "normal", 2),
+	};
+	Mesh model("meshes/CAT_140M3.obj", model_textures);
+	vector<Texture> glass_textures = {
+		Texture("meshes/glass.png", "diffuse", 0),
+	};
+	Mesh glass("meshes/CAT_140M3_glass.obj", glass_textures);*/
 
 	// FPS counter
 	double dt = 0;
@@ -148,6 +164,9 @@ int main(int argc, char* argv[]) {
 
 		camera.handleInputs(window);
 		camera.updateMatrix(45, 0.1, FAR_PLANE);
+
+		//glass.Draw(mesh_shader, camera, vec3(12, 4.3, 30), angleAxis(radians(170.0f), vec3(0, 1, 0)));
+		//model.Draw(mesh_shader, camera, vec3(12, 4.3, 30), angleAxis(radians(170.0f), vec3(0, 1, 0)));
 
 		scene.draw(voxel_shader, camera);
 		scene.drawVoxbox(voxbox_shader, camera);

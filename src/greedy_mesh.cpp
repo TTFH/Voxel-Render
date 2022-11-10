@@ -145,9 +145,9 @@ FastRender::FastRender(MV_Shape shape, GLuint texture_id) {
 	VBO vbo(mesh.vertices);
 	EBO ebo(mesh.indices);
 
-	vao.LinkAttrib(vbo, 0, 3, GL_FLOAT, sizeof(Vertex), (GLvoid*)0); // Vertex position
-	vao.LinkAttrib(vbo, 1, 3, GL_FLOAT, sizeof(Vertex), (GLvoid*)(3 * sizeof(GLfloat))); // Normal
-	vao.LinkAttrib(vbo, 2, 1, GL_UNSIGNED_BYTE, sizeof(Vertex), (GLvoid*)(6 * sizeof(GLfloat))); // Texture coord
+	vao.LinkAttrib(vbo, 0, 3, GL_FLOAT, sizeof(GM_Vertex), (GLvoid*)0);								// Vertex position
+	vao.LinkAttrib(vbo, 1, 3, GL_FLOAT, sizeof(GM_Vertex), (GLvoid*)(3 * sizeof(GLfloat)));			// Normal
+	vao.LinkAttrib(vbo, 2, 1, GL_UNSIGNED_BYTE, sizeof(GM_Vertex), (GLvoid*)(6 * sizeof(GLfloat))); // Texture coord
 
 	vao.Unbind();
 	vbo.Unbind();

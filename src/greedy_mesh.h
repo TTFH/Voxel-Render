@@ -14,7 +14,7 @@ struct MV_Shape {
 };
 
 struct GreedyMesh {
-	vector<Vertex> vertices;
+	vector<GM_Vertex> vertices;
 	vector<GLuint> indices;
 };
 
