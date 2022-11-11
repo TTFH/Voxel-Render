@@ -97,7 +97,7 @@ Mesh::Mesh(const char* path, vector<Texture>& textures) {
 	vbo.Unbind();
 }
 
-void Mesh::Draw(Shader& shader, Camera& camera, vec3 translation, quat rotation) {
+void Mesh::draw(Shader& shader, Camera& camera, vec3 translation, quat rotation) {
 	shader.Use();
 	vao.Bind();
 
@@ -129,5 +129,6 @@ void Mesh::Draw(Shader& shader, Camera& camera, vec3 translation, quat rotation)
 	mat4 rot = mat4_cast(rotation);
 	glUniformMatrix4fv(glGetUniformLocation(shader.id, "position"), 1, GL_FALSE, value_ptr(trans));
 	glUniformMatrix4fv(glGetUniformLocation(shader.id, "rotation"), 1, GL_FALSE, value_ptr(rot));
+	glUniform1f(glGetUniformLocation(shader.id, "scale"), 0.0f); // Flag: not a voxel model
 	glDrawArrays(GL_TRIANGLES, 0, vertices.size());
 }

@@ -7,21 +7,21 @@
 Camera::Camera() { }
 
 void Camera::initialize(int width, int height, vec3 position) {
-	this->width = width;
-	this->height = height;
+	this->screen_width = width;
+	this->screen_height = height;
 	this->position = position;
 }
 
 void Camera::updateScreenSize(int width, int height) {
-	this->width = width;
-	this->height = height;
+	screen_width = width;
+	screen_height = height;
 }
 
 void Camera::updateMatrix(float FOVdeg, float nearPlane, float farPlane) {
 	mat4 view = mat4(1.0f);
 	mat4 projection = mat4(1.0f);
 	view = lookAt(position, position + orientation, up);
-	projection = perspective(radians(FOVdeg), (float)width / height, nearPlane, farPlane);
+	projection = perspective(radians(FOVdeg), (float)screen_width / screen_height, nearPlane, farPlane);
 	cameraMatrix = projection * view;
 }
 
@@ -52,21 +52,21 @@ void Camera::handleInputs(GLFWwindow* window) {
 		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
 		if (firstClick) {
-			glfwSetCursorPos(window, width / 2, height / 2);
+			glfwSetCursorPos(window, screen_width / 2, screen_height / 2);
 			firstClick = false;
 		}
 
 		double mouseX;
 		double mouseY;
 		glfwGetCursorPos(window, &mouseX, &mouseY);
-		float rotX = sensitivity * (float)(mouseY - (height / 2)) / height;
-		float rotY = sensitivity * (float)(mouseX - (width / 2)) / width;
+		float rotX = sensitivity * (float)(mouseY - (screen_height / 2)) / screen_height;
+		float rotY = sensitivity * (float)(mouseX - (screen_width / 2)) / screen_width;
 
 		vec3 neworientation = rotate(orientation, radians(-rotX), normalize(cross(orientation, up)));
 		if (abs(angle(neworientation, up) - radians(90.0f)) <= radians(85.0f))
 			orientation = neworientation;
 		orientation = rotate(orientation, radians(-rotY), up);
-		glfwSetCursorPos(window, width / 2, height / 2);
+		glfwSetCursorPos(window, screen_width / 2, screen_height / 2);
 	} else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE) {
 		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 		firstClick = true;

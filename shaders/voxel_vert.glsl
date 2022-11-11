@@ -5,11 +5,11 @@ layout(location = 2) in float aTexCoord;
 layout(location = 3) in vec3 aOffset;
 
 uniform mat4 camera;
+uniform float scale;
 uniform mat4 position;
 uniform mat4 rotation;
 uniform mat4 world_pos;
 uniform mat4 world_rot;
-uniform float scale;
 
 out vec3 normal;
 out float tex_coord;
