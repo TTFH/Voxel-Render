@@ -128,6 +128,7 @@ void Mesh::draw(Shader& shader, Camera& camera, vec3 translation, quat rotation)
 	mat4 rot = mat4_cast(rotation);
 	glUniformMatrix4fv(glGetUniformLocation(shader.id, "position"), 1, GL_FALSE, value_ptr(trans));
 	glUniformMatrix4fv(glGetUniformLocation(shader.id, "rotation"), 1, GL_FALSE, value_ptr(rot));
-	glUniform1f(glGetUniformLocation(shader.id, "scale"), 0.0f); // Flag: not a voxel model
+	glUniform1f(glGetUniformLocation(shader.id, "scale"), 0); // Flag: not a voxel
+	glUniform3f(glGetUniformLocation(shader.id, "size"), 0, 0, 0); // Flag: not a prism
 	glDrawArrays(GL_TRIANGLES, 0, vertices.size());
 }

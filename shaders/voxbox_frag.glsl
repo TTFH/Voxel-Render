@@ -8,7 +8,7 @@ in vec4 fragPosLight;
 
 out vec4 FragColor;
 
-void main() {
+float computeShadows() {
 	float shadow = 0.0f;
 	vec3 lightCoords = fragPosLight.xyz / fragPosLight.w;
 	if(lightCoords.z <= 1.0f) {
@@ -28,7 +28,11 @@ void main() {
 		shadow /= pow((sampleRadius * 2 + 1), 2);
 	}
 	shadow *= 0.5f;
+	return shadow;
+}
 
+void main() {
+	float shadow = computeShadows();
 	float l = 0.6f + 0.4f * max(0.0f, dot(normalize(normal), normalize(lightpos)));
 	FragColor = vec4(color * l * (1.0f - shadow), 1.0f);
 }

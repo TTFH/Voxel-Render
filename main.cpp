@@ -45,7 +45,6 @@ void FlipImageVertically(int width, int height, uint8_t* data) {
 		for (int x = 0; x < width; x++) {
 			int top = 3 * (x + y * width);
 			int bottom = 3 * (x + (height - y - 1) * width);
-
 			memcpy(rgb, data + top, sizeof(rgb));
 			memcpy(data + top, data + bottom, sizeof(rgb));
 			memcpy(data + bottom, rgb, sizeof(rgb));
@@ -126,16 +125,77 @@ public:
 		glViewport(0, 0, camera.screen_width, camera.screen_height);
 	}
 
-	void PushShadows(Shader& shader, mat4& lightProjection) {
+	void PushShadows(Shader& shader, mat4 lightProjection) {
 		shader.Use();
 		glUniformMatrix4fv(glGetUniformLocation(shader.id, "lightProjection"), 1, GL_FALSE, value_ptr(lightProjection));
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, shadowMap);
 		glUniform1i(glGetUniformLocation(shader.id, "shadowMap"), 1);
 	}
+
 	~ShadowMap() {
 		glDeleteTextures(1, &shadowMap);
 		glDeleteFramebuffers(1, &shadowMapFBO);
+	}
+};
+
+class Light {
+private:
+	float altitude;
+	float radius;
+	float azimuth;
+	vec3 lightPos;
+	mat4 lightProjection;
+	VoxLoader model;
+
+	void updatePos(float altitude, float radius, float azimuth) {
+		lightPos = vec3(radius * cos(azimuth), altitude, radius * sin(azimuth));
+	}
+public:
+	Light(vec3 pos) : lightPos(pos) {
+		altitude = pos.y;
+		radius = sqrt(pos.x * pos.x + pos.z * pos.z);
+		azimuth = atan2(pos.z, pos.x);
+		model.load("light.vox");
+	}
+
+	void pushLight(Shader& shader) {
+		shader.Use();
+		glUniform3fv(glGetUniformLocation(shader.id, "lightpos"), 1, value_ptr(lightPos));
+	}
+
+	void pushProjection(Shader& shader) {
+		mat4 orthgonalProjection = ortho(-45.0f, 45.0f, -45.0f, 45.0f, 0.1f, 500.0f);
+		mat4 lightView = lookAt(lightPos, vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
+		lightProjection = orthgonalProjection * lightView;
+		shader.Use();
+		glUniformMatrix4fv(glGetUniformLocation(shader.id, "lightProjection"), 1, GL_FALSE, value_ptr(lightProjection));
+	}
+
+	mat4 getProjection() {
+		return lightProjection;
+	}
+
+	void handleInputs(GLFWwindow* window) {
+		if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+			altitude += 0.5f;
+		if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+			altitude -= 0.5f;
+		if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+			radius += 0.3f;
+		if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+			radius -= 0.3f;
+		if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+			azimuth += 0.01f;
+		if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+			azimuth -= 0.01f;
+		updatePos(altitude, radius, azimuth);
+		if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
+			printf("Light position: (%.2f, %.2f, %.2f)\n", lightPos.x, lightPos.y, lightPos.z);
+	}
+
+	void draw(Shader& shader, Camera& camera) {
+		model.draw(shader, camera, lightPos);
 	}
 };
 
@@ -154,24 +214,9 @@ int main(int argc, char* argv[]) {
 	Shader shadowmap_shader("shaders/shadowmap_vert.glsl", "shaders/shadowmap_frag.glsl");
 
 	ShadowMap shadow_map;
+	Light light(vec3(-35, 130, -132));
 	Skybox skybox(skybox_shader, (float)WINDOW_WIDTH / WINDOW_HEIGHT);
 	camera.initialize(WINDOW_WIDTH, WINDOW_HEIGHT, vec3(0, 2.5, 10));
-
-	vec3 lightPos = vec3(40, 180, -165);
-	voxel_shader.Use();
-	glUniform3fv(glGetUniformLocation(voxel_shader.id, "lightpos"), 1, value_ptr(lightPos));
-	mesh_shader.Use();
-	glUniform3fv(glGetUniformLocation(mesh_shader.id, "lightpos"), 1, value_ptr(lightPos));
-	water_shader.Use();
-	glUniform3fv(glGetUniformLocation(water_shader.id, "lightpos"), 1, value_ptr(lightPos));
-	voxbox_shader.Use();
-	glUniform3fv(glGetUniformLocation(voxbox_shader.id, "lightpos"), 1, value_ptr(lightPos));
-
-	mat4 orthgonalProjection = ortho(-45.0f, 45.0f, -45.0f, 45.0f, 0.1f, 500.0f);
-	mat4 lightView = lookAt(0.25f * lightPos, vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
-	mat4 lightProjection = orthgonalProjection * lightView;
-	shadowmap_shader.Use();
-	glUniformMatrix4fv(glGetUniformLocation(shadowmap_shader.id, "lightProjection"), 1, GL_FALSE, value_ptr(lightProjection));
 
 	string path = "main.xml";
 	if (argc > 1) {
@@ -226,9 +271,16 @@ int main(int argc, char* argv[]) {
 			counter = 0;
 		}
 
+		light.pushLight(voxel_shader);
+		light.pushLight(mesh_shader);
+		light.pushLight(water_shader);
+		light.pushLight(voxbox_shader);
+		light.pushProjection(shadowmap_shader);
+
 		shadow_map.BindShadowMap();
 		scene.draw(shadowmap_shader, camera);
-		//model.draw(shadowmap_shader, camera, vec3(12, 4.3, 30), angleAxis(radians(170.0f), vec3(0, 1, 0)));
+		scene.drawVoxbox(shadowmap_shader, camera);
+//		model.draw(shadowmap_shader, camera, vec3(12, 4.3, 30), angleAxis(radians(170.0f), vec3(0, 1, 0)));
 		shadow_map.UnbindShadowMap(camera);
 
 		glClearColor(0.35, 0.54, 0.8, 1);
@@ -237,21 +289,25 @@ int main(int argc, char* argv[]) {
 		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 			glfwSetWindowShouldClose(window, true);
 		if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
-			printf("Camera position: (%.2f, %.2f, %.2f)\r", camera.position.x, camera.position.y, camera.position.z);
+			printf("Camera position: (%.2f, %.2f, %.2f)\n", camera.position.x, camera.position.y, camera.position.z);
 
+		light.handleInputs(window);
 		camera.handleInputs(window);
 		camera.updateMatrix(45, 0.1, FAR_PLANE);
 
-		//glass.draw(mesh_shader, camera, vec3(12, 4.3, 30), angleAxis(radians(170.0f), vec3(0, 1, 0)));
-		//model.draw(mesh_shader, camera, vec3(12, 4.3, 30), angleAxis(radians(170.0f), vec3(0, 1, 0)));
+//		shadow_map.PushShadows(mesh_shader, light.getProjection());
+//		glass.draw(mesh_shader, camera, vec3(12, 4.3, 30), angleAxis(radians(170.0f), vec3(0, 1, 0)));
+//		model.draw(mesh_shader, camera, vec3(12, 4.3, 30), angleAxis(radians(170.0f), vec3(0, 1, 0)));
 
-		shadow_map.PushShadows(voxel_shader, lightProjection);
+		shadow_map.PushShadows(voxel_shader, light.getProjection());
 		scene.draw(voxel_shader, camera);
+		shadow_map.PushShadows(voxbox_shader, light.getProjection());
 		scene.drawVoxbox(voxbox_shader, camera);
 		scene.drawRope(rope_shader, camera);
 		glEnable(GL_BLEND);
 		scene.drawWater(water_shader, camera);
 		glDisable(GL_BLEND);
+		light.draw(voxel_shader, camera);
 
 		skybox.Draw(skybox_shader, camera);
 		glfwSwapBuffers(window);

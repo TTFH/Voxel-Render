@@ -27,4 +27,11 @@ Extract castle.7z
 Render a converted Teardown map:  
 `./vox_render marina_sandbox/main.xml`
 
+## Controls
+
+WASD, Space & Ctrl to move the camera  
+Hold Shift to move the camera faster  
+Mouse click + drag to look around  
+Arrow keys, Q & E to move the light
+
 ![img0](https://raw.githubusercontent.com/TTFH/Voxel-Render/main/screenshots/img0.png)

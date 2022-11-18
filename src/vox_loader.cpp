@@ -97,7 +97,13 @@ int ReadHeader(const char* filename, FILE* file) {
 	return mainChunk.end;
 }
 
+VoxLoader::VoxLoader() { }
+
 VoxLoader::VoxLoader(const char* filename) {
+	load(filename);
+}
+
+void VoxLoader::load(const char* filename) {
 	this->filename = filename;
 	vector<MV_Voxel> voxels;
 	int sizex = 0;

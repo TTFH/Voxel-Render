@@ -31,6 +31,7 @@ void VoxboxRender::draw(Shader& shader, Camera& camera) {
 	glUniform3f(glGetUniformLocation(shader.id, "size"), size.x, size.y, size.z);
 	glUniformMatrix4fv(glGetUniformLocation(shader.id, "position"), 1, GL_FALSE, value_ptr(pos));
 	glUniformMatrix4fv(glGetUniformLocation(shader.id, "rotation"), 1, GL_FALSE, value_ptr(rot));
+	glUniform1f(glGetUniformLocation(shader.id, "scale"), 0); // Flag: not an usual voxel
 
 	glDrawElements(GL_TRIANGLES, sizeof(cube_indices) / sizeof(GLuint), GL_UNSIGNED_INT, 0);
 	vao.Unbind();

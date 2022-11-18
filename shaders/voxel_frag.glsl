@@ -23,7 +23,7 @@ float logisticDepth(float depth) {
 	return 1 / (1 + exp(-steepness * (zval - offset)));
 }
 
-float calculateShadow() {
+float computeShadows() {
 	float shadow = 0.0f;
 	vec3 lightCoords = fragPosLight.xyz / fragPosLight.w;
 	if(lightCoords.z <= 1.0f) {
@@ -47,10 +47,10 @@ float calculateShadow() {
 }
 
 void main() {
-	float shadow = calculateShadow();
+	float shadow = computeShadows();
 	float l = 0.6f + 0.4f * max(0.0f, dot(normalize(normal), normalize(lightpos)));
-	vec4 color = texture(palette, (tex_coord + 0.5f) / 256.0f);
-	FragColor = vec4(color.rgb * l * (1.0f - shadow), 1.0f);
+	vec3 color = texture(palette, (tex_coord + 0.5f) / 256.0f).xyz;
+	FragColor = vec4(color * l * (1.0f - shadow), 1.0f);
 
 	// Debug normals
 	//FragColor = vec4((normal + 1.0f) / 2.0f, 1.0f);

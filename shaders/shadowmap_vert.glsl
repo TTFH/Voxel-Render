@@ -14,7 +14,8 @@ void main() {
 	vec4 currentPos = position * rotation * vec4(aPos, 1.0f);
 
 	// Voxbox
-	//vec4 currentPos = position * rotation * vec4(aPos * size, 10.0f);
+	if (size.x != 0.0f)
+		currentPos = position * rotation * vec4(aPos * size, 10.0f);
 
 	// Greedy Mesh Voxel
     if (scale > 0.0f) {

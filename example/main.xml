@@ -1,5 +1,5 @@
 <scene version="1.2.0">
-	<voxbox pos="-20 -0.1 -20" size="400 1 400" color="0.29 0.37 0.25"/>
+	<voxbox pos="-40 -0.1 -40" size="800 1 800" color="0.29 0.37 0.25"/>
 	<group name="cubes" pos="2 0 -6">
 		<voxbox pos="0 0 -1" size="10 10 10" color="1 0 0"/>
 		<voxbox pos="-1 0 0" size="10 10 10" color="0 0 1"/>
