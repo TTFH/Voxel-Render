@@ -46,5 +46,5 @@ void VBO::Unbind() {
 }
 
 VBO::~VBO() {
-	//glDeleteBuffers(1, &vbo);
+	glDeleteBuffers(1, &vbo);
 }

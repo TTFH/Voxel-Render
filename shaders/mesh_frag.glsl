@@ -34,4 +34,6 @@ vec4 directLight() {
 
 void main() {
 	FragColor = directLight();
+	// Debug normals
+	//FragColor = vec4((normal + 1.0f) / 2.0f, 1.0f);
 }

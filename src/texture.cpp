@@ -16,8 +16,10 @@ Texture::Texture(const char* path, const char* texType, GLuint slot) {
 	glBindTexture(GL_TEXTURE_2D, texture_id);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+	float clampColor[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, clampColor);
 
 	GLenum format = GL_RGB;
 	if (channels == 1)
@@ -25,7 +27,7 @@ Texture::Texture(const char* path, const char* texType, GLuint slot) {
 	else if (channels == 4)
 		format = GL_RGBA;
 
-	// Diffuse
+	// diffuse
 	GLenum internalformat = GL_RGBA; // GL_SRGB_ALPHA
 	if (strcmp(texType, "specular") == 0)
 		internalformat = GL_RED;
@@ -41,8 +43,8 @@ Texture::Texture(const char* path, const char* texType, GLuint slot) {
 }
 
 void Texture::texUnit(Shader& shader, const char* uniform, GLuint unit) {
-	GLuint texUnit = glGetUniformLocation(shader.id, uniform);
 	shader.Use();
+	GLuint texUnit = glGetUniformLocation(shader.id, uniform);
 	glUniform1i(texUnit, unit);
 }
 

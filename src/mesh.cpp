@@ -124,7 +124,6 @@ void Mesh::draw(Shader& shader, Camera& camera, vec3 translation, quat rotation)
 
 	camera.pushMatrix(shader, "camera");
 	glUniform3f(glGetUniformLocation(shader.id, "camera_pos"), camera.position.x, camera.position.y, camera.position.z);
-	glUniform3f(glGetUniformLocation(shader.id, "lightpos"), 0, 180, -165);
 	mat4 trans = translate(mat4(1.0f), translation);
 	mat4 rot = mat4_cast(rotation);
 	glUniformMatrix4fv(glGetUniformLocation(shader.id, "position"), 1, GL_FALSE, value_ptr(trans));

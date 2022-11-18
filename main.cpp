@@ -133,6 +133,10 @@ public:
 		glBindTexture(GL_TEXTURE_2D, shadowMap);
 		glUniform1i(glGetUniformLocation(shader.id, "shadowMap"), 1);
 	}
+	~ShadowMap() {
+		glDeleteTextures(1, &shadowMap);
+		glDeleteFramebuffers(1, &shadowMapFBO);
+	}
 };
 
 int main(int argc, char* argv[]) {
@@ -142,18 +146,27 @@ int main(int argc, char* argv[]) {
 #else
 	Shader voxel_shader("shaders/voxel_vert.glsl", "shaders/voxel_frag.glsl");
 #endif
+	Shader mesh_shader("shaders/mesh_vert.glsl", "shaders/mesh_frag.glsl");
 	Shader rope_shader("shaders/rope_vert.glsl", "shaders/rope_frag.glsl");
 	Shader water_shader("shaders/water_vert.glsl", "shaders/water_frag.glsl");
 	Shader voxbox_shader("shaders/voxbox_vert.glsl", "shaders/voxbox_frag.glsl");
 	Shader skybox_shader("shaders/skybox_vert.glsl", "shaders/skybox_frag.glsl");
-	Shader mesh_shader("shaders/mesh_vert.glsl", "shaders/mesh_frag.glsl");
 	Shader shadowmap_shader("shaders/shadowmap_vert.glsl", "shaders/shadowmap_frag.glsl");
 
 	ShadowMap shadow_map;
 	Skybox skybox(skybox_shader, (float)WINDOW_WIDTH / WINDOW_HEIGHT);
 	camera.initialize(WINDOW_WIDTH, WINDOW_HEIGHT, vec3(0, 2.5, 10));
 
-	vec3 lightPos = vec3(0, 180, -165);
+	vec3 lightPos = vec3(40, 180, -165);
+	voxel_shader.Use();
+	glUniform3fv(glGetUniformLocation(voxel_shader.id, "lightpos"), 1, value_ptr(lightPos));
+	mesh_shader.Use();
+	glUniform3fv(glGetUniformLocation(mesh_shader.id, "lightpos"), 1, value_ptr(lightPos));
+	water_shader.Use();
+	glUniform3fv(glGetUniformLocation(water_shader.id, "lightpos"), 1, value_ptr(lightPos));
+	voxbox_shader.Use();
+	glUniform3fv(glGetUniformLocation(voxbox_shader.id, "lightpos"), 1, value_ptr(lightPos));
+
 	mat4 orthgonalProjection = ortho(-45.0f, 45.0f, -45.0f, 45.0f, 0.1f, 500.0f);
 	mat4 lightView = lookAt(0.25f * lightPos, vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
 	mat4 lightProjection = orthgonalProjection * lightView;

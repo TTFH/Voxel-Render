@@ -48,7 +48,7 @@ void Shader::Use() {
 }
 
 Shader::~Shader() {
-	//glDeleteProgram(id);
+	glDeleteProgram(id);
 }
 
 void Shader::compileErrors(unsigned int shader, const char* type, const char* filename) {

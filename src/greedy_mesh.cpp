@@ -96,8 +96,8 @@ GreedyMesh generateGreedyMesh(MV_Shape shape) {
 						vec3 p1 = vec3(x[0] + du[0],		 x[1] + du[1],		   x[2] + du[2]);
 						vec3 p2 = vec3(x[0] + dv[0],		 x[1] + dv[1],		   x[2] + dv[2]);
 						vec3 p3 = vec3(x[0] + du[0] + dv[0], x[1] + du[1] + dv[1], x[2] + du[2] + dv[2]);
-						vec3 normal = -cross(p1 - p0, p2 - p0);
-						int16_t index = c > 0 ? c : -c; // In case of byte overflow
+						vec3 normal = cross(p1 - p0, p2 - p0);
+						uint8_t index = c > 0 ? c : -c;
 
 						// Generate the indices first
 						int start_index = mesh.vertices.size();
@@ -108,10 +108,10 @@ GreedyMesh generateGreedyMesh(MV_Shape shape) {
 						mesh.indices.push_back(start_index + 1);
 						mesh.indices.push_back(start_index + 3);
 
-						mesh.vertices.push_back({ p0, normal, (uint8_t)index });
-						mesh.vertices.push_back({ p1, normal, (uint8_t)index });
-						mesh.vertices.push_back({ p2, normal, (uint8_t)index });
-						mesh.vertices.push_back({ p3, normal, (uint8_t)index });
+						mesh.vertices.push_back({ p0, normal, index });
+						mesh.vertices.push_back({ p1, normal, index });
+						mesh.vertices.push_back({ p2, normal, index });
+						mesh.vertices.push_back({ p3, normal, index });
 
 						// Clear part of the mask to avoid duplicated faces
 						for (int l = 0; l < h; l++)
@@ -168,7 +168,6 @@ void FastRender::draw(Shader& shader, Camera& camera, float scale) {
 	shader.Use();
 	vao.Bind();
 	camera.pushMatrix(shader, "camera");
-	glUniform3f(glGetUniformLocation(shader.id, "lightpos"), 0, 180, -165);
 
 	mat4 pos = translate(mat4(1.0f), position);
 	mat4 rot = mat4_cast(rotation);

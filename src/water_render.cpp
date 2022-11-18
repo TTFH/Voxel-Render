@@ -24,7 +24,6 @@ void WaterRender::draw(Shader& shader, Camera& camera) {
 	mat4 rot = mat4_cast(rotation);
 	glUniformMatrix4fv(glGetUniformLocation(shader.id, "position"), 1, GL_FALSE, value_ptr(pos));
 	glUniformMatrix4fv(glGetUniformLocation(shader.id, "rotation"), 1, GL_FALSE, value_ptr(rot));
-	glUniform3f(glGetUniformLocation(shader.id, "lightpos"), 0, 180, -165);
 
 	glDrawArrays(GL_TRIANGLE_FAN, 0, vertex_count);
 	vao.Unbind();
