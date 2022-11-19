@@ -96,7 +96,7 @@ GreedyMesh generateGreedyMesh(MV_Shape shape) {
 						vec3 p1 = vec3(x[0] + du[0],		 x[1] + du[1],		   x[2] + du[2]);
 						vec3 p2 = vec3(x[0] + dv[0],		 x[1] + dv[1],		   x[2] + dv[2]);
 						vec3 p3 = vec3(x[0] + du[0] + dv[0], x[1] + du[1] + dv[1], x[2] + du[2] + dv[2]);
-						vec3 normal = cross(p1 - p0, p2 - p0);
+						vec3 normal = -cross(p1 - p0, p2 - p0);
 						uint8_t index = c > 0 ? c : -c;
 
 						// Generate the indices first

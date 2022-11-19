@@ -165,7 +165,7 @@ public:
 	}
 
 	void pushProjection(Shader& shader) {
-		mat4 orthgonalProjection = ortho(-45.0f, 45.0f, -45.0f, 45.0f, 0.1f, 500.0f);
+		mat4 orthgonalProjection = ortho(-90.0f, 90.0f, -90.0f, 90.0f, 0.1f, 500.0f);
 		mat4 lightView = lookAt(lightPos, vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
 		lightProjection = orthgonalProjection * lightView;
 		shader.Use();
@@ -280,6 +280,7 @@ int main(int argc, char* argv[]) {
 		shadow_map.BindShadowMap();
 		scene.draw(shadowmap_shader, camera);
 		scene.drawVoxbox(shadowmap_shader, camera);
+// TODO: Use Transform(x, y, z, _, b, _)
 //		model.draw(shadowmap_shader, camera, vec3(12, 4.3, 30), angleAxis(radians(170.0f), vec3(0, 1, 0)));
 		shadow_map.UnbindShadowMap(camera);
 

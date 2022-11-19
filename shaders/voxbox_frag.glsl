@@ -14,7 +14,7 @@ float computeShadows() {
 	if(lightCoords.z <= 1.0f) {
 		lightCoords = (lightCoords + 1.0f) / 2.0f;
 		float currentDepth = lightCoords.z;
-		float bias = max(0.0025f * (1.0f - dot(normalize(normal), normalize(lightpos))), 0.0005f);
+		float bias = max(0.0025f * (1.0f - dot(normal, normalize(lightpos))), 0.0005f);
 
 		int sampleRadius = 8;
 		vec2 pixelSize = 1.0 / textureSize(shadowMap, 0);
@@ -33,6 +33,9 @@ float computeShadows() {
 
 void main() {
 	float shadow = computeShadows();
-	float l = 0.6f + 0.4f * max(0.0f, dot(normalize(normal), normalize(lightpos)));
+	float l = 0.6f + 0.4f * max(0.0f, dot(normal, normalize(lightpos)));
 	FragColor = vec4(color * l * (1.0f - shadow), 1.0f);
+
+	// Debug normals
+	//FragColor = vec4((normal + 1.0f) / 2.0f, 1.0f);
 }
