@@ -15,11 +15,7 @@
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "lib/stb_image_write.h"
-/*
-#include "imgui/imgui.h"
-#include "imgui/backend/imgui_impl_glfw.h"
-#include "imgui/backend/imgui_impl_opengl3.h"
-*/
+
 const float FAR_PLANE = 500;
 const unsigned int WINDOW_WIDTH = 1024;
 const unsigned int WINDOW_HEIGHT = 720;

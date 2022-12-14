@@ -16,7 +16,7 @@ out vec4 fragPosLight;
 void main() {
 	vec4 currentPos = position * rotation * vec4(aPos, 1.0f);
 	model_pos = currentPos.xyz;
-	normal = (rotation * vec4(aNormal, 1.0f)).xyz;
+	normal = normalize((rotation * vec4(aNormal, 1.0f)).xyz);
 	tex_coord = aTexCoord;
 	fragPosLight = lightProjection * currentPos;
 	gl_Position = camera * currentPos;
