@@ -23,6 +23,7 @@ GLFWwindow* InitOpenGL(const char* window_title) {
 		exit(EXIT_FAILURE);
 	}
 	glfwMakeContextCurrent(window);
+	glfwSwapInterval(1); // Enable vsync
 	gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 	glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 	return window;

@@ -14,11 +14,9 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "lib/stb_image_write.h"
 
-/*
 #include "imgui/imgui.h"
 #include "imgui/backend/imgui_impl_glfw.h"
 #include "imgui/backend/imgui_impl_opengl3.h"
-*/
 
 int main(int argc, char* argv[]) {
 	GLFWwindow* window = InitOpenGL("OpenGL");
@@ -39,6 +37,21 @@ int main(int argc, char* argv[]) {
 	Light light(vec3(-35, 130, -132));
 	Skybox skybox(skybox_shader, (float)WINDOW_WIDTH / WINDOW_HEIGHT);
 	camera.initialize(WINDOW_WIDTH, WINDOW_HEIGHT, vec3(0, 2.5, 10));
+
+
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO();
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+	ImGuiWindowFlags dialog_flags = 0;
+	dialog_flags |= ImGuiWindowFlags_NoResize;
+
+	ImGui::StyleColorsDark();
+	ImGui_ImplGlfw_InitForOpenGL(window, true);
+	ImGui_ImplOpenGL3_Init("#version 420");
+	ImVec4 clear_color = ImVec4(0.35, 0.54, 0.8, 1);
+	ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 3.0f);
+
 
 	string path = "main.xml";
 	if (argc > 1) {
@@ -82,6 +95,7 @@ int main(int argc, char* argv[]) {
 	glfwSetKeyCallback(window, key_press_callback);
 
 	while (!glfwWindowShouldClose(window)) {
+		glfwPollEvents();
 		actual_time = glfwGetTime();
 		dt = actual_time - prev_time;
 		counter++;
@@ -93,6 +107,27 @@ int main(int argc, char* argv[]) {
 			glfwSetWindowTitle(window, window_title);
 			prev_time = actual_time;
 			counter = 0;
+		}
+
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
+		{
+			static float f = 0.0f;
+			static int counter = 0;
+
+			ImGui::Begin("Hello, world!", NULL, dialog_flags);
+			ImGui::Text("This is some useless text.");
+			ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
+			ImGui::ColorEdit3("clear color", (float*)&clear_color);
+
+			if (ImGui::Button("Button"))
+				counter++;
+			ImGui::SameLine();
+			ImGui::Text("counter = %d", counter);
+
+			ImGui::Text("Application average %.1f ms/frame (%.0f FPS)", 1000.0f / io.Framerate, io.Framerate);
+			ImGui::End();
 		}
 
 		light.pushLight(voxel_shader);
@@ -107,7 +142,7 @@ int main(int argc, char* argv[]) {
 		//model.draw(shadowmap_shader, camera, vec3(12, 4.3, 30), 170);
 		shadow_map.UnbindShadowMap(camera);
 
-		glClearColor(0.35, 0.54, 0.8, 1);
+		glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -132,10 +167,12 @@ int main(int argc, char* argv[]) {
 		scene.drawWater(water_shader, camera);
 		glDisable(GL_BLEND);
 		light.draw(voxel_shader, camera);
+		//skybox.Draw(skybox_shader, camera);
 
-		skybox.Draw(skybox_shader, camera);
+		ImGui::Render();
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
 		glfwSwapBuffers(window);
-		glfwPollEvents();
 	}
 	glfwDestroyWindow(window);
 	glfwTerminate();

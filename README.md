@@ -2,8 +2,9 @@
 
 This is a simple voxel rendering engine written in C++ and OpenGL, it uses conventional rasterization instead of raytracing.
 
-This program is cross-platform and has been tested on Windows and Linux. It can load a scene from a XML file and render voxels (cubes), voxagons (rectangular prisms), transparent water (2D triangle fan), ropes (line strips) and triangular meshes (wait, what?).  
-It optionally uses a greedy meshing algorithm to generate the triangular meshes for the voxels, based on the post [Meshing in a Minecraft Game (Part 2)](https://0fps.net/2012/07/07/meshing-minecraft-part-2/) by Mikola Lysenko.
+This program is cross-platform and has been tested on Windows 7, 10, 11 and Linux. It can load a scene from a XML file and render voxels (cubes), voxagons (rectangular prisms), transparent water (2D triangle fan), ropes (line strips) and triangular meshes (wait, what?).  
+It optionally uses a greedy meshing algorithm to generate the triangular meshes for the voxels, based on the post [Meshing in a Minecraft Game (Part 2)](https://0fps.net/2012/07/07/meshing-minecraft-part-2/) by Mikola Lysenko.  
+It also supports Dear ImGui, the amazing GUI library used by Teardown and GTA VI.
 
 It make use of the following libraries:
 
@@ -12,6 +13,7 @@ It make use of the following libraries:
 -   [GLM](https://glm.g-truc.net/0.9.9/index.html) for vector and matrix math.
 -   [stb](https://github.com/nothings/stb) for loading textures and saving screenshots.
 -   [tinyxml2](https://github.com/leethomason/tinyxml2) for loading XML files.
+-   [imgui](https://github.com/ocornut/imgui) for the Graphical User interface.
 
 ### How to compile
 
@@ -31,7 +33,7 @@ Render a converted Teardown map:
 
 WASD, Space & Ctrl to move the camera  
 Hold Shift to move the camera faster  
-Mouse click + drag to look around  
+Hold Right Mouse Button and drag to look around  
 Arrow keys, Q & E to move the light  
 P to print the camera and light positions  
 F10 save screenshot  
