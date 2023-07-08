@@ -59,17 +59,19 @@ void key_press_callback(GLFWwindow* window, int key, int scancode, int action, i
 	} else if (key == GLFW_KEY_F11) {
 		// TODO: update skybox aspect ratio
 		fullscreen = !fullscreen;
-		Camera& camera = *(Camera*)glfwGetWindowUserPointer(window);
+		Camera* camera = (Camera*)glfwGetWindowUserPointer(window);
 		if (fullscreen) {
 			GLFWmonitor* monitor = glfwGetPrimaryMonitor();
 			const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 			glfwSetWindowMonitor(window, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
 			glViewport(0, 0, mode->width, mode->height);
-			camera.updateScreenSize(mode->width, mode->height);
+			if (camera != NULL)
+				camera->updateScreenSize(mode->width, mode->height);
 		} else {
 			glfwSetWindowMonitor(window, NULL, 100, 100, WINDOW_WIDTH, WINDOW_HEIGHT, 0);
 			glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
-			camera.updateScreenSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+			if (camera != NULL)
+				camera->updateScreenSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 		}
 	}
 }

@@ -1,5 +1,3 @@
-#include <time.h>
-
 #include "src/mesh.h"
 #include "src/light.h"
 #include "src/utils.h"
