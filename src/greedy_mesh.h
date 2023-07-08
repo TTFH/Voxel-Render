@@ -1,8 +1,9 @@
 #ifndef GREEDY_MESH_H
 #define GREEDY_MESH_H
 
-#include <glm/glm.hpp>
 #include <vector>
+#include <glm/glm.hpp>
+#include <glm/gtc/quaternion.hpp>
 
 #include "vao.h"
 #include "camera.h"
@@ -18,8 +19,6 @@ struct GreedyMesh {
 	vector<GLuint> indices;
 };
 
-GreedyMesh generateGreedyMesh(MV_Shape shape);
-
 class FastRender {
 private:
 	VAO vao;
@@ -30,7 +29,7 @@ private:
 	vec3 world_position = vec3(0, 0, 0);
 	quat world_rotation = quat(1, 0, 0, 0);
 public:
-	FastRender(MV_Shape shape, GLuint texture_id);
+	FastRender(const MV_Shape& shape, GLuint texture_id);
 	void setTransform(vec3 position, quat rotation);
 	void setWorldTransform(vec3 position, quat rotation);
 	void draw(Shader& shader, Camera& camera, float scale = 1);

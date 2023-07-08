@@ -1,10 +1,10 @@
 #ifndef VBO_H
 #define VBO_H
 
-#include "../glad/glad.h"
-#include <glm/glm.hpp>
 #include <stdint.h>
 #include <vector>
+#include <glm/glm.hpp>
+#include "../glad/glad.h"
 
 using namespace std;
 using namespace glm;

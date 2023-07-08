@@ -19,7 +19,7 @@ private:
 	vector<Texture> textures;
 public:
 	Mesh(const char* path, vector<Texture>& textures);
-	void draw(Shader& shader, Camera& camera, vec3 translation = vec3(0.0f, 0.0f, 0.0f), quat rotation = quat(1.0f, 0.0f, 0.0f, 0.0f));
+	void draw(Shader& shader, Camera& camera, vec3 translation = vec3(0.0f, 0.0f, 0.0f), float angle = 0);
 };
 
 #endif

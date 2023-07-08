@@ -32,15 +32,10 @@ Render a converted Teardown map:
 WASD, Space & Ctrl to move the camera  
 Hold Shift to move the camera faster  
 Mouse click + drag to look around  
-Arrow keys, Q & E to move the light
+Arrow keys, Q & E to move the light  
+P to print the camera and light positions  
+F10 save screenshot  
+F11 toggle fullscreen
 
 ![img0](https://raw.githubusercontent.com/TTFH/Voxel-Render/main/screenshots/img0.png)
 ![img3](https://raw.githubusercontent.com/TTFH/Voxel-Render/main/screenshots/img3.png)
-
-# Performance
-
-shadow, skybox, mesh, etc: 20 fps  
-voxel only: 77 fps  
-basic shader: 90 fps  
-overclocking: 100 fps  
-single vao: ? fps

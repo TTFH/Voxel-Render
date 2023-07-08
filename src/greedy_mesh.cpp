@@ -1,11 +1,10 @@
-#include <glm/gtc/type_ptr.hpp>
 #include "ebo.h"
 #include "greedy_mesh.h"
+#include <glm/gtc/type_ptr.hpp>
 
 const uint8_t HOLE = 255;
 
-// Based on: https://0fps.net/2012/07/07/meshing-minecraft-part-2/
-GreedyMesh generateGreedyMesh(MV_Shape shape) {
+uint8_t*** MatrixInit(const MV_Shape& shape) {
 	uint8_t*** voxels = new uint8_t**[shape.sizex];
 	for (int i = 0; i < shape.sizex; i++) {
 		voxels[i] = new uint8_t*[shape.sizey];
@@ -21,6 +20,59 @@ GreedyMesh generateGreedyMesh(MV_Shape shape) {
 		if (v.index != HOLE)
 			voxels[v.x][v.y][v.z] = v.index;
 	}
+
+	return voxels;
+}
+
+void MatrixDelete(uint8_t*** &voxels, const MV_Shape& shape) {
+	for (int i = 0; i < shape.sizex; i++) {
+		for (int j = 0; j < shape.sizey; j++)
+			delete[] voxels[i][j];
+		delete[] voxels[i];
+	}
+	delete[] voxels;
+}
+
+// Remove hidden voxels
+void TrimShape(uint8_t*** &voxels, int sizex, int sizey, int sizez) {
+	bool*** solid = new bool**[sizex];
+	for (int i = 0; i < sizex; i++) {
+		solid[i] = new bool*[sizey];
+		for (int j = 0; j < sizey; j++) {
+			solid[i][j] = new bool[sizez];
+			for (int k = 0; k < sizez; k++)
+				solid[i][j][k] = voxels[i][j][k] != 0;
+		}
+	}
+
+	int count = 0;
+	for (int i = 0; i < sizex; i++)
+		for (int j = 0; j < sizey; j++)
+			for (int k = 0; k < sizez; k++) {
+				if (i > 0 && j > 0 && k > 0 && i < sizex - 1 && j < sizey - 1 && k < sizez - 1) {
+					if (solid[i][j][k] &&
+					  solid[i - 1][j][k] && solid[i][j - 1][k] && solid[i][j][k - 1] &&
+					  solid[i + 1][j][k] && solid[i][j + 1][k] && solid[i][j][k + 1]) {
+						voxels[i][j][k] = 0;
+						count++;
+					  }
+				}
+			}
+
+	if (count > 0)
+		printf("Trimmed %d voxels\n", count);
+
+	for (int i = 0; i < sizex; i++) {
+		for (int j = 0; j < sizey; j++)
+			delete[] solid[i][j];
+		delete[] solid[i];
+	}
+}
+
+// Based on: https://0fps.net/2012/07/07/meshing-minecraft-part-2/
+GreedyMesh generateGreedyMesh(const MV_Shape& shape) {
+	uint8_t*** voxels = MatrixInit(shape);
+	//TrimShape(voxels, shape.sizex, shape.sizey, shape.sizez);
 
 	auto GetVoxelAt = [&](int x, int y, int z) -> uint8_t {
 		if (x < 0 || x >= shape.sizex || y < 0 || y >= shape.sizey || z < 0 || z >= shape.sizez) {
@@ -128,15 +180,11 @@ GreedyMesh generateGreedyMesh(MV_Shape shape) {
 		delete[] mask;
 	}
 
-	for (int i = 0; i < shape.sizex; i++) {
-		for (int j = 0; j < shape.sizey; j++)
-			delete[] voxels[i][j];
-		delete[] voxels[i];
-	}
+	MatrixDelete(voxels, shape);
 	return mesh;
 }
 
-FastRender::FastRender(MV_Shape shape, GLuint texture_id) {
+FastRender::FastRender(const MV_Shape& shape, GLuint texture_id) {
 	GreedyMesh mesh = generateGreedyMesh(shape);
 	this->texture_id = texture_id;
 	index_count = mesh.indices.size();

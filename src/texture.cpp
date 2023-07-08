@@ -58,5 +58,5 @@ void Texture::Unbind() {
 }
 
 Texture::~Texture() {
-	//glDeleteTextures(1, &texture_id);
+	glDeleteTextures(1, &texture_id);
 }

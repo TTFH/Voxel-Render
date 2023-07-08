@@ -97,7 +97,7 @@ Mesh::Mesh(const char* path, vector<Texture>& textures) {
 	vbo.Unbind();
 }
 
-void Mesh::draw(Shader& shader, Camera& camera, vec3 translation, quat rotation) {
+void Mesh::draw(Shader& shader, Camera& camera, vec3 translation, float angle) {
 	shader.Use();
 	vao.Bind();
 
@@ -125,6 +125,7 @@ void Mesh::draw(Shader& shader, Camera& camera, vec3 translation, quat rotation)
 	camera.pushMatrix(shader, "camera");
 	glUniform3f(glGetUniformLocation(shader.id, "camera_pos"), camera.position.x, camera.position.y, camera.position.z);
 	mat4 trans = translate(mat4(1.0f), translation);
+	quat rotation = angleAxis(radians(angle), vec3(0, 1, 0));
 	mat4 rot = mat4_cast(rotation);
 	glUniformMatrix4fv(glGetUniformLocation(shader.id, "position"), 1, GL_FALSE, value_ptr(trans));
 	glUniformMatrix4fv(glGetUniformLocation(shader.id, "rotation"), 1, GL_FALSE, value_ptr(rot));
