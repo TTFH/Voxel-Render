@@ -165,7 +165,7 @@ int main(int argc, char* argv[]) {
 		scene.drawWater(water_shader, camera);
 		glDisable(GL_BLEND);
 		light.draw(voxel_shader, camera);
-		//skybox.Draw(skybox_shader, camera);
+		skybox.Draw(skybox_shader, camera);
 
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

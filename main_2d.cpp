@@ -73,6 +73,12 @@ int main() {
 		glClearColor(0.35, 0.54, 0.8, 1);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+			glfwSetWindowShouldClose(window, true);
+
+		camera.handleInputs(window);
+		camera.updateMatrix(45, 0.1, FAR_PLANE);
+
 		shader_program.Use();
 		glUniform1f(glGetUniformLocation(shader_program.id, "time"), glfwGetTime());
 		glUniform2f(glGetUniformLocation(shader_program.id, "resolution"), camera.screen_width, camera.screen_height);

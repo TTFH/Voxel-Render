@@ -2,8 +2,10 @@
 obj/*.o
 vox_render
 vox_render.exe
-screenshot_*.png
+
+imgui.ini
 meshes/
+screenshot_*.png
 
 castle.vox
 marina_sandbox/

@@ -62,9 +62,9 @@ void Camera::handleInputs(GLFWwindow* window) {
 		float rotX = sensitivity * (float)(mouseY - (screen_height / 2)) / screen_height;
 		float rotY = sensitivity * (float)(mouseX - (screen_width / 2)) / screen_width;
 
-		vec3 neworientation = rotate(orientation, radians(-rotX), normalize(cross(orientation, up)));
-		if (abs(angle(neworientation, up) - radians(90.0f)) <= radians(85.0f))
-			orientation = neworientation;
+		vec3 new_orientation = rotate(orientation, radians(-rotX), normalize(cross(orientation, up)));
+		if (abs(angle(new_orientation, up) - radians(90.0f)) <= radians(85.0f))
+			orientation = new_orientation;
 		orientation = rotate(orientation, radians(-rotY), up);
 		glfwSetCursorPos(window, screen_width / 2, screen_height / 2);
 	} else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_RELEASE) {

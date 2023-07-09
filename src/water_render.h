@@ -13,10 +13,9 @@ private:
 	VAO vao;
 	GLsizei vertex_count;
 	vec3 position = vec3(0, 0, 0);
-	quat rotation = quat(1, 0, 0, 0);
 public:
 	WaterRender(vector<vec2> vertices);
-	void setWorldTransform(vec3 position, quat rotation);
+	void setWorldTransform(vec3 position);
 	void draw(Shader& shader, Camera& camera);
 };
 

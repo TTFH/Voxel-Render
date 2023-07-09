@@ -98,7 +98,7 @@ void Scene::RecursiveLoad(XMLElement* element, vec3 parent_pos, quat parent_rot)
 		}
 		if (water_verts.size() > 2) {
 			WaterRender* water = new WaterRender(water_verts);
-			water->setWorldTransform(position, rotation);
+			water->setWorldTransform(position);
 			waters.push_back(water);
 		}
 	} else if (strcmp(element->Name(), "rope") == 0) {

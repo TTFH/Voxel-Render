@@ -10,9 +10,8 @@ WaterRender::WaterRender(vector<vec2> vertices) {
 	vbo.Unbind();
 }
 
-void WaterRender::setWorldTransform(vec3 position, quat rotation) {
+void WaterRender::setWorldTransform(vec3 position) {
 	this->position = position;
-	this->rotation = rotation;
 }
 
 void WaterRender::draw(Shader& shader, Camera& camera) {
@@ -21,9 +20,7 @@ void WaterRender::draw(Shader& shader, Camera& camera) {
 	camera.pushMatrix(shader, "camera");
 
 	mat4 pos = translate(mat4(1.0f), position);
-	mat4 rot = mat4_cast(rotation);
 	glUniformMatrix4fv(glGetUniformLocation(shader.id, "position"), 1, GL_FALSE, value_ptr(pos));
-	glUniformMatrix4fv(glGetUniformLocation(shader.id, "rotation"), 1, GL_FALSE, value_ptr(rot));
 
 	glDrawArrays(GL_TRIANGLE_FAN, 0, vertex_count);
 	vao.Unbind();
