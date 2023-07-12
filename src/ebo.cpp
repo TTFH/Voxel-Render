@@ -22,5 +22,5 @@ void EBO::Unbind() {
 }
 
 EBO::~EBO() {
-	glDeleteBuffers(1, &ebo);
+	//glDeleteBuffers(1, &ebo);
 }

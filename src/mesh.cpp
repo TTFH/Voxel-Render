@@ -8,7 +8,7 @@ struct Triangle {
 	int tex_index[3];
 };
 
-Mesh::Mesh(const char* path, vector<Texture>& textures) {
+void Mesh::LoadOBJ(const char* path) {
 	vector<vec3> positions;
 	vector<vec3> normals;
 	vector<vec2> tex_coords;
@@ -68,8 +68,6 @@ Mesh::Mesh(const char* path, vector<Texture>& textures) {
 		}
 	}
 
-	vector<MeshVertex> model_vertices;
-	GLuint index = 0;
 	for (unsigned int t = 0; t < mesh.size(); t++) {
 		for (int v = 2; v >= 0; v--) { // Convert to CCW
 			vec3 vert = positions[mesh[t].vertex_index[v]];
@@ -80,13 +78,21 @@ Mesh::Mesh(const char* path, vector<Texture>& textures) {
 				vec3(norm.x, norm.y, norm.z),
 				vec2(tex.x, tex.y),
 			};
-			model_vertices.push_back(vertex);
-			index++;
+			vertices.push_back(vertex);
 		}
 	}
+}
 
+Mesh::Mesh(const char* path, vector<Texture>& textures) {
+	string extension = path;
+	extension = extension.substr(extension.find_last_of(".") + 1);
+	if (extension == "obj")
+		LoadOBJ(path);
+	else {
+		printf("[Warning] Unsupported mesh format: %s\n", extension.c_str());
+		return;
+	}
 	this->textures = textures;
-	this->vertices = model_vertices;
 
 	vao.Bind();
 	VBO vbo(vertices);
@@ -105,6 +111,10 @@ void Mesh::draw(Shader& shader, Camera& camera, vec3 translation, float angle) {
 	unsigned int num_specular = 0;
 	unsigned int num_normal = 0;
 	unsigned int num_displacement = 0;
+
+	// Unbind missing texture
+	GLuint texUnit = glGetUniformLocation(shader.id, "specular0");
+	glUniform1i(texUnit, 0);
 
 	for (unsigned int i = 0; i < textures.size(); i++) {
 		string num;
