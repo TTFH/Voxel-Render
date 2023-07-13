@@ -12,12 +12,7 @@ struct AABB_2D {
 	vec2 min;
 	vec2 max;
 };
-/*
-const int REFLECTION_WIDTH = 320;
-const int REFLECTION_HEIGHT = 180;
-const int REFRACTION_WIDTH = 1280;
-const int REFRACTION_HEIGHT = 720;
-*/
+
 class WaterRender {
 private:
 	VAO vao;
@@ -25,8 +20,19 @@ private:
 	vec3 position = vec3(0, 0, 0);
 	AABB_2D bounding_box;
 public:
+	GLuint reflectionFrameBuffer;
+	GLuint reflectionTexture;
+	GLuint reflectionDepthBuffer;
+	
+	GLuint refractionFrameBuffer;
+	GLuint refractionTexture;
+	GLuint refractionDepthTexture;
+
 	WaterRender(vector<vec2> vertices);
 	float GetHeight();
+	void BindReflectionFB();
+	void BindrefractionFB();
+	void UnbindFB(Camera& camera);
 	void setWorldTransform(vec3 position);
 	void draw(Shader& shader, Camera& camera);
 };

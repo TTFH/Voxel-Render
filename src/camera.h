@@ -17,8 +17,8 @@ private:
 public:
 	int screen_width;
 	int screen_height;
+	const vec3 up = vec3(0, 1, 0);
 	vec3 position = vec3(0, 0, 0);
-	vec3 up = vec3(0, 1, 0);
 	vec3 orientation = vec3(0, 0, -1);
 	Camera();
 	void initialize(int width, int height, vec3 position);

@@ -1,5 +1,35 @@
+#include <stdio.h>
+
 #include "water_render.h"
+
 #include <glm/gtc/type_ptr.hpp>
+
+const int REFLECTION_WIDTH = 320;
+const int REFLECTION_HEIGHT = 180;
+const int REFRACTION_WIDTH = 1280;
+const int REFRACTION_HEIGHT = 720;
+
+static void CreateFramebuffer(GLuint &FBO, GLuint &fbTexture, GLuint &depthBuffer, int width, int height) {
+	glGenFramebuffers(1, &FBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+
+	glGenTextures(1, &fbTexture);
+	glBindTexture(GL_TEXTURE_2D, fbTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, fbTexture, 0);
+	glDrawBuffer(GL_COLOR_ATTACHMENT0);
+
+	glGenRenderbuffers(1, &depthBuffer);
+	glBindRenderbuffer(GL_RENDERBUFFER, depthBuffer);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthBuffer);
+
+	GLenum fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	if (fboStatus != GL_FRAMEBUFFER_COMPLETE)
+		printf("[ERROR] Framebuffer failed with status %d\n", fboStatus);
+}
 
 WaterRender::WaterRender(vector<vec2> vertices) {
 	vertex_count = vertices.size();
@@ -23,10 +53,29 @@ WaterRender::WaterRender(vector<vec2> vertices) {
 			max.y = vertex.y;
 	}
 	bounding_box = {min, max};
+
+	CreateFramebuffer(reflectionFrameBuffer, reflectionTexture, reflectionDepthBuffer, REFLECTION_WIDTH, REFLECTION_HEIGHT);
+	CreateFramebuffer(refractionFrameBuffer, refractionTexture, refractionDepthTexture, REFRACTION_WIDTH, REFRACTION_HEIGHT);
+	printf("Water initialized.\n");
 }
 
 float WaterRender::GetHeight() {
 	return position.y;
+}
+
+void WaterRender::BindReflectionFB() {
+	glBindFramebuffer(GL_FRAMEBUFFER, reflectionFrameBuffer);
+	glViewport(0, 0, REFLECTION_WIDTH, REFLECTION_HEIGHT);
+}
+
+void WaterRender::BindrefractionFB() {
+	glBindFramebuffer(GL_FRAMEBUFFER, refractionFrameBuffer);
+	glViewport(0, 0, REFRACTION_WIDTH, REFRACTION_HEIGHT);
+}
+
+void WaterRender::UnbindFB(Camera& camera) {
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glViewport(0, 0, camera.screen_width, camera.screen_height);
 }
 
 void WaterRender::setWorldTransform(vec3 position) {

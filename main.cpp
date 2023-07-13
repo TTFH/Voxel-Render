@@ -82,37 +82,13 @@ int main(int argc, char* argv[]) {
 	Mesh model("meshes/CAT_140M3.obj", model_textures);
 */
 
-	GLuint FBO;
-	glGenFramebuffers(1, &FBO);
-	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
-
-	GLuint framebufferTexture;
-	glGenTextures(1, &framebufferTexture);
-	glBindTexture(GL_TEXTURE_2D, framebufferTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, WINDOW_WIDTH, WINDOW_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, framebufferTexture, 0);
-	glDrawBuffer(GL_COLOR_ATTACHMENT0);
-
-	GLuint depthBuffer;
-	glGenRenderbuffers(1, &depthBuffer);
-	glBindRenderbuffer(GL_RENDERBUFFER, depthBuffer);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, WINDOW_WIDTH, WINDOW_HEIGHT);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthBuffer);
-
-	GLenum fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-	if (fboStatus != GL_FRAMEBUFFER_COMPLETE)
-		printf("[ERROR] Framebuffer failed with status %d\n", fboStatus);
-
 	if (scene.waters.size() != 1) {
 		printf("[ERROR] There is no water!\n");
 		exit(EXIT_FAILURE);
 	}
-
-	float water_height = scene.waters[0]->GetHeight();
-	vec4 clip_plane_bottom = vec4(0, -1, 0, water_height);
-	vec4 clip_plane_top = vec4(0, 1, 0, water_height);
+	WaterRender* water = scene.waters[0];
+	vec4 clip_plane_top = vec4(0, 1, 0, -water->GetHeight()); // reflection
+	vec4 clip_plane_bottom = vec4(0, -1, 0, water->GetHeight()); // refraction
 
 	// FPS counter
 	double dt = 0;
@@ -121,7 +97,6 @@ int main(int argc, char* argv[]) {
 	unsigned int counter = 0;
 
 	// Flags
-	glEnable(GL_CLIP_DISTANCE0);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_MULTISAMPLE);
 	glEnable(GL_CULL_FACE);
@@ -182,11 +157,28 @@ int main(int argc, char* argv[]) {
 		//model.draw(shadowmap_shader, camera, vec3(12, 4.3, 30), 170);
 		shadow_map.UnbindShadowMap(camera);
 
-		glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+		glEnable(GL_CLIP_DISTANCE0);
+
+		water->BindReflectionFB();
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		shadow_map.PushShadows(voxel_shader, light.getProjection());
+
+		float distance = 2.0 * (camera.position.y - water->GetHeight());
+		camera.position.y -= distance;
+		//camera.pitch *= -1;
+		camera.updateMatrix(45, 0.1, FAR_PLANE);
+		scene.draw(voxel_shader, camera, clip_plane_top);
+		camera.position.y += distance;
+		//camera.pitch *= -1;
+		camera.updateMatrix(45, 0.1, FAR_PLANE);
+
+		water->BindrefractionFB();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		shadow_map.PushShadows(voxel_shader, light.getProjection());
 		scene.draw(voxel_shader, camera, clip_plane_bottom);
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		water->UnbindFB(camera);
+		glDisable(GL_CLIP_DISTANCE0);
 
 		//glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
 		glClearColor(0.35, 0.54, 0.8, 1);
@@ -194,8 +186,10 @@ int main(int argc, char* argv[]) {
 
 		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 			glfwSetWindowShouldClose(window, true);
-		if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
+		if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS) {
 			printf("Camera position: (%.2f, %.2f, %.2f)\n", camera.position.x, camera.position.y, camera.position.z);
+			printf("Camera orientation: (%.2f, %.2f, %.2f)\n", camera.orientation.x, camera.orientation.y, camera.orientation.z);
+		}
 
 		light.handleInputs(window);
 		camera.handleInputs(window);
@@ -207,7 +201,7 @@ int main(int argc, char* argv[]) {
 		model.draw(mesh_shader, camera, vec3(12, 4.3, 30), 170);
 */
 		shadow_map.PushShadows(voxel_shader, light.getProjection());
-		scene.draw(voxel_shader, camera, clip_plane_top);
+		scene.draw(voxel_shader, camera);
 		shadow_map.PushShadows(voxbox_shader, light.getProjection());
 		scene.drawVoxbox(voxbox_shader, camera);
 		scene.drawRope(rope_shader, camera);
@@ -217,8 +211,8 @@ int main(int argc, char* argv[]) {
 		//light.draw(voxel_shader, camera); // Debug light pos
 		skybox.Draw(skybox_shader, camera);
 
-		rect.draw(shader_2d, framebufferTexture, -0.9, 0.4);
-		//rect.draw(shader_2d, framebufferTexture, 0.4, 0.4);
+		rect.draw(shader_2d, water->reflectionTexture, -0.9, 0.4);
+		rect.draw(shader_2d, water->refractionTexture, 0.4, 0.4);
 /*
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

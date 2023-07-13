@@ -33,7 +33,7 @@ public:
 	vector<WaterRender*> waters;
 	Scene(string path);
 	~Scene();
-	void draw(Shader& shader, Camera& camera, vec4 clip_plane = vec4(0, 1, 0, INT_MAX));
+	void draw(Shader& shader, Camera& camera, vec4 clip_plane = vec4(0, 1, 0, 0));
 	void drawRope(Shader& shader, Camera& camera);
 	void drawWater(Shader& shader, Camera& camera);
 	void drawVoxbox(Shader& shader, Camera& camera);
