@@ -11,10 +11,11 @@
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "lib/stb_image_write.h"
-
+/*
 #include "imgui/imgui.h"
 #include "imgui/backend/imgui_impl_glfw.h"
 #include "imgui/backend/imgui_impl_opengl3.h"
+*/
 
 int main(int argc, char* argv[]) {
 	GLFWwindow* window = InitOpenGL("OpenGL");
@@ -23,6 +24,7 @@ int main(int argc, char* argv[]) {
 #else
 	Shader voxel_shader("shaders/voxel_vert.glsl", "shaders/voxel_frag.glsl");
 #endif
+	Shader shader_2d("shaders/2d_vert.glsl", "shaders/2d_tex_frag.glsl");
 	//Shader mesh_shader("shaders/mesh_vert.glsl", "shaders/mesh_frag.glsl");
 	Shader rope_shader("shaders/rope_vert.glsl", "shaders/rope_frag.glsl");
 	Shader water_shader("shaders/water_vert.glsl", "shaders/water_frag.glsl");
@@ -31,12 +33,13 @@ int main(int argc, char* argv[]) {
 	Shader shadowmap_shader("shaders/shadowmap_vert.glsl", "shaders/shadowmap_frag.glsl");
 
 	Camera camera;
+	UI_Rectangle rect;
 	ShadowMap shadow_map;
 	Light light(vec3(-35, 130, -132));
 	Skybox skybox(skybox_shader, (float)WINDOW_WIDTH / WINDOW_HEIGHT);
 	camera.initialize(WINDOW_WIDTH, WINDOW_HEIGHT, vec3(0, 2.5, 10));
 
-
+/*
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO();
@@ -49,8 +52,7 @@ int main(int argc, char* argv[]) {
 	ImGui_ImplOpenGL3_Init("#version 420");
 	ImVec4 clear_color = ImVec4(0.35, 0.54, 0.8, 1);
 	ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 3.0f);
-
-
+*/
 	string path = "main.xml";
 	if (argc > 1) {
 		path = argv[1];
@@ -63,6 +65,11 @@ int main(int argc, char* argv[]) {
 	}
 	Scene scene(path);
 /*
+	vector<Texture> train_tex = {
+		Texture("trains/shinkansen.png", "diffuse", 0),
+	};
+	Mesh train("trains/shinkansen.obj", train_tex);
+
 	vector<Texture> glass_textures = {
 		Texture("meshes/glass.png", "diffuse", 0),
 	};
@@ -70,10 +77,34 @@ int main(int argc, char* argv[]) {
 	vector<Texture> model_textures = {
 		Texture("meshes/CAT_140M3.png", "diffuse", 0),
 		Texture("meshes/CAT_140M3_specular.png", "specular", 1),
-		//Texture("meshes/CAT_140M3_normal.png", "normal", 2),
+		Texture("meshes/CAT_140M3_normal.png", "normal", 2),
 	};
 	Mesh model("meshes/CAT_140M3.obj", model_textures);
 */
+
+	GLuint FBO;
+	glGenFramebuffers(1, &FBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+
+	GLuint framebufferTexture;
+	glGenTextures(1, &framebufferTexture);
+	glBindTexture(GL_TEXTURE_2D, framebufferTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, WINDOW_WIDTH, WINDOW_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, framebufferTexture, 0);
+	glDrawBuffer(GL_COLOR_ATTACHMENT0);
+
+	GLuint depthBuffer;
+	glGenRenderbuffers(1, &depthBuffer);
+	glBindRenderbuffer(GL_RENDERBUFFER, depthBuffer);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, WINDOW_WIDTH, WINDOW_HEIGHT);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthBuffer);
+
+	GLenum fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	if (fboStatus != GL_FRAMEBUFFER_COMPLETE)
+		printf("[ERROR] Framebuffer failed with status %d\n", fboStatus);
+
 	// FPS counter
 	double dt = 0;
 	double prev_time = 0;
@@ -106,7 +137,7 @@ int main(int argc, char* argv[]) {
 			prev_time = actual_time;
 			counter = 0;
 		}
-
+/*
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
@@ -127,7 +158,7 @@ int main(int argc, char* argv[]) {
 			ImGui::Text("Application average %.1f ms/frame (%.0f FPS)", 1000.0f / io.Framerate, io.Framerate);
 			ImGui::End();
 		}
-
+*/
 		light.pushLight(voxel_shader);
 		//light.pushLight(mesh_shader);
 		light.pushLight(water_shader);
@@ -137,10 +168,18 @@ int main(int argc, char* argv[]) {
 		shadow_map.BindShadowMap();
 		scene.draw(shadowmap_shader, camera);
 		scene.drawVoxbox(shadowmap_shader, camera);
+		//train.draw(shadowmap_shader, camera, vec3(-10, 5, -10), 0);
 		//model.draw(shadowmap_shader, camera, vec3(12, 4.3, 30), 170);
 		shadow_map.UnbindShadowMap(camera);
 
-		glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
+		glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		shadow_map.PushShadows(voxel_shader, light.getProjection());
+		scene.draw(voxel_shader, camera);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		//glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
+		glClearColor(0.35, 0.54, 0.8, 1);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -153,6 +192,7 @@ int main(int argc, char* argv[]) {
 		camera.updateMatrix(45, 0.1, FAR_PLANE);
 /*
 		shadow_map.PushShadows(mesh_shader, light.getProjection());
+		train.draw(mesh_shader, camera, vec3(-10, 5, -10), 0);
 		glass.draw(mesh_shader, camera, vec3(12, 4.3, 30), 170);
 		model.draw(mesh_shader, camera, vec3(12, 4.3, 30), 170);
 */
@@ -167,9 +207,12 @@ int main(int argc, char* argv[]) {
 		light.draw(voxel_shader, camera);
 		skybox.Draw(skybox_shader, camera);
 
+		rect.draw(shader_2d, framebufferTexture, -0.9, 0.4);
+		//rect.draw(shader_2d, framebufferTexture, 0.4, 0.4);
+/*
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
+*/
 		glfwSwapBuffers(window);
 	}
 	glfwDestroyWindow(window);

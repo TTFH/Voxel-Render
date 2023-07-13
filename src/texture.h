@@ -6,14 +6,13 @@
 
 class Texture {
 private:
-	GLuint texture_id;
 	GLuint unit;
 public:
+	GLuint texture_id;
 	const char* type;
 	Texture(const char* path, const char* texType, GLuint slot);
 	~Texture();
-	void texUnit(Shader& shader, const char* uniform, GLuint unit);
-	void Bind();
+	void Bind(Shader& shader, const char* uniform);
 	void Unbind();
 };
 

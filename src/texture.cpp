@@ -42,13 +42,10 @@ Texture::Texture(const char* path, const char* texType, GLuint slot) {
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void Texture::texUnit(Shader& shader, const char* uniform, GLuint unit) {
+void Texture::Bind(Shader& shader, const char* uniform) {
 	shader.Use();
-	GLuint texUnit = glGetUniformLocation(shader.id, uniform);
-	glUniform1i(texUnit, unit);
-}
+	glUniform1i(glGetUniformLocation(shader.id, uniform), unit);
 
-void Texture::Bind() {
 	glActiveTexture(GL_TEXTURE0 + unit);
 	glBindTexture(GL_TEXTURE_2D, texture_id);
 }

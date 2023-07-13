@@ -3,12 +3,25 @@
 #include <string.h>
 #include <string>
 
+#include "ebo.h"
 #include "utils.h"
 
 #include "../lib/stb_image.h"
 #include "../lib/stb_image_write.h"
 
 using namespace std;
+
+static GLfloat vertices[] = {
+	0, 0,
+	0, 1,
+	1, 0,
+	1, 1,
+};
+
+static GLuint indices[] = {
+	0, 1, 2,
+	1, 3, 2,
+};
 
 GLFWwindow* InitOpenGL(const char* window_title) {
 	glfwInit();
@@ -75,4 +88,29 @@ void key_press_callback(GLFWwindow* window, int key, int scancode, int action, i
 				camera->updateScreenSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 		}
 	}
+}
+
+static void PushTexture(GLuint texture_id, Shader& shader, const char* uniform) {
+	shader.Use();
+	glUniform1i(glGetUniformLocation(shader.id, uniform), 0);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture_id);
+}
+
+UI_Rectangle::UI_Rectangle() {
+	vao.Bind();
+	VBO vbo(vertices, sizeof(vertices));
+	EBO ebo(indices, sizeof(indices));
+	vao.LinkAttrib(vbo, 0, 2, GL_FLOAT, 2 * sizeof(GLfloat), (GLvoid*)0);
+	vao.Unbind();
+	vbo.Unbind();
+	ebo.Unbind();
+}
+
+void UI_Rectangle::draw(Shader& shader, GLuint texture_id, float offset_x, float offset_y) {
+	shader.Use();
+	glUniform2f(glGetUniformLocation(shader.id, "offset"), offset_x, offset_y);
+	PushTexture(texture_id, shader, "diffuse0");
+	vao.Bind();
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }

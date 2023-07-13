@@ -128,8 +128,7 @@ void Mesh::draw(Shader& shader, Camera& camera, vec3 translation, float angle) {
 		else if (type == "displacement")
 			num = to_string(num_displacement++);
 		const char* uniform = (type + num).c_str();
-		textures[i].texUnit(shader, uniform, i);
-		textures[i].Bind();
+		textures[i].Bind(shader, uniform);
 	}
 
 	camera.pushMatrix(shader, "camera");
@@ -139,6 +138,7 @@ void Mesh::draw(Shader& shader, Camera& camera, vec3 translation, float angle) {
 	mat4 rot = mat4_cast(rotation);
 	glUniformMatrix4fv(glGetUniformLocation(shader.id, "position"), 1, GL_FALSE, value_ptr(trans));
 	glUniformMatrix4fv(glGetUniformLocation(shader.id, "rotation"), 1, GL_FALSE, value_ptr(rot));
+	// When rendering to a shadow map, use the next flags to diferentiate between types of objects
 	glUniform1f(glGetUniformLocation(shader.id, "scale"), 0); // Flag: not a voxel
 	glUniform3f(glGetUniformLocation(shader.id, "size"), 0, 0, 0); // Flag: not a prism
 	glDrawArrays(GL_TRIANGLES, 0, vertices.size());

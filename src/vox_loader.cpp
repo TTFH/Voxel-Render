@@ -251,7 +251,7 @@ void VoxLoader::draw(Shader& shader, Camera& camera, string shape_name, vec3 pos
 		int index = it->second.shape_index;
 		const MV_Shape& shape = shapes[index];
 		vec3 pos = it->second.rotation * vec3(-shape.sizex / 2, -shape.sizey / 2, 0);
-		render[index]->setTransform(pos, it->second.rotation);
+		render[index]->setTransform(pos, it->second.rotation); // BUG: Rotation may be wrong by 180° around vertical axis
 		render[index]->setWorldTransform(position, rotation);
 		render[index]->draw(shader, camera, scale);
 	}

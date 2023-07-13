@@ -5,6 +5,7 @@ vox_render.exe
 
 imgui.ini
 meshes/
+trains/
 screenshot_*.png
 
 castle.vox
@@ -12,3 +13,4 @@ marina_sandbox/
 hub_carib_sandbox/
 minecraft/
 csgo_de_train/
+Water Test/

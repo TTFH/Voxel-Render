@@ -1,7 +1,7 @@
 #version 420 core
-uniform float time;
-uniform vec2 resolution;
+uniform float time; // glUniform1f(glGetUniformLocation(shader_program.id, "time"), glfwGetTime());
 
+in vec2 uv0;
 out vec4 FragColor;
 
 vec3 palette(float t) {
@@ -15,8 +15,7 @@ vec3 palette(float t) {
 // An introduction to Shader Art Coding
 // https://www.youtube.com/watch?v=f4s1h2YETNY
 void main() {
-	vec2 uv = (gl_FragCoord.xy * 2.0 - resolution) / resolution.y;
-	vec2 uv0 = uv;
+	vec2 uv = uv0;
 	vec3 finalColor = vec3(0.0);
 
 	for (float i = 0.0; i < 4.0; i++) {
