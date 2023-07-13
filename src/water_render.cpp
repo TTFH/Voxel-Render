@@ -25,6 +25,10 @@ WaterRender::WaterRender(vector<vec2> vertices) {
 	bounding_box = {min, max};
 }
 
+float WaterRender::GetHeight() {
+	return position.y;
+}
+
 void WaterRender::setWorldTransform(vec3 position) {
 	this->position = position;
 }

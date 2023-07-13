@@ -26,6 +26,7 @@ private:
 	AABB_2D bounding_box;
 public:
 	WaterRender(vector<vec2> vertices);
+	float GetHeight();
 	void setWorldTransform(vec3 position);
 	void draw(Shader& shader, Camera& camera);
 };

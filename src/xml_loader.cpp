@@ -150,13 +150,13 @@ Scene::Scene(string path) {
 	printf("Loaded %d objects, %d voxbox, %d water, %d rope\n", (int)shapes.size(), (int)voxboxes.size(), (int)waters.size(), (int)ropes.size());
 }
 
-void Scene::draw(Shader& shader, Camera& camera) {
+void Scene::draw(Shader& shader, Camera& camera, vec4 clip_plane) {
 	for (vector<scene_t>::iterator it = shapes.begin(); it != shapes.end(); it++) {
 		VoxLoader* model = models[it->file];
 		if (it->object == "")
-			model->draw(shader, camera, it->position, it->rotation, it->scale);
+			model->draw(shader, camera, clip_plane, it->position, it->rotation, it->scale);
 		else
-			model->draw(shader, camera, it->object, it->position, it->rotation, it->scale);
+			model->draw(shader, camera, clip_plane, it->object, it->position, it->rotation, it->scale);
 	}
 }
 

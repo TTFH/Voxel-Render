@@ -27,13 +27,13 @@ private:
 	vector<scene_t> shapes;
 	map<string, VoxLoader*> models;
 	vector<RopeRender*> ropes;
-	vector<WaterRender*> waters;
 	vector<VoxboxRender*> voxboxes;
 	void RecursiveLoad(XMLElement* element, vec3 parent_pos, quat parent_rot);
 public:
+	vector<WaterRender*> waters;
 	Scene(string path);
 	~Scene();
-	void draw(Shader& shader, Camera& camera);
+	void draw(Shader& shader, Camera& camera, vec4 clip_plane = vec4(0, 1, 0, INT_MAX));
 	void drawRope(Shader& shader, Camera& camera);
 	void drawWater(Shader& shader, Camera& camera);
 	void drawVoxbox(Shader& shader, Camera& camera);

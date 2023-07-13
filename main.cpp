@@ -105,6 +105,15 @@ int main(int argc, char* argv[]) {
 	if (fboStatus != GL_FRAMEBUFFER_COMPLETE)
 		printf("[ERROR] Framebuffer failed with status %d\n", fboStatus);
 
+	if (scene.waters.size() != 1) {
+		printf("[ERROR] There is no water!\n");
+		exit(EXIT_FAILURE);
+	}
+
+	float water_height = scene.waters[0]->GetHeight();
+	vec4 clip_plane_bottom = vec4(0, -1, 0, water_height);
+	vec4 clip_plane_top = vec4(0, 1, 0, water_height);
+
 	// FPS counter
 	double dt = 0;
 	double prev_time = 0;
@@ -112,6 +121,7 @@ int main(int argc, char* argv[]) {
 	unsigned int counter = 0;
 
 	// Flags
+	glEnable(GL_CLIP_DISTANCE0);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_MULTISAMPLE);
 	glEnable(GL_CULL_FACE);
@@ -175,7 +185,7 @@ int main(int argc, char* argv[]) {
 		glBindFramebuffer(GL_FRAMEBUFFER, FBO);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		shadow_map.PushShadows(voxel_shader, light.getProjection());
-		scene.draw(voxel_shader, camera);
+		scene.draw(voxel_shader, camera, clip_plane_bottom);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 		//glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
@@ -197,14 +207,14 @@ int main(int argc, char* argv[]) {
 		model.draw(mesh_shader, camera, vec3(12, 4.3, 30), 170);
 */
 		shadow_map.PushShadows(voxel_shader, light.getProjection());
-		scene.draw(voxel_shader, camera);
+		scene.draw(voxel_shader, camera, clip_plane_top);
 		shadow_map.PushShadows(voxbox_shader, light.getProjection());
 		scene.drawVoxbox(voxbox_shader, camera);
 		scene.drawRope(rope_shader, camera);
 		glEnable(GL_BLEND);
 		scene.drawWater(water_shader, camera);
 		glDisable(GL_BLEND);
-		light.draw(voxel_shader, camera);
+		//light.draw(voxel_shader, camera); // Debug light pos
 		skybox.Draw(skybox_shader, camera);
 
 		rect.draw(shader_2d, framebufferTexture, -0.9, 0.4);

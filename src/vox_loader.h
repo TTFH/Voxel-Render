@@ -57,8 +57,8 @@ public:
 	VoxLoader();
 	VoxLoader(const char* filename);
 	void load(const char* filename);
-	void draw(Shader& shader, Camera& camera, vec3 position = vec3(0, 0, 0), quat rotation = quat(1, 0, 0, 0), float scale = 1);
-	void draw(Shader& shader, Camera& camera, string shape_name, vec3 position = vec3(0, 0, 0), quat rotation = quat(1, 0, 0, 0), float scale = 1);
+	void draw(Shader& shader, Camera& camera, vec4 clip_plane, vec3 position = vec3(0, 0, 0), quat rotation = quat(1, 0, 0, 0), float scale = 1);
+	void draw(Shader& shader, Camera& camera, vec4 clip_plane, string shape_name, vec3 position = vec3(0, 0, 0), quat rotation = quat(1, 0, 0, 0), float scale = 1);
 	~VoxLoader();
 };
 

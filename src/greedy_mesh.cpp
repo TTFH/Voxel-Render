@@ -212,7 +212,7 @@ void FastRender::setWorldTransform(vec3 position, quat rotation) {
 	this->world_rotation = rotation;
 }
 
-void FastRender::draw(Shader& shader, Camera& camera, float scale) {
+void FastRender::draw(Shader& shader, Camera& camera, vec4 clip_plane, float scale) {
 	shader.Use();
 	vao.Bind();
 	camera.pushMatrix(shader, "camera");
@@ -226,6 +226,8 @@ void FastRender::draw(Shader& shader, Camera& camera, float scale) {
 	mat4 world_rot = mat4_cast(world_rotation);
 	glUniformMatrix4fv(glGetUniformLocation(shader.id, "world_pos"), 1, GL_FALSE, value_ptr(world_pos));
 	glUniformMatrix4fv(glGetUniformLocation(shader.id, "world_rot"), 1, GL_FALSE, value_ptr(world_rot));
+
+	glUniform4fv(glGetUniformLocation(shader.id, "clip_plane"), 1, value_ptr(clip_plane));
 
 	glUniform1f(glGetUniformLocation(shader.id, "scale"), scale);
 	glUniform1i(glGetUniformLocation(shader.id, "palette"), 0);
