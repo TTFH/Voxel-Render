@@ -205,7 +205,11 @@ int main(int argc, char* argv[]) {
 		shadow_map.PushShadows(voxbox_shader, light.getProjection());
 		scene.drawVoxbox(voxbox_shader, camera);
 		scene.drawRope(rope_shader, camera);
+
+		light.pushLight(water_shader);
+		glUniform1f(glGetUniformLocation(water_shader.id, "time"), glfwGetTime());
 		scene.drawWater(water_shader, camera);
+
 		//light.draw(voxel_shader, camera); // Debug light pos
 		skybox.Draw(skybox_shader, camera);
 

@@ -1,5 +1,5 @@
 #version 420 core
-uniform float time; // glUniform1f(glGetUniformLocation(shader_program.id, "time"), glfwGetTime());
+uniform float time;
 
 in vec2 uv0;
 out vec4 FragColor;

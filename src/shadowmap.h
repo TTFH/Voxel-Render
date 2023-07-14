@@ -12,8 +12,8 @@ class ShadowMap {
 private:
 	GLuint shadowMap;
 	GLuint shadowMapFBO;
-	const unsigned int shadowMapWidth = 4096;
-	const unsigned int shadowMapHeight = 4096;
+	const unsigned int shadowMapWidth = 1024;
+	const unsigned int shadowMapHeight = 1024;
 public:
 	ShadowMap();
 	void BindShadowMap();

@@ -1,5 +1,6 @@
 #include <stdio.h>
 
+#include "texture.h"
 #include "water_render.h"
 
 #include <glm/gtc/type_ptr.hpp>
@@ -39,8 +40,30 @@ WaterRender::WaterRender(vector<vec2> vertices) {
 	vao.Unbind();
 	vbo.Unbind();
 
+	vec2 min = vertices[0];
+	vec2 max = vertices[0];
+	for (size_t i = 1; i < vertices.size(); i++) {
+		vec2 vertex = vertices[i];
+		if (vertex.x < min.x)
+			min.x = vertex.x;
+		if (vertex.y < min.y)
+			min.y = vertex.y;
+		if (vertex.x > max.x)
+			max.x = vertex.x;
+		if (vertex.y > max.y)
+			max.y = vertex.y;
+	}
+	bounding_box = {min, max};
+
 	CreateFramebuffer(reflectionFrameBuffer, reflectionTexture, reflectionDepthBuffer, REFLECTION_WIDTH, REFLECTION_HEIGHT);
 	CreateFramebuffer(refractionFrameBuffer, refractionTexture, refractionDepthTexture, REFRACTION_WIDTH, REFRACTION_HEIGHT);
+
+	Texture dudvMap("water_dudv.png", "dudv", 2);
+	dudv_texture = dudvMap.texture_id;
+
+	Texture normalMap("water_normal.png", "normal", 3);
+	normal_texture = normalMap.texture_id;
+
 	printf("Water initialized.\n");
 }
 
@@ -71,9 +94,13 @@ void WaterRender::draw(Shader& shader, Camera& camera) {
 	shader.Use();
 	vao.Bind();
 	camera.pushMatrix(shader, "camera");
+	glUniform3fv(glGetUniformLocation(shader.id, "camera_pos"), 1, value_ptr(camera.position));
 
 	mat4 pos = translate(mat4(1.0f), position);
 	glUniformMatrix4fv(glGetUniformLocation(shader.id, "position"), 1, GL_FALSE, value_ptr(pos));
+
+	glUniform2fv(glGetUniformLocation(shader.id, "min"), 1, value_ptr(bounding_box.min));
+	glUniform2fv(glGetUniformLocation(shader.id, "max"), 1, value_ptr(bounding_box.max));
 
 	glUniform1i(glGetUniformLocation(shader.id, "reflectionTexture"), 0);
 	glActiveTexture(GL_TEXTURE0);
@@ -82,6 +109,18 @@ void WaterRender::draw(Shader& shader, Camera& camera) {
 	glUniform1i(glGetUniformLocation(shader.id, "refractionTexture"), 1);
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, refractionTexture);
+
+	glUniform1i(glGetUniformLocation(shader.id, "dudvMap"), 2);
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, dudv_texture);
+
+	glUniform1i(glGetUniformLocation(shader.id, "normalMap"), 3);
+	glActiveTexture(GL_TEXTURE3);
+	glBindTexture(GL_TEXTURE_2D, normal_texture);
+
+	glUniform1i(glGetUniformLocation(shader.id, "depthMap"), 4);
+	glActiveTexture(GL_TEXTURE4);
+	glBindTexture(GL_TEXTURE_2D, refractionDepthTexture);
 
 	glDrawArrays(GL_TRIANGLE_FAN, 0, vertex_count);
 	vao.Unbind();
