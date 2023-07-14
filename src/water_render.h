@@ -22,7 +22,7 @@ private:
 public:
 	GLuint reflectionFrameBuffer;
 	GLuint reflectionTexture;
-	GLuint reflectionDepthBuffer;
+	GLuint reflectionDepthTexture;
 
 	GLuint refractionFrameBuffer;
 	GLuint refractionTexture;

@@ -33,7 +33,7 @@ int main(int argc, char* argv[]) {
 	Shader shadowmap_shader("shaders/shadowmap_vert.glsl", "shaders/shadowmap_frag.glsl");
 
 	Camera camera;
-	//UI_Rectangle rect;
+	UI_Rectangle rect;
 	ShadowMap shadow_map;
 	Light light(vec3(-35, 130, -132));
 	Skybox skybox(skybox_shader, (float)WINDOW_WIDTH / WINDOW_HEIGHT);
@@ -87,7 +87,7 @@ int main(int argc, char* argv[]) {
 		exit(EXIT_FAILURE);
 	}
 	WaterRender* water = scene.waters[0];
-	vec4 clip_plane_top = vec4(0, 1, 0, -water->GetHeight()); // reflection
+	vec4 clip_plane_top = vec4(0, 1, 0, -water->GetHeight() + 0.5); // reflection
 	vec4 clip_plane_bottom = vec4(0, -1, 0, water->GetHeight()); // refraction
 
 	// FPS counter
@@ -208,13 +208,15 @@ int main(int argc, char* argv[]) {
 
 		light.pushLight(water_shader);
 		glUniform1f(glGetUniformLocation(water_shader.id, "time"), glfwGetTime());
+		glEnable(GL_BLEND);
 		scene.drawWater(water_shader, camera);
+		glDisable(GL_BLEND);
 
 		//light.draw(voxel_shader, camera); // Debug light pos
 		skybox.Draw(skybox_shader, camera);
 
-		//rect.draw(shader_2d, water->reflectionTexture, -0.9, 0.4);
-		//rect.draw(shader_2d, water->refractionTexture, 0.4, 0.4);
+		rect.draw(shader_2d, water->reflectionDepthTexture, -0.9, 0.4);
+		rect.draw(shader_2d, water->refractionDepthTexture, 0.4, 0.4);
 /*
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

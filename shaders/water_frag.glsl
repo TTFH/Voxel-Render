@@ -23,14 +23,14 @@ void main() {
 	moveFactor -= floor(moveFactor);
 
 	vec2 ndc = (clip_space.xy / clip_space.w) / 2.0f + 0.5f;
-/*
+
 	float near = 0.1f;
 	float far = 500.0f;
 	float depth = texture(depthMap, ndc).r;
 	float floorDistance = 2.0f * near * far / (far + near - (2.0 * depth - 1.0) * (far - near));
 	float waterDistance = 2.0f * near * far / (far + near - (2.0 * gl_FragCoord.z - 1.0) * (far - near));
 	float waterDepth = floorDistance - waterDistance;
-*/
+
 	vec2 distortion = texture(dudvMap, vec2(uv.x + moveFactor, uv.y)).rg * 0.1f;
 	distortion = uv + vec2(distortion.x, distortion.y + moveFactor);
 	vec2 totalDistortion = texture(dudvMap, distortion).rg * 2.0f - 1.0f;
@@ -41,12 +41,12 @@ void main() {
 	vec4 reflectColor = texture(reflectionTexture, vec2(ndc.x, -ndc.y));
 	vec4 refractColor = texture(refractionTexture, ndc);
 
-	float refractiveFactor = dot(to_camera, vec3(0.0f, 1.0f, 0.0f));
-	refractiveFactor = pow(refractiveFactor, 0.5f);
-
 	vec4 normalColor = texture(normalMap, distortion);
-	vec3 normal = vec3(normalColor.r * 2.0f - 1.0f, normalColor.b, normalColor.g * 2.0f - 1.0f);
+	vec3 normal = vec3(normalColor.r * 2.0f - 1.0f, normalColor.b * 3.0f, normalColor.g * 2.0f - 1.0f);
 	normal = normalize(normal);
+
+	float refractiveFactor = dot(to_camera, normal);
+	refractiveFactor = pow(refractiveFactor, 0.5f);
 
 	vec3 reflectedLight = reflect(from_light, normal);
 	float specular = max(dot(reflectedLight, to_camera), 0.0f);

@@ -55,7 +55,7 @@ WaterRender::WaterRender(vector<vec2> vertices) {
 	}
 	bounding_box = {min, max};
 
-	CreateFramebuffer(reflectionFrameBuffer, reflectionTexture, reflectionDepthBuffer, REFLECTION_WIDTH, REFLECTION_HEIGHT);
+	CreateFramebuffer(reflectionFrameBuffer, reflectionTexture, reflectionDepthTexture, REFLECTION_WIDTH, REFLECTION_HEIGHT);
 	CreateFramebuffer(refractionFrameBuffer, refractionTexture, refractionDepthTexture, REFRACTION_WIDTH, REFRACTION_HEIGHT);
 
 	Texture dudvMap("water_dudv.png", "dudv", 2);
