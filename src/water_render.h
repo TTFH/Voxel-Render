@@ -16,10 +16,10 @@ struct AABB_2D {
 class WaterRender {
 private:
 	VAO vao;
+	AABB_2D bounding_box;
 	GLsizei vertex_count;
 	vec3 position = vec3(0, 0, 0);
-	AABB_2D bounding_box;
-public:
+
 	GLuint reflectionFrameBuffer;
 	GLuint reflectionTexture;
 	GLuint reflectionDepthBuffer;
@@ -31,6 +31,12 @@ public:
 	GLuint dudv_texture;
 	GLuint normal_texture;
 
+	const int REFLECTION_WIDTH = 320;
+	const int REFLECTION_HEIGHT = 180;
+
+	const int REFRACTION_WIDTH = 1280;
+	const int REFRACTION_HEIGHT = 720;
+public:
 	WaterRender(vector<vec2> vertices);
 	float GetHeight();
 	void BindReflectionFB();

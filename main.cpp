@@ -33,7 +33,7 @@ int main(int argc, char* argv[]) {
 	Shader shadowmap_shader("shaders/shadowmap_vert.glsl", "shaders/shadowmap_frag.glsl");
 
 	Camera camera;
-	UI_Rectangle rect;
+	//UI_Rectangle rect;
 	ShadowMap shadow_map;
 	Light light(vec3(-35, 130, -132));
 	Skybox skybox(skybox_shader, (float)WINDOW_WIDTH / WINDOW_HEIGHT);
@@ -215,8 +215,8 @@ int main(int argc, char* argv[]) {
 		//light.draw(voxel_shader, camera); // Debug light pos
 		skybox.Draw(skybox_shader, camera);
 
-		rect.draw(shader_2d, water->reflectionDepthBuffer, -0.9, 0.4);
-		rect.draw(shader_2d, water->refractionDepthTexture, 0.4, 0.4);
+		//rect.draw(shader_2d, water->reflectionDepthBuffer, -0.9, 0.4);
+		//rect.draw(shader_2d, water->refractionDepthTexture, 0.4, 0.4);
 /*
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

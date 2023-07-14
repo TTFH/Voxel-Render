@@ -14,14 +14,13 @@ out vec3 to_camera;
 out vec3 from_light;
 out vec4 clip_space;
 
-float tiling = 4.0;
+float tiling = 8.0;
 
 void main() {
 	vec4 world_pos = position * vec4(aPos.x, 0.05f, aPos.y, 1.0f);
-	clip_space = camera * world_pos;
-	gl_Position = clip_space;
-
 	uv = tiling * (aPos - min) / (max - min);
 	to_camera = normalize(camera_pos - world_pos.xyz);
 	from_light = normalize(world_pos.xyz - lightpos);
+	clip_space = camera * world_pos;
+	gl_Position = clip_space;
 }

@@ -5,12 +5,7 @@
 
 #include <glm/gtc/type_ptr.hpp>
 
-const int REFLECTION_WIDTH = 320;
-const int REFLECTION_HEIGHT = 180;
-const int REFRACTION_WIDTH = 1280;
-const int REFRACTION_HEIGHT = 720;
-
-static void CreateFramebuffer(GLuint &FBO, GLuint &fbTexture, GLuint &depthBuffer, int width, int height) {
+static void CreateReflectionFB(GLuint &FBO, GLuint &fbTexture, GLuint &depthBuffer, int width, int height) {
 	glGenFramebuffers(1, &FBO);
 	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
 
@@ -32,7 +27,7 @@ static void CreateFramebuffer(GLuint &FBO, GLuint &fbTexture, GLuint &depthBuffe
 		printf("[ERROR] Framebuffer failed with status %d\n", fboStatus);
 }
 
-static void CreateFramebuffer2(GLuint &FBO, GLuint &fbTexture, GLuint &depthTexture, int width, int height) {
+static void CreateRefractionFB(GLuint &FBO, GLuint &fbTexture, GLuint &depthTexture, int width, int height) {
 	glGenFramebuffers(1, &FBO);
 	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
 
@@ -79,8 +74,8 @@ WaterRender::WaterRender(vector<vec2> vertices) {
 	}
 	bounding_box = {min, max};
 
-	CreateFramebuffer(reflectionFrameBuffer, reflectionTexture, reflectionDepthBuffer, REFLECTION_WIDTH, REFLECTION_HEIGHT);
-	CreateFramebuffer2(refractionFrameBuffer, refractionTexture, refractionDepthTexture, REFRACTION_WIDTH, REFRACTION_HEIGHT);
+	CreateReflectionFB(reflectionFrameBuffer, reflectionTexture, reflectionDepthBuffer,  REFLECTION_WIDTH, REFLECTION_HEIGHT);
+	CreateRefractionFB(refractionFrameBuffer, refractionTexture, refractionDepthTexture, REFRACTION_WIDTH, REFRACTION_HEIGHT);
 
 	Texture dudvMap("water_dudv.png", "dudv", 2);
 	dudv_texture = dudvMap.texture_id;
