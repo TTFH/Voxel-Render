@@ -57,4 +57,7 @@ void main() {
 	vec4 outColor = mix(reflectColor, refractColor, refractiveFactor);
 	vec4 waterColor = vec4(0.22f, 0.22f, 0.44f, 1.0f);
 	FragColor = mix(outColor, waterColor, 0.2f) + vec4(specularHighlights, 0.0f);
+
+
+	FragColor = vec4(floorDistance / 50.0f);
 }
