@@ -33,7 +33,7 @@ int main(int argc, char* argv[]) {
 	Shader shadowmap_shader("shaders/shadowmap_vert.glsl", "shaders/shadowmap_frag.glsl");
 
 	Camera camera;
-	UI_Rectangle rect;
+	//UI_Rectangle rect;
 	ShadowMap shadow_map;
 	Light light(vec3(-35, 130, -132));
 	Skybox skybox(skybox_shader, (float)WINDOW_WIDTH / WINDOW_HEIGHT);
@@ -122,6 +122,16 @@ int main(int argc, char* argv[]) {
 			prev_time = actual_time;
 			counter = 0;
 		}
+
+		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+			glfwSetWindowShouldClose(window, true);
+		if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS) {
+			printf("Camera position: (%.2f, %.2f, %.2f)\n", camera.position.x, camera.position.y, camera.position.z);
+			printf("Camera orientation: (%.2f, %.2f, %.2f)\n", camera.orientation.x, camera.orientation.y, camera.orientation.z);
+		}
+
+		light.handleInputs(window);
+		camera.handleInputs(window);
 /*
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
@@ -144,13 +154,15 @@ int main(int argc, char* argv[]) {
 			ImGui::End();
 		}
 */
-		light.pushLight(voxel_shader);
+		// Not needed, light pos is send to the shader with shadow_map.PushShadows()
+		//light.pushLight(voxel_shader);
 		//light.pushLight(mesh_shader);
-		light.pushLight(water_shader);
-		light.pushLight(voxbox_shader);
-		light.pushProjection(shadowmap_shader);
+		//light.pushLight(water_shader);
+		//light.pushLight(voxbox_shader);
+		//light.pushProjection(shadowmap_shader);
 
 		shadow_map.BindShadowMap();
+		light.pushProjection(shadowmap_shader);
 		scene.draw(shadowmap_shader, camera);
 		scene.drawVoxbox(shadowmap_shader, camera);
 		//train.draw(shadowmap_shader, camera, vec3(-10, 5, -10), 0);
@@ -158,20 +170,19 @@ int main(int argc, char* argv[]) {
 		shadow_map.UnbindShadowMap(camera);
 
 		glEnable(GL_CLIP_DISTANCE0);
+		float distance = 2.0 * (camera.position.y - water->GetHeight());
 
+		camera.position.y -= distance;
+		camera.orientation.y *= -1;
+		camera.updateMatrix(45, 0.1, FAR_PLANE);
 		water->BindReflectionFB();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		shadow_map.PushShadows(voxel_shader, light.getProjection());
-
-		float distance = 2.0 * (camera.position.y - water->GetHeight());
-		camera.position.y -= distance;
-		//camera.pitch *= -1;
-		camera.updateMatrix(45, 0.1, FAR_PLANE);
 		scene.draw(voxel_shader, camera, clip_plane_top);
-		camera.position.y += distance;
-		//camera.pitch *= -1;
-		camera.updateMatrix(45, 0.1, FAR_PLANE);
 
+		camera.position.y += distance;
+		camera.orientation.y *= -1;
+		camera.updateMatrix(45, 0.1, FAR_PLANE);
 		water->BindrefractionFB();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		shadow_map.PushShadows(voxel_shader, light.getProjection());
@@ -183,17 +194,6 @@ int main(int argc, char* argv[]) {
 		//glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
 		glClearColor(0.35, 0.54, 0.8, 1);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-			glfwSetWindowShouldClose(window, true);
-		if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS) {
-			printf("Camera position: (%.2f, %.2f, %.2f)\n", camera.position.x, camera.position.y, camera.position.z);
-			printf("Camera orientation: (%.2f, %.2f, %.2f)\n", camera.orientation.x, camera.orientation.y, camera.orientation.z);
-		}
-
-		light.handleInputs(window);
-		camera.handleInputs(window);
-		camera.updateMatrix(45, 0.1, FAR_PLANE);
 /*
 		shadow_map.PushShadows(mesh_shader, light.getProjection());
 		train.draw(mesh_shader, camera, vec3(-10, 5, -10), 0);
@@ -205,14 +205,12 @@ int main(int argc, char* argv[]) {
 		shadow_map.PushShadows(voxbox_shader, light.getProjection());
 		scene.drawVoxbox(voxbox_shader, camera);
 		scene.drawRope(rope_shader, camera);
-		glEnable(GL_BLEND);
 		scene.drawWater(water_shader, camera);
-		glDisable(GL_BLEND);
 		//light.draw(voxel_shader, camera); // Debug light pos
 		skybox.Draw(skybox_shader, camera);
 
-		rect.draw(shader_2d, water->reflectionTexture, -0.9, 0.4);
-		rect.draw(shader_2d, water->refractionTexture, 0.4, 0.4);
+		//rect.draw(shader_2d, water->reflectionTexture, -0.9, 0.4);
+		//rect.draw(shader_2d, water->refractionTexture, 0.4, 0.4);
 /*
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

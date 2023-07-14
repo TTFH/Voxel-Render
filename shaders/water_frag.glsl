@@ -1,11 +1,14 @@
 #version 420 core
-uniform vec3 lightpos;
+uniform sampler2D reflectionTexture;
+uniform sampler2D refractionTexture;
 
-in vec3 normal;
+in vec4 world_pos;
 out vec4 FragColor;
 
 void main() {
-	float l = 0.6f + 0.4f * max(0.0f, dot(normal, normalize(lightpos)));
-	FragColor.rgb = vec3(0.22f, 0.22f, 0.44f) * l;
-	FragColor.a = 0.9f;
+	vec2 uv = (world_pos.xy / world_pos.w) / 2.0f + 0.5f;
+
+	vec4 reflectColor = texture(reflectionTexture, vec2(uv.x, -uv.y));
+	vec4 refractColor = texture(refractionTexture, uv);
+	FragColor = mix(reflectColor, refractColor, 0.5f);
 }

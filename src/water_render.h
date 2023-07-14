@@ -8,17 +8,11 @@
 
 using namespace glm;
 
-struct AABB_2D {
-	vec2 min;
-	vec2 max;
-};
-
 class WaterRender {
 private:
 	VAO vao;
 	GLsizei vertex_count;
 	vec3 position = vec3(0, 0, 0);
-	AABB_2D bounding_box;
 public:
 	GLuint reflectionFrameBuffer;
 	GLuint reflectionTexture;
