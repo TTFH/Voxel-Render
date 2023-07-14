@@ -138,7 +138,7 @@ void Scene::RecursiveLoad(XMLElement* element, vec3 parent_pos, quat parent_rot)
 Scene::Scene(string path) {
 	XMLDocument xml_file;
 	if (xml_file.LoadFile(path.c_str()) != XML_SUCCESS) {
-		printf("[WARNING] File %s not found.\n", path.c_str());
+		printf("[Warning] XML file %s not found or corrupted.\n", path.c_str());
 		return;
 	}
 	parent_folder = path.substr(0, path.find_last_of("/\\") + 1);

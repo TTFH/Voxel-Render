@@ -37,10 +37,10 @@ void ShadowMap::UnbindShadowMap(Camera& camera) {
 
 void ShadowMap::PushShadows(Shader& shader, mat4 lightProjection) {
 	shader.Use();
-	glUniformMatrix4fv(glGetUniformLocation(shader.id, "lightProjection"), 1, GL_FALSE, value_ptr(lightProjection));
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, shadowMap);
 	glUniform1i(glGetUniformLocation(shader.id, "shadowMap"), 1);
+	glUniformMatrix4fv(glGetUniformLocation(shader.id, "lightProjection"), 1, GL_FALSE, value_ptr(lightProjection));
 }
 
 ShadowMap::~ShadowMap() {

@@ -40,4 +40,6 @@ F10 save screenshot
 F11 toggle fullscreen
 
 ![img0](https://raw.githubusercontent.com/TTFH/Voxel-Render/main/screenshots/img0.png)
+![img1](https://raw.githubusercontent.com/TTFH/Voxel-Render/main/screenshots/img1.png)
+![img2](https://raw.githubusercontent.com/TTFH/Voxel-Render/main/screenshots/img2.png)
 ![img3](https://raw.githubusercontent.com/TTFH/Voxel-Render/main/screenshots/img3.png)

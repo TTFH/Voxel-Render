@@ -24,7 +24,7 @@ int main(int argc, char* argv[]) {
 #else
 	Shader voxel_shader("shaders/voxel_vert.glsl", "shaders/voxel_frag.glsl");
 #endif
-	Shader shader_2d("shaders/2d_vert.glsl", "shaders/2d_tex_frag.glsl");
+	//Shader shader_2d("shaders/2d_vert.glsl", "shaders/2d_tex_frag.glsl");
 	//Shader mesh_shader("shaders/mesh_vert.glsl", "shaders/mesh_frag.glsl");
 	Shader rope_shader("shaders/rope_vert.glsl", "shaders/rope_frag.glsl");
 	Shader water_shader("shaders/water_vert.glsl", "shaders/water_frag.glsl");

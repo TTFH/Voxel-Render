@@ -14,7 +14,7 @@ out vec3 to_camera;
 out vec3 from_light;
 out vec4 clip_space;
 
-float tiling = 8.0;
+float tiling = 6.0;
 
 void main() {
 	vec4 world_pos = position * vec4(aPos.x, 0.05f, aPos.y, 1.0f);

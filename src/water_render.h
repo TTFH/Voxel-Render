@@ -31,8 +31,8 @@ private:
 	GLuint dudv_texture;
 	GLuint normal_texture;
 
-	const int REFLECTION_WIDTH = 320;
-	const int REFLECTION_HEIGHT = 180;
+	const int REFLECTION_WIDTH = 640;
+	const int REFLECTION_HEIGHT = 360;
 
 	const int REFRACTION_WIDTH = 1280;
 	const int REFRACTION_HEIGHT = 720;

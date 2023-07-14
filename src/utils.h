@@ -8,7 +8,7 @@
 #include "camera.h"
 
 const float FAR_PLANE = 500;
-const unsigned int WINDOW_WIDTH = 1024;
+const unsigned int WINDOW_WIDTH = 1280;
 const unsigned int WINDOW_HEIGHT = 720;
 
 class UI_Rectangle {
