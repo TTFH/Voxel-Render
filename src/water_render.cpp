@@ -32,6 +32,30 @@ static void CreateFramebuffer(GLuint &FBO, GLuint &fbTexture, GLuint &depthBuffe
 		printf("[ERROR] Framebuffer failed with status %d\n", fboStatus);
 }
 
+static void CreateFramebuffer2(GLuint &FBO, GLuint &fbTexture, GLuint &depthTexture, int width, int height) {
+	glGenFramebuffers(1, &FBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+
+	glGenTextures(1, &fbTexture);
+	glBindTexture(GL_TEXTURE_2D, fbTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, fbTexture, 0);
+	glDrawBuffer(GL_COLOR_ATTACHMENT0);
+
+	glGenTextures(1, &depthTexture);
+	glBindTexture(GL_TEXTURE_2D, depthTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthTexture, 0);
+
+	GLenum fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	if (fboStatus != GL_FRAMEBUFFER_COMPLETE)
+		printf("[ERROR] Framebuffer failed with status %d\n", fboStatus);
+}
+
 WaterRender::WaterRender(vector<vec2> vertices) {
 	vertex_count = vertices.size();
 	vao.Bind();
@@ -55,8 +79,8 @@ WaterRender::WaterRender(vector<vec2> vertices) {
 	}
 	bounding_box = {min, max};
 
-	CreateFramebuffer(reflectionFrameBuffer, reflectionTexture, reflectionDepthTexture, REFLECTION_WIDTH, REFLECTION_HEIGHT);
-	CreateFramebuffer(refractionFrameBuffer, refractionTexture, refractionDepthTexture, REFRACTION_WIDTH, REFRACTION_HEIGHT);
+	CreateFramebuffer(reflectionFrameBuffer, reflectionTexture, reflectionDepthBuffer, REFLECTION_WIDTH, REFLECTION_HEIGHT);
+	CreateFramebuffer2(refractionFrameBuffer, refractionTexture, refractionDepthTexture, REFRACTION_WIDTH, REFRACTION_HEIGHT);
 
 	Texture dudvMap("water_dudv.png", "dudv", 2);
 	dudv_texture = dudvMap.texture_id;
