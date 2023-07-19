@@ -38,6 +38,13 @@ ifeq ($(OS), Windows_NT)
 	CXXFLAGS += -IC:/msys64/mingw64/include
 endif
 
+ifeq ($(UNAME_S), Darwin)
+	ECHO_MESSAGE = "MacOS"
+	CXXFLAGS += -Wno-unused-const-variable -Wno-deprecated-volatile -Wno-deprecated-declarations -Wno-deprecated -Wno-dangling-gsl
+	LIBS = -lglfw `pkg-config --static --libs glfw3`
+	CXXFLAGS += `pkg-config --cflags glfw3 glm`
+endif
+
 ##---------------------------------------------------------------------
 ## BUILD RULES
 ##---------------------------------------------------------------------
