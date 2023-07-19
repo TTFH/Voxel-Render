@@ -1,4 +1,4 @@
-#version 420 core
+#version 410 core
 uniform sampler2D reflectionTexture;
 uniform sampler2D refractionTexture;
 uniform sampler2D dudvMap;

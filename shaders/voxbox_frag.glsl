@@ -1,4 +1,4 @@
-#version 420 core
+#version 410 core
 uniform sampler2D shadowMap;
 uniform vec3 lightpos;
 uniform vec3 color;
