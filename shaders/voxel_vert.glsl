@@ -18,7 +18,14 @@ out float tex_coord;
 out vec4 fragPosLight;
 
 void main() {
-	vec4 pos = position * rotation * vec4(aPos + aOffset, 1.0f);
+	//vec3 stretch = vec3(1.5f, sqrt(3), 1.0f);
+	//vec3 offset = vec3(1.5 * aOffset.x, sqrt(3) * aOffset.y + mod(aOffset.x, 2) * 0.5 * sqrt(3), aOffset.z);
+
+	vec3 aPos2 = vec3(aPos.x, aPos.z, -aPos.y);
+	vec3 stretch = vec3(1.5f, 1.0f, sqrt(3.0f));
+	vec3 offset = vec3(1.5f * aOffset.x, aOffset.y, sqrt(3.0f) * aOffset.z + mod(aOffset.x, 2) * 0.5f * sqrt(3.0f));
+
+	vec4 pos = position * rotation * vec4((aPos2 + offset) / stretch, 1.0f);
 	vec4 currentPos = world_pos * world_rot * vec4(pos.x, pos.z, -pos.y, 10.0f / scale);
 	gl_ClipDistance[0] = dot(currentPos, clip_plane);
 	gl_Position = camera * currentPos;

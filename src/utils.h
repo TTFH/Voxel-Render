@@ -1,13 +1,15 @@
 #ifndef UTILS_H
 #define UTILS_H
 
+#include <string>
 #include "../glad/glad.h"
 #include <GLFW/glfw3.h>
 
 #include "vao.h"
 #include "camera.h"
 
-const float FAR_PLANE = 500;
+using namespace std;
+
 const unsigned int WINDOW_WIDTH = 1280;
 const unsigned int WINDOW_HEIGHT = 720;
 
@@ -21,5 +23,7 @@ public:
 
 GLFWwindow* InitOpenGL(const char* window_title);
 void key_press_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+
+string GetScenePath(int argc, char* argv[]);
 
 #endif

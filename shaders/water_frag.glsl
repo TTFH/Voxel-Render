@@ -17,8 +17,9 @@ float waterSpeed = 0.02f;
 float waveStrength = 0.01f;
 float shineDamper = 2.0f;
 float reflectivity = 0.5f;
+vec4 waterColor = vec4(0.22f, 0.22f, 0.44f, 0.9f);
 
-void main() {
+vec4 FancyShader() {
 	float moveFactor = waterSpeed * time;
 	moveFactor -= floor(moveFactor);
 
@@ -55,7 +56,12 @@ void main() {
 	vec3 specularHighlights = lightColor * specular * reflectivity;// * clamp(waterDepth / 5.0f, 0.0f, 1.0f);
 
 	vec4 outColor = mix(reflectColor, refractColor, refractiveFactor);
-	vec4 waterColor = vec4(0.22f, 0.22f, 0.44f, 1.0f);
-	FragColor = mix(outColor, waterColor, 0.2f) + vec4(specularHighlights, 0.0f);
-	//FragColor.a = clamp(waterDepth / 5.0f, 0.0f, 1.0f);
+	outColor = mix(outColor, waterColor, 0.2f) + vec4(specularHighlights, 0.0f);
+	//outColor.a = clamp(waterDepth / 5.0f, 0.0f, 1.0f);
+	return outColor;
+}
+
+void main() {
+	//FragColor = waterColor;
+	FragColor = FancyShader();
 }

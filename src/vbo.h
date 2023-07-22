@@ -13,6 +13,11 @@ struct MV_Voxel {
 	uint8_t x, y, z, index;
 };
 
+struct MV_Shape {
+	int sizex, sizey, sizez;
+	vector<MV_Voxel> voxels;
+};
+
 struct GM_Vertex {
 	vec3 position;
 	vec3 normal;

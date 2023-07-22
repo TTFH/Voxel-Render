@@ -93,6 +93,20 @@ void key_press_callback(GLFWwindow* window, int key, int scancode, int action, i
 	}
 }
 
+string GetScenePath(int argc, char* argv[]) {
+	string path = "main.xml";
+	if (argc > 1) {
+		path = argv[1];
+		if (path.find(".xml") == string::npos) {
+			if (path.back() == '/' || path.back() == '\\')
+				path += "main.xml";
+			else
+				path += "/main.xml";
+		}
+	}
+	return path;
+}
+
 static void PushTexture(GLuint texture_id, Shader& shader, const char* uniform) {
 	shader.Use();
 	glUniform1i(glGetUniformLocation(shader.id, uniform), 0);

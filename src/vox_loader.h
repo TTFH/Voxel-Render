@@ -1,7 +1,7 @@
 #ifndef VOX_LOADER_H
 #define VOX_LOADER_H
 
-#define GREADY_MESHING_ENABLED 1
+#define GREEDY_MESHING_ENABLED 1
 
 #include <map>
 #include <string>
@@ -48,7 +48,7 @@ private:
 	//MV_PBR pbr[256];
 	vector<MV_Shape> shapes;
 	multimap<string, MV_Model> models;
-#if GREADY_MESHING_ENABLED
+#if GREEDY_MESHING_ENABLED
 	vector<FastRender*> render;
 #else
 	vector<VoxelRender*> render;

@@ -18,7 +18,7 @@ private:
 	vec3 world_position = vec3(0, 0, 0);
 	quat world_rotation = quat(1, 0, 0, 0);
 public:
-	VoxelRender(vector<MV_Voxel> voxels, GLuint texture_id);
+	VoxelRender(const MV_Shape& shape, GLuint texture_id);
 	void setTransform(vec3 position, quat rotation);
 	void setWorldTransform(vec3 position, quat rotation);
 	void draw(Shader& shader, Camera& camera, vec4 clip_plane, float scale = 1);

@@ -2,6 +2,11 @@
 #include "texture.h"
 #include "../lib/stb_image.h"
 
+Texture::Texture(GLuint tex_id, GLuint slot) {
+	unit = slot;
+	texture_id = tex_id;
+}
+
 Texture::Texture(const char* path, const char* texType, GLuint slot) {
 	unit = slot;
 	type = texType;

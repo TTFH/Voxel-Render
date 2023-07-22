@@ -11,22 +11,20 @@
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "lib/stb_image_write.h"
-
+/*
 #include "imgui/imgui.h"
 #include "imgui/backend/imgui_impl_glfw.h"
 #include "imgui/backend/imgui_impl_opengl3.h"
-
-// Delete texture.h/cpp move loadTexture to utils
-
+*/
 int main(int argc, char* argv[]) {
 	GLFWwindow* window = InitOpenGL("OpenGL");
-#if GREADY_MESHING_ENABLED
+#if GREEDY_MESHING_ENABLED
 	Shader voxel_shader("shaders/voxel_gm_vert.glsl", "shaders/voxel_frag.glsl");
 #else
 	Shader voxel_shader("shaders/voxel_vert.glsl", "shaders/voxel_frag.glsl");
 #endif
-	Shader shader_2d("shaders/2d_vert.glsl", "shaders/2d_tex_frag.glsl");
-	Shader mesh_shader("shaders/mesh_vert.glsl", "shaders/mesh_frag.glsl");
+	//Shader shader_2d("shaders/2d_vert.glsl", "shaders/2d_tex_frag.glsl");
+	//Shader mesh_shader("shaders/mesh_vert.glsl", "shaders/mesh_frag.glsl");
 	Shader rope_shader("shaders/rope_vert.glsl", "shaders/rope_frag.glsl");
 	Shader water_shader("shaders/water_vert.glsl", "shaders/water_frag.glsl");
 	Shader voxbox_shader("shaders/voxbox_vert.glsl", "shaders/voxbox_frag.glsl");
@@ -34,12 +32,13 @@ int main(int argc, char* argv[]) {
 	Shader shadowmap_shader("shaders/shadowmap_vert.glsl", "shaders/shadowmap_frag.glsl");
 
 	Camera camera;
-	UI_Rectangle rect;
+	//UI_Rectangle rect;
 	ShadowMap shadow_map;
 	Light light(vec3(-35, 130, -132));
 	Skybox skybox(skybox_shader, (float)WINDOW_WIDTH / WINDOW_HEIGHT);
 	camera.initialize(WINDOW_WIDTH, WINDOW_HEIGHT, vec3(0, 2.5, 10));
-
+	Scene scene(GetScenePath(argc, argv));
+/*
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO();
@@ -52,18 +51,6 @@ int main(int argc, char* argv[]) {
 	ImGui_ImplOpenGL3_Init("#version 410");
 	ImVec4 clear_color = ImVec4(0.35, 0.54, 0.8, 1);
 	ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 3.0f);
-
-	string path = "main.xml";
-	if (argc > 1) {
-		path = argv[1];
-		if (path.find(".xml") == string::npos) {
-			if (path.back() == '/' || path.back() == '\\')
-				path += "main.xml";
-			else
-				path += "/main.xml";
-		}
-	}
-	Scene scene(path);
 
 	vector<Texture> train_tex = {
 		Texture("trains/shinkansen.png", "diffuse", 0),
@@ -80,7 +67,7 @@ int main(int argc, char* argv[]) {
 		Texture("meshes/CAT_140M3_normal.png", "normal", 2),
 	};
 	Mesh model("meshes/CAT_140M3.obj", model_textures);
-
+*/
 	if (scene.waters.size() != 1) {
 		printf("[ERROR] There is no water!\n");
 		exit(EXIT_FAILURE);
@@ -131,7 +118,7 @@ int main(int argc, char* argv[]) {
 
 		light.handleInputs(window);
 		camera.handleInputs(window);
-
+/*
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
@@ -152,51 +139,58 @@ int main(int argc, char* argv[]) {
 			ImGui::Text("Application average %.1f ms/frame (%.0f FPS)", 1000.0f / io.Framerate, io.Framerate);
 			ImGui::End();
 		}
+*/
+		light.pushLight(voxel_shader);
+		//light.pushLight(mesh_shader);
+		light.pushLight(water_shader);
+		light.pushLight(voxbox_shader);
+
+		//light.pushProjection(mesh_shader);
+		light.pushProjection(voxel_shader);
+		light.pushProjection(voxbox_shader);
+		light.pushProjection(shadowmap_shader);
 
 		// Shadows
 		shadow_map.BindShadowMap();
 		light.pushProjection(shadowmap_shader);
 		scene.draw(shadowmap_shader, camera);
 		scene.drawVoxbox(shadowmap_shader, camera);
-		train.draw(shadowmap_shader, camera, vec3(-10, 5, -10), 0);
-		model.draw(shadowmap_shader, camera, vec3(12, 4.3, 30), 170);
+		//train.draw(shadowmap_shader, camera, vec3(-10, 5, -10), 0);
+		//glass.draw(shadowmap_shader, camera, vec3(12, 4.3, 30), 170);
+		//model.draw(shadowmap_shader, camera, vec3(12, 4.3, 30), 170);
 		shadow_map.UnbindShadowMap(camera);
 
 		// Water shader
 		glEnable(GL_CLIP_DISTANCE0);
 		float distance = 2.0 * (camera.position.y - water->GetHeight());
 
-		camera.position.y -= distance;
-		camera.orientation.y *= -1;
-		camera.updateMatrix(45, 0.1, FAR_PLANE);
+		camera.translateAndInvertPitch(-distance);
 		water->BindReflectionFB();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		shadow_map.PushShadows(voxel_shader, light.getProjection());
+		shadow_map.PushShadows(voxel_shader);
 		scene.draw(voxel_shader, camera, clip_plane_top);
 
-		camera.position.y += distance;
-		camera.orientation.y *= -1;
-		camera.updateMatrix(45, 0.1, FAR_PLANE);
+		camera.translateAndInvertPitch(distance);
 		water->BindRefractionFB();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		shadow_map.PushShadows(voxel_shader, light.getProjection());
+		shadow_map.PushShadows(voxel_shader);
 		scene.draw(voxel_shader, camera, clip_plane_bottom);
 
 		water->UnbindFB(camera);
 		glDisable(GL_CLIP_DISTANCE0);
 
-		//glClearColor(0.35, 0.54, 0.8, 1);
-		glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
+		glClearColor(0.35, 0.54, 0.8, 1);
+		//glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		shadow_map.PushShadows(mesh_shader, light.getProjection());
+/*
+		shadow_map.PushShadows(mesh_shader);
 		train.draw(mesh_shader, camera, vec3(-10, 5, -10), 0);
 		glass.draw(mesh_shader, camera, vec3(12, 4.3, 30), 170);
 		model.draw(mesh_shader, camera, vec3(12, 4.3, 30), 170);
-
-		shadow_map.PushShadows(voxel_shader, light.getProjection());
+*/
+		shadow_map.PushShadows(voxel_shader);
 		scene.draw(voxel_shader, camera);
-		shadow_map.PushShadows(voxbox_shader, light.getProjection());
+		shadow_map.PushShadows(voxbox_shader);
 		scene.drawVoxbox(voxbox_shader, camera);
 		scene.drawRope(rope_shader, camera);
 
@@ -209,11 +203,11 @@ int main(int argc, char* argv[]) {
 		light.draw(voxel_shader, camera); // Debug light pos
 		skybox.Draw(skybox_shader, camera);
 
-		rect.draw(shader_2d, water->reflectionTexture, -0.9, 0.4);
-		rect.draw(shader_2d, water->refractionTexture, 0.4, 0.4);
+		//rect.draw(shader_2d, water->reflectionTexture, -0.9, 0.4);
+		//rect.draw(shader_2d, water->refractionTexture, 0.4, 0.4);
 
-		ImGui::Render();
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+		//ImGui::Render();
+		//ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 		glfwSwapBuffers(window);
 	}

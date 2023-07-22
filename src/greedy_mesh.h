@@ -9,11 +9,6 @@
 #include "camera.h"
 #include "shader.h"
 
-struct MV_Shape {
-	int sizex, sizey, sizez;
-	vector<MV_Voxel> voxels;
-};
-
 struct GreedyMesh {
 	vector<GM_Vertex> vertices;
 	vector<GLuint> indices;

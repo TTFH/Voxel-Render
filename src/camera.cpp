@@ -30,6 +30,12 @@ void Camera::pushMatrix(Shader& shader, const char* uniform) {
 	glUniformMatrix4fv(camera_unif, 1, GL_FALSE, value_ptr(cameraMatrix));
 }
 
+void Camera::translateAndInvertPitch(float distance) {
+	position.y += distance;
+	orientation.y *= -1;
+	updateMatrix(45, 0.1, FAR_PLANE);
+}
+
 void Camera::handleInputs(GLFWwindow* window) {
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 		position += speed * orientation;
@@ -71,4 +77,6 @@ void Camera::handleInputs(GLFWwindow* window) {
 		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 		firstClick = true;
 	}
+
+	updateMatrix(45, 0.1, FAR_PLANE);
 }

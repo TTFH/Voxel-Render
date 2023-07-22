@@ -4,7 +4,7 @@
 
 const uint8_t HOLE = 255;
 
-uint8_t*** MatrixInit(const MV_Shape& shape) {
+static uint8_t*** MatrixInit(const MV_Shape& shape) {
 	uint8_t*** voxels = new uint8_t**[shape.sizex];
 	for (int i = 0; i < shape.sizex; i++) {
 		voxels[i] = new uint8_t*[shape.sizey];
@@ -24,7 +24,7 @@ uint8_t*** MatrixInit(const MV_Shape& shape) {
 	return voxels;
 }
 
-void MatrixDelete(uint8_t*** &voxels, const MV_Shape& shape) {
+static void MatrixDelete(uint8_t*** &voxels, const MV_Shape& shape) {
 	for (int i = 0; i < shape.sizex; i++) {
 		for (int j = 0; j < shape.sizey; j++)
 			delete[] voxels[i][j];

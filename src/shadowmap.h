@@ -18,7 +18,7 @@ public:
 	ShadowMap();
 	void BindShadowMap();
 	void UnbindShadowMap(Camera& camera);
-	void PushShadows(Shader& shader, mat4 lightProjection);
+	void PushShadows(Shader& shader);
 	~ShadowMap();
 };
 
