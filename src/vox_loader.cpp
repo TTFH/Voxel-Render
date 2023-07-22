@@ -173,9 +173,9 @@ void VoxLoader::load(const char* filename) {
 							int y = (v >> 2) & 3;
 							int z = 3 - x - y;
 							rot_matrix = mat3(0.0f);
-							rot_matrix[0][x] = (v >> 4) & 1 ? -1 : 1;
-							rot_matrix[1][y] = (v >> 5) & 1 ? -1 : 1;
-							rot_matrix[2][z] = (v >> 6) & 1 ? -1 : 1;
+							rot_matrix[x][0] = (v >> 4) & 1 ? -1 : 1;
+							rot_matrix[y][1] = (v >> 5) & 1 ? -1 : 1;
+							rot_matrix[z][2] = (v >> 6) & 1 ? -1 : 1;
 							/*printf("Rot byte: 0x%02X\n", v);
 							printf("    [%2d %2d %2d]\nR = [%2d %2d %2d]\n    [%2d %2d %2d]\n\n",
 								(int)rot_matrix[0][0], (int)rot_matrix[0][1], (int)rot_matrix[0][2],
@@ -251,7 +251,7 @@ void VoxLoader::draw(Shader& shader, Camera& camera, vec4 clip_plane, string sha
 		int index = it->second.shape_index;
 		const MV_Shape& shape = shapes[index];
 		vec3 pos = it->second.rotation * vec3(-shape.sizex / 2, -shape.sizey / 2, 0);
-		render[index]->setTransform(pos, it->second.rotation); // BUG: Rotation may be wrong by 180° around vertical axis
+		render[index]->setTransform(pos, it->second.rotation);
 		render[index]->setWorldTransform(position, rotation);
 		render[index]->draw(shader, camera, clip_plane, scale);
 	}

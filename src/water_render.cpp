@@ -95,7 +95,7 @@ void WaterRender::BindReflectionFB() {
 	glViewport(0, 0, REFLECTION_WIDTH, REFLECTION_HEIGHT);
 }
 
-void WaterRender::BindrefractionFB() {
+void WaterRender::BindRefractionFB() {
 	glBindFramebuffer(GL_FRAMEBUFFER, refractionFrameBuffer);
 	glViewport(0, 0, REFRACTION_WIDTH, REFRACTION_HEIGHT);
 }

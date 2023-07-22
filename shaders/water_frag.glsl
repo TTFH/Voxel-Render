@@ -14,7 +14,7 @@ in vec4 clip_space;
 out vec4 FragColor;
 
 float waterSpeed = 0.02f;
-float waveStrength = 0.05f;
+float waveStrength = 0.01f;
 float shineDamper = 2.0f;
 float reflectivity = 0.5f;
 
@@ -31,8 +31,8 @@ void main() {
 	float waterDistance = 2.0f * near * far / (far + near - (2.0 * gl_FragCoord.z - 1.0) * (far - near));
 	float waterDepth = floorDistance - waterDistance;
 */
-	vec2 distortion = texture(dudvMap, vec2(uv.x + moveFactor, uv.y)).rg * 0.05f;
-	distortion = uv + vec2(distortion.x, distortion.y + moveFactor);
+	vec2 distortion = texture(dudvMap, vec2(uv.x + moveFactor, uv.y)).rg * 0.1f;
+	distortion = uv + vec2(distortion.x + moveFactor, distortion.y + moveFactor);
 	vec2 totalDistortion = texture(dudvMap, distortion).rg * 2.0f - 1.0f;
 
 	ndc += totalDistortion * waveStrength;// * clamp(waterDepth / 20.0f, 0.0f, 1.0f);

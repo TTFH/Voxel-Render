@@ -55,7 +55,7 @@ void TrimShape(uint8_t*** &voxels, int sizex, int sizey, int sizez) {
 					  solid[i + 1][j][k] && solid[i][j + 1][k] && solid[i][j][k + 1]) {
 						voxels[i][j][k] = 0;
 						count++;
-					  }
+					}
 				}
 			}
 

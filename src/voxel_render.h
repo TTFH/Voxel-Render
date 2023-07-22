@@ -21,7 +21,7 @@ public:
 	VoxelRender(vector<MV_Voxel> voxels, GLuint texture_id);
 	void setTransform(vec3 position, quat rotation);
 	void setWorldTransform(vec3 position, quat rotation);
-	void draw(Shader& shader, Camera& camera, float scale = 1);
+	void draw(Shader& shader, Camera& camera, vec4 clip_plane, float scale = 1);
 };
 
 #endif

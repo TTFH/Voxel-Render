@@ -20,7 +20,7 @@ float logisticDepth(float depth) {
 	float steepness = 0.1f;
 	float offset = 12.0f;
 	float zval = linearDepth(depth);
-	return 1 / (1 + exp(-steepness * (zval - offset)));
+	return 1.0f / (1.0f + exp(-steepness * (zval - offset)));
 }
 
 float computeShadows() {
@@ -31,8 +31,8 @@ float computeShadows() {
 		float currentDepth = lightCoords.z;
 		float bias = max(0.0025f * (1.0f - dot(normal, normalize(lightpos))), 0.001f);
 
-		int sampleRadius = 8;
-		vec2 pixelSize = 1.0 / textureSize(shadowMap, 0);
+		int sampleRadius = 16;
+		vec2 pixelSize = 1.0f / textureSize(shadowMap, 0);
 		for (int y = -sampleRadius; y <= sampleRadius; y++) {
 			for (int x = -sampleRadius; x <= sampleRadius; x++) {
 				float closestDepth = texture(shadowMap, lightCoords.xy + vec2(x, y) * pixelSize).r;

@@ -26,6 +26,5 @@ void main() {
 	normal = normalize((world_rot * vec4(local_normal.x, local_normal.z, -local_normal.y, 1.0f)).xyz);
 
 	tex_coord = aTexCoord;
-
 	fragPosLight = lightProjection * currentPos;
 }

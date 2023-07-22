@@ -10,7 +10,7 @@ Light::Light(vec3 pos) {
 	altitude = pos.y;
 	radius = sqrt(pos.x * pos.x + pos.z * pos.z);
 	azimuth = atan2(pos.z, pos.x);
-	//model.load("light.vox");
+	model.load("light.vox");
 }
 
 void Light::pushLight(Shader& shader) {
@@ -49,6 +49,5 @@ void Light::handleInputs(GLFWwindow* window) {
 }
 
 void Light::draw(Shader& shader, Camera& camera) {
-	(void)shader; (void)camera;
-	//model.draw(shader, camera, lightPos);
+	model.draw(shader, camera, vec4(0, 1, 0, 0), lightPos);
 }
