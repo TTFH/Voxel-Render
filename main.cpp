@@ -52,22 +52,33 @@ int main(int argc, char* argv[]) {
 	ImVec4 clear_color = ImVec4(0.35, 0.54, 0.8, 1);
 	ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 3.0f);
 */
-	vector<Texture> train_tex = {
-		Texture("trains/shinkansen.png", "diffuse"),
-	};
-	Mesh train("trains/shinkansen.obj", train_tex);
+/*
+	Mesh train("trains/shinkansen.obj", "trains/shinkansen.png");
+	Mesh glass("meshes/CAT_140M3_glass.obj", "meshes/glass.png");
+	Mesh model("meshes/CAT_140M3.obj", "meshes/CAT_140M3.png", "meshes/CAT_140M3_specular.png");
+	train.setWorldTransform(vec3(-10, 5, -10));
+	glass.setWorldTransform(vec3(12, 4.3, 30), 170);
+	model.setWorldTransform(vec3(12, 4.3, 30), 170);
+	scene.addMesh(&train);
+	scene.addMesh(&glass);
+	scene.addMesh(&model);
+*/
+/*
+	Mesh train1("trains/BigGreen.obj", "trains/BigGreen.png");
+	Mesh train2("trains/Crampton.obj", "trains/Crampton.png");
+	Mesh train3("trains/Inyo.obj", "trains/Inyo.png");
+	Mesh train4("trains/PrussianT3.obj", "trains/PrussianT3.png");
 
-	vector<Texture> glass_textures = {
-		Texture("meshes/glass.png", "diffuse"),
-	};
-	Mesh glass("meshes/CAT_140M3_glass.obj", glass_textures);
-	vector<Texture> model_textures = {
-		Texture("meshes/CAT_140M3.png", "diffuse"),
-		Texture("meshes/CAT_140M3_specular.png", "specular"),
-		Texture("meshes/CAT_140M3_normal.png", "normal"),
-	};
-	Mesh model("meshes/CAT_140M3.obj", model_textures);
+	train1.setWorldTransform(vec3(20, 0, 0));
+	train2.setWorldTransform(vec3(20, 0, 10));
+	train3.setWorldTransform(vec3(20, 0, 20));
+	train4.setWorldTransform(vec3(20, 0, 30));
 
+	scene.addMesh(&train1);
+	scene.addMesh(&train2);
+	scene.addMesh(&train3);
+	scene.addMesh(&train4);
+*/
 	if (scene.waters.size() != 1) {
 		printf("[ERROR] There is no water!\n");
 		exit(EXIT_FAILURE);
@@ -145,8 +156,8 @@ int main(int argc, char* argv[]) {
 		light.pushLight(water_shader);
 		light.pushLight(voxbox_shader);
 
-		light.pushProjection(mesh_shader);
 		light.pushProjection(voxel_shader);
+		light.pushProjection(mesh_shader);
 		light.pushProjection(voxbox_shader);
 		light.pushProjection(shadowmap_shader);
 
@@ -155,11 +166,7 @@ int main(int argc, char* argv[]) {
 		light.pushProjection(shadowmap_shader);
 		scene.draw(shadowmap_shader, camera);
 		scene.drawVoxbox(shadowmap_shader, camera);
-
-		train.draw(shadowmap_shader, camera, vec3(-10, 5, -10), 0);
-		glass.draw(shadowmap_shader, camera, vec3(12, 4.3, 30), 170);
-		model.draw(shadowmap_shader, camera, vec3(12, 4.3, 30), 170);
-
+		scene.drawMesh(shadowmap_shader, camera);
 		shadow_map.UnbindShadowMap(camera);
 
 		// Water shader
@@ -186,24 +193,20 @@ int main(int argc, char* argv[]) {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		shadow_map.PushShadows(mesh_shader);
-		train.draw(mesh_shader, camera, vec3(-10, 5, -10), 0);
-		glass.draw(mesh_shader, camera, vec3(12, 4.3, 30), 170);
-		model.draw(mesh_shader, camera, vec3(12, 4.3, 30), 170);
-
+		scene.drawMesh(mesh_shader, camera);
 		shadow_map.PushShadows(voxel_shader);
 		scene.draw(voxel_shader, camera);
 		shadow_map.PushShadows(voxbox_shader);
 		scene.drawVoxbox(voxbox_shader, camera);
-		scene.drawRope(rope_shader, camera);
 
-		light.pushLight(water_shader);
 		glUniform1f(glGetUniformLocation(water_shader.id, "time"), glfwGetTime());
 		glEnable(GL_BLEND);
 		scene.drawWater(water_shader, camera);
 		glDisable(GL_BLEND);
 
+		scene.drawRope(rope_shader, camera);
 		light.draw(voxel_shader, camera); // Debug light pos
-		skybox.Draw(skybox_shader, camera);
+		skybox.draw(skybox_shader, camera);
 
 		//rect.draw(shader_2d, water->reflectionTexture, -0.9, 0.4);
 		//rect.draw(shader_2d, water->refractionTexture, 0.4, 0.4);

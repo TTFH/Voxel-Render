@@ -13,7 +13,7 @@ private:
 	float aspectRatio;
 public:
 	Skybox(Shader& skyboxProgram, float aspectRatio);
-	void Draw(Shader& skyboxProgram, Camera& camera);
+	void draw(Shader& skyboxProgram, Camera& camera);
 };
 
 #endif

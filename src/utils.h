@@ -26,6 +26,7 @@ void key_press_callback(GLFWwindow* window, int key, int scancode, int action, i
 
 string GetScenePath(int argc, char* argv[]);
 
+GLuint LoadTexture(const char* path, GLenum format = GL_RGBA);
 void PushTexture(GLuint texture_id, Shader& shader, const char* uniform, GLuint unit = 0);
 
 #endif

@@ -1,6 +1,8 @@
-#include "mesh.h"
 #include <string.h>
 #include <glm/gtc/type_ptr.hpp>
+
+#include "mesh.h"
+#include "utils.h"
 
 struct Triangle {
 	int vertex_index[3];
@@ -83,7 +85,7 @@ void Mesh::LoadOBJ(const char* path) {
 	}
 }
 
-Mesh::Mesh(const char* path, vector<Texture>& textures) {
+Mesh::Mesh(const char* path, const char* diffuse_path, const char* specular_path) {
 	string extension = path;
 	extension = extension.substr(extension.find_last_of(".") + 1);
 	if (extension == "obj")
@@ -92,7 +94,10 @@ Mesh::Mesh(const char* path, vector<Texture>& textures) {
 		printf("[Warning] Unsupported mesh format: %s\n", extension.c_str());
 		return;
 	}
-	this->textures = textures;
+
+	diffuse_texture = LoadTexture(diffuse_path, GL_RGBA);
+	if (specular_path != NULL)
+		specular_texture = LoadTexture(specular_path, GL_RED);
 
 	vao.Bind();
 	VBO vbo(vertices);
@@ -103,40 +108,24 @@ Mesh::Mesh(const char* path, vector<Texture>& textures) {
 	vbo.Unbind();
 }
 
-void Mesh::draw(Shader& shader, Camera& camera, vec3 translation, float angle) {
+void Mesh::setWorldTransform(vec3 position, float angle) {
+	this->position = position;
+	this->rotation = angleAxis(radians(angle), vec3(0, 1, 0));
+}
+
+void Mesh::draw(Shader& shader, Camera& camera) {
 	shader.Use();
 	vao.Bind();
 
-	unsigned int num_diffuse = 0;
-	unsigned int num_specular = 0;
-	unsigned int num_normal = 0;
-	unsigned int num_displacement = 0;
-
-	// Unbind missing texture
-	GLuint texUnit = glGetUniformLocation(shader.id, "specular0");
-	glUniform1i(texUnit, 0);
-
-	for (unsigned int i = 0; i < textures.size(); i++) {
-		string num;
-		string type = textures[i].type;
-		if (type == "diffuse")
-			num = to_string(num_diffuse++);
-		else if (type == "specular")
-			num = to_string(num_specular++);
-		else if (type == "normal")
-			num = to_string(num_normal++);
-		else if (type == "displacement")
-			num = to_string(num_displacement++);
-		const char* uniform = (type + num).c_str();
-		textures[i].Bind(shader, uniform, i);
-	}
+	PushTexture(diffuse_texture, shader, "diffuse0", 0);
+	PushTexture(specular_texture, shader, "specular0", 1);
 
 	camera.pushMatrix(shader, "camera");
 	glUniform3fv(glGetUniformLocation(shader.id, "camera_pos"), 1, value_ptr(camera.position));
-	mat4 trans = translate(mat4(1.0f), translation);
-	quat rotation = angleAxis(radians(angle), vec3(0, 1, 0));
+
+	mat4 pos = translate(mat4(1.0f), position);
 	mat4 rot = mat4_cast(rotation);
-	glUniformMatrix4fv(glGetUniformLocation(shader.id, "position"), 1, GL_FALSE, value_ptr(trans));
+	glUniformMatrix4fv(glGetUniformLocation(shader.id, "position"), 1, GL_FALSE, value_ptr(pos));
 	glUniformMatrix4fv(glGetUniformLocation(shader.id, "rotation"), 1, GL_FALSE, value_ptr(rot));
 	// When rendering to a shadow map, use the next flags to diferentiate between types of objects
 	glUniform1f(glGetUniformLocation(shader.id, "scale"), 0); // Flag: not a voxel

@@ -107,6 +107,42 @@ string GetScenePath(int argc, char* argv[]) {
 	return path;
 }
 
+/*
+	diffuse		- GL_RGBA
+	specular	- GL_RED
+	dudv		- GL_RGB
+	normal		- GL_RGB
+	displacement- GL_RED
+*/
+GLuint LoadTexture(const char* path, GLenum format) {
+	GLuint texture_id;
+	int width, height, channels;
+	stbi_set_flip_vertically_on_load(true);
+	uint8_t* data = stbi_load(path, &width, &height, &channels, STBI_default);
+	printf("Loading texture %s with %d channels\n", path, channels);
+
+	glGenTextures(1, &texture_id);
+	glBindTexture(GL_TEXTURE_2D, texture_id);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	float clampColor[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, clampColor);
+
+	GLenum image_format = GL_RGB;
+	if (channels == 1)
+		image_format = GL_RED;
+	else if (channels == 4)
+		image_format = GL_RGBA;
+
+	glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, image_format, GL_UNSIGNED_BYTE, data);
+	glGenerateMipmap(GL_TEXTURE_2D);
+	stbi_image_free(data);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	return texture_id;
+}
+
 void PushTexture(GLuint texture_id, Shader& shader, const char* uniform, GLuint unit) {
 	shader.Use();
 	glUniform1i(glGetUniformLocation(shader.id, uniform), unit);

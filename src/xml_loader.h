@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 
+#include "mesh.h"
 #include "vox_loader.h"
 #include "rope_render.h"
 #include "water_render.h"
@@ -13,7 +14,7 @@
 
 using namespace tinyxml2;
 
-struct scene_t {
+struct shape_t {
 	string file;
 	string object;
 	vec3 position;
@@ -24,16 +25,19 @@ struct scene_t {
 class Scene {
 private:
 	string parent_folder;
-	vector<scene_t> shapes;
-	map<string, VoxLoader*> models;
+	vector<shape_t> shapes;
+	vector<Mesh*> meshes;
 	vector<RopeRender*> ropes;
 	vector<VoxboxRender*> voxboxes;
+	map<string, VoxLoader*> models;
 	void RecursiveLoad(XMLElement* element, vec3 parent_pos, quat parent_rot);
 public:
 	vector<WaterRender*> waters;
 	Scene(string path);
 	~Scene();
+	void addMesh(Mesh* mesh);
 	void draw(Shader& shader, Camera& camera, vec4 clip_plane = vec4(0, 1, 0, 0));
+	void drawMesh(Shader& shader, Camera& camera);
 	void drawRope(Shader& shader, Camera& camera);
 	void drawWater(Shader& shader, Camera& camera);
 	void drawVoxbox(Shader& shader, Camera& camera);

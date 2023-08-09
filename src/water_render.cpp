@@ -1,7 +1,6 @@
 #include <stdio.h>
 
 #include "utils.h"
-#include "texture.h"
 #include "water_render.h"
 
 #include <glm/gtc/type_ptr.hpp>
@@ -78,11 +77,8 @@ WaterRender::WaterRender(vector<vec2> vertices) {
 	CreateReflectionFB(reflectionFrameBuffer, reflectionTexture, reflectionDepthBuffer,  REFLECTION_WIDTH, REFLECTION_HEIGHT);
 	CreateRefractionFB(refractionFrameBuffer, refractionTexture, refractionDepthTexture, REFRACTION_WIDTH, REFRACTION_HEIGHT);
 
-	Texture dudvMap("water_dudv.png", "dudv");
-	dudv_texture = dudvMap.texture_id;
-
-	Texture normalMap("water_normal.png", "normal");
-	normal_texture = normalMap.texture_id;
+	dudv_texture = LoadTexture("water_dudv.png", GL_RGB);
+	normal_texture = LoadTexture("water_normal.png", GL_RGB);
 
 	printf("Water initialized.\n");
 }

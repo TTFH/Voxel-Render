@@ -98,7 +98,7 @@ Skybox::Skybox(Shader& shader, float aspectRatio) {
 	glUniform1i(glGetUniformLocation(shader.id, "skybox"), 0);
 }
 
-void Skybox::Draw(Shader& shader, Camera& camera) {
+void Skybox::draw(Shader& shader, Camera& camera) {
 	glDepthFunc(GL_LEQUAL);
 	shader.Use();
 	mat4 view = mat4(mat3(lookAt(camera.position, camera.position + camera.orientation, camera.up)));
