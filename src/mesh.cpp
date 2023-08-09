@@ -128,7 +128,7 @@ void Mesh::draw(Shader& shader, Camera& camera, vec3 translation, float angle) {
 		else if (type == "displacement")
 			num = to_string(num_displacement++);
 		const char* uniform = (type + num).c_str();
-		textures[i].Bind(shader, uniform);
+		textures[i].Bind(shader, uniform, i);
 	}
 
 	camera.pushMatrix(shader, "camera");

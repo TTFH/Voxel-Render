@@ -24,7 +24,7 @@ int main(int argc, char* argv[]) {
 	Shader voxel_shader("shaders/voxel_vert.glsl", "shaders/voxel_frag.glsl");
 #endif
 	//Shader shader_2d("shaders/2d_vert.glsl", "shaders/2d_tex_frag.glsl");
-	//Shader mesh_shader("shaders/mesh_vert.glsl", "shaders/mesh_frag.glsl");
+	Shader mesh_shader("shaders/mesh_vert.glsl", "shaders/mesh_frag.glsl");
 	Shader rope_shader("shaders/rope_vert.glsl", "shaders/rope_frag.glsl");
 	Shader water_shader("shaders/water_vert.glsl", "shaders/water_frag.glsl");
 	Shader voxbox_shader("shaders/voxbox_vert.glsl", "shaders/voxbox_frag.glsl");
@@ -51,23 +51,23 @@ int main(int argc, char* argv[]) {
 	ImGui_ImplOpenGL3_Init("#version 410");
 	ImVec4 clear_color = ImVec4(0.35, 0.54, 0.8, 1);
 	ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 3.0f);
-
+*/
 	vector<Texture> train_tex = {
-		Texture("trains/shinkansen.png", "diffuse", 0),
+		Texture("trains/shinkansen.png", "diffuse"),
 	};
 	Mesh train("trains/shinkansen.obj", train_tex);
 
 	vector<Texture> glass_textures = {
-		Texture("meshes/glass.png", "diffuse", 0),
+		Texture("meshes/glass.png", "diffuse"),
 	};
 	Mesh glass("meshes/CAT_140M3_glass.obj", glass_textures);
 	vector<Texture> model_textures = {
-		Texture("meshes/CAT_140M3.png", "diffuse", 0),
-		Texture("meshes/CAT_140M3_specular.png", "specular", 1),
-		Texture("meshes/CAT_140M3_normal.png", "normal", 2),
+		Texture("meshes/CAT_140M3.png", "diffuse"),
+		Texture("meshes/CAT_140M3_specular.png", "specular"),
+		Texture("meshes/CAT_140M3_normal.png", "normal"),
 	};
 	Mesh model("meshes/CAT_140M3.obj", model_textures);
-*/
+
 	if (scene.waters.size() != 1) {
 		printf("[ERROR] There is no water!\n");
 		exit(EXIT_FAILURE);
@@ -141,11 +141,11 @@ int main(int argc, char* argv[]) {
 		}
 */
 		light.pushLight(voxel_shader);
-		//light.pushLight(mesh_shader);
+		light.pushLight(mesh_shader);
 		light.pushLight(water_shader);
 		light.pushLight(voxbox_shader);
 
-		//light.pushProjection(mesh_shader);
+		light.pushProjection(mesh_shader);
 		light.pushProjection(voxel_shader);
 		light.pushProjection(voxbox_shader);
 		light.pushProjection(shadowmap_shader);
@@ -155,9 +155,11 @@ int main(int argc, char* argv[]) {
 		light.pushProjection(shadowmap_shader);
 		scene.draw(shadowmap_shader, camera);
 		scene.drawVoxbox(shadowmap_shader, camera);
-		//train.draw(shadowmap_shader, camera, vec3(-10, 5, -10), 0);
-		//glass.draw(shadowmap_shader, camera, vec3(12, 4.3, 30), 170);
-		//model.draw(shadowmap_shader, camera, vec3(12, 4.3, 30), 170);
+
+		train.draw(shadowmap_shader, camera, vec3(-10, 5, -10), 0);
+		glass.draw(shadowmap_shader, camera, vec3(12, 4.3, 30), 170);
+		model.draw(shadowmap_shader, camera, vec3(12, 4.3, 30), 170);
+
 		shadow_map.UnbindShadowMap(camera);
 
 		// Water shader
@@ -182,12 +184,12 @@ int main(int argc, char* argv[]) {
 		glClearColor(0.35, 0.54, 0.8, 1);
 		//glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-/*
+
 		shadow_map.PushShadows(mesh_shader);
 		train.draw(mesh_shader, camera, vec3(-10, 5, -10), 0);
 		glass.draw(mesh_shader, camera, vec3(12, 4.3, 30), 170);
 		model.draw(mesh_shader, camera, vec3(12, 4.3, 30), 170);
-*/
+
 		shadow_map.PushShadows(voxel_shader);
 		scene.draw(voxel_shader, camera);
 		shadow_map.PushShadows(voxbox_shader);

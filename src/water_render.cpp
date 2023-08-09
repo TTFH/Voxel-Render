@@ -1,5 +1,6 @@
 #include <stdio.h>
 
+#include "utils.h"
 #include "texture.h"
 #include "water_render.h"
 
@@ -77,10 +78,10 @@ WaterRender::WaterRender(vector<vec2> vertices) {
 	CreateReflectionFB(reflectionFrameBuffer, reflectionTexture, reflectionDepthBuffer,  REFLECTION_WIDTH, REFLECTION_HEIGHT);
 	CreateRefractionFB(refractionFrameBuffer, refractionTexture, refractionDepthTexture, REFRACTION_WIDTH, REFRACTION_HEIGHT);
 
-	Texture dudvMap("water_dudv.png", "dudv", 2);
+	Texture dudvMap("water_dudv.png", "dudv");
 	dudv_texture = dudvMap.texture_id;
 
-	Texture normalMap("water_normal.png", "normal", 3);
+	Texture normalMap("water_normal.png", "normal");
 	normal_texture = normalMap.texture_id;
 
 	printf("Water initialized.\n");
@@ -121,25 +122,11 @@ void WaterRender::draw(Shader& shader, Camera& camera) {
 	glUniform2fv(glGetUniformLocation(shader.id, "min"), 1, value_ptr(bounding_box.min));
 	glUniform2fv(glGetUniformLocation(shader.id, "max"), 1, value_ptr(bounding_box.max));
 
-	glUniform1i(glGetUniformLocation(shader.id, "reflectionTexture"), 0);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, reflectionTexture);
-
-	glUniform1i(glGetUniformLocation(shader.id, "refractionTexture"), 1);
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, refractionTexture);
-
-	glUniform1i(glGetUniformLocation(shader.id, "dudvMap"), 2);
-	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_2D, dudv_texture);
-
-	glUniform1i(glGetUniformLocation(shader.id, "normalMap"), 3);
-	glActiveTexture(GL_TEXTURE3);
-	glBindTexture(GL_TEXTURE_2D, normal_texture);
-
-	glUniform1i(glGetUniformLocation(shader.id, "depthMap"), 4);
-	glActiveTexture(GL_TEXTURE4);
-	glBindTexture(GL_TEXTURE_2D, refractionDepthTexture);
+	PushTexture(reflectionTexture, shader, "reflectionTexture", 0);
+	PushTexture(refractionTexture, shader, "refractionTexture", 1);
+	PushTexture(dudv_texture, shader, "dudvMap", 2);
+	PushTexture(normal_texture, shader, "normalMap", 3);
+	PushTexture(refractionDepthTexture, shader, "depthMap", 4);
 
 	glDrawArrays(GL_TRIANGLE_FAN, 0, vertex_count);
 	vao.Unbind();

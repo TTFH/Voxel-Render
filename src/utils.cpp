@@ -107,10 +107,10 @@ string GetScenePath(int argc, char* argv[]) {
 	return path;
 }
 
-static void PushTexture(GLuint texture_id, Shader& shader, const char* uniform) {
+void PushTexture(GLuint texture_id, Shader& shader, const char* uniform, GLuint unit) {
 	shader.Use();
-	glUniform1i(glGetUniformLocation(shader.id, uniform), 0);
-	glActiveTexture(GL_TEXTURE0);
+	glUniform1i(glGetUniformLocation(shader.id, uniform), unit);
+	glActiveTexture(GL_TEXTURE0 + unit);
 	glBindTexture(GL_TEXTURE_2D, texture_id);
 }
 
@@ -127,7 +127,7 @@ UI_Rectangle::UI_Rectangle() {
 void UI_Rectangle::draw(Shader& shader, GLuint texture_id, float offset_x, float offset_y) {
 	shader.Use();
 	glUniform2f(glGetUniformLocation(shader.id, "offset"), offset_x, offset_y);
-	PushTexture(texture_id, shader, "diffuse0");
+	PushTexture(texture_id, shader, "diffuse0", 0);
 	vao.Bind();
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }

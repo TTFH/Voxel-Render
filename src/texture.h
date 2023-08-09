@@ -5,15 +5,12 @@
 #include "shader.h"
 
 class Texture {
-private:
-	GLuint unit;
 public:
 	GLuint texture_id;
 	const char* type;
-	Texture(GLuint tex_id, GLuint slot);
-	Texture(const char* path, const char* texType, GLuint slot);
+	Texture(const char* path, const char* texType);
 	~Texture();
-	void Bind(Shader& shader, const char* uniform);
+	void Bind(Shader& shader, const char* uniform, GLuint unit);
 	void Unbind();
 };
 

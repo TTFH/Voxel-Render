@@ -3,8 +3,6 @@ uniform vec3 camera_pos;
 uniform vec3 lightpos;
 uniform sampler2D diffuse0;
 uniform sampler2D specular0;
-uniform sampler2D normal0;
-uniform sampler2D displacement0;
 uniform sampler2D shadowMap;
 
 in vec3 model_pos;
