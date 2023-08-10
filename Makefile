@@ -15,7 +15,7 @@ OBJS = $(addprefix obj/, $(addsuffix .o, $(basename $(notdir $(SOURCES)))))
 UNAME_S := $(shell uname -s)
 
 CXX = g++
-CXXFLAGS = -Wall -Wextra -Werror -Wpedantic -Ilib
+CXXFLAGS = -Wall -Wextra -Werror -Wpedantic -Ilib -O3
 CXXFLAGS += -Wno-missing-field-initializers
 CXXFLAGS += -std=c++11 -I$(IMGUI_DIR) -I$(IMGUI_DIR)/backend
 

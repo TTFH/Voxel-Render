@@ -52,34 +52,31 @@ int main(int argc, char* argv[]) {
 	ImVec4 clear_color = ImVec4(0.35, 0.54, 0.8, 1);
 	ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 3.0f);
 */
-/*
+
 	Mesh train("trains/shinkansen.obj", "trains/shinkansen.png");
 	Mesh glass("meshes/CAT_140M3_glass.obj", "meshes/glass.png");
 	Mesh model("meshes/CAT_140M3.obj", "meshes/CAT_140M3.png", "meshes/CAT_140M3_specular.png");
-	train.setWorldTransform(vec3(-10, 5, -10));
+	train.setWorldTransform(vec3(20, 0, 80));
 	glass.setWorldTransform(vec3(12, 4.3, 30), 170);
 	model.setWorldTransform(vec3(12, 4.3, 30), 170);
 	scene.addMesh(&train);
 	scene.addMesh(&glass);
 	scene.addMesh(&model);
-*/
-/*
-	Mesh train1("trains/BigGreen.obj", "trains/BigGreen.png");
-	Mesh train2("trains/Crampton.obj", "trains/Crampton.png");
-	Mesh train3("trains/Inyo.obj", "trains/Inyo.png");
-	Mesh train4("trains/PrussianT3.obj", "trains/PrussianT3.png");
 
-	train1.setWorldTransform(vec3(20, 0, 0));
-	train2.setWorldTransform(vec3(20, 0, 10));
-	train3.setWorldTransform(vec3(20, 0, 20));
-	train4.setWorldTransform(vec3(20, 0, 30));
-
+	Mesh train1("trains/Inyo.obj", "trains/Inyo.png");
+	Mesh train2("trains/BigGreen.obj", "trains/BigGreen.png");
+	Mesh train3("trains/PrussianT3.obj", "trains/PrussianT3.png");
+	Mesh train4("trains/Crampton.obj", "trains/Crampton.png");
+	train1.setWorldTransform(vec3(0, 0, 40));
+	train2.setWorldTransform(vec3(5, 1.3, 50));
+	train3.setWorldTransform(vec3(10, 0, 60));
+	train4.setWorldTransform(vec3(15, 0, 70));
 	scene.addMesh(&train1);
 	scene.addMesh(&train2);
 	scene.addMesh(&train3);
 	scene.addMesh(&train4);
-*/
-	if (scene.waters.size() != 1) {
+
+	if (scene.waters.size() == 0) {
 		printf("[ERROR] There is no water!\n");
 		exit(EXIT_FAILURE);
 	}
@@ -163,7 +160,6 @@ int main(int argc, char* argv[]) {
 
 		// Shadows
 		shadow_map.BindShadowMap();
-		light.pushProjection(shadowmap_shader);
 		scene.draw(shadowmap_shader, camera);
 		scene.drawVoxbox(shadowmap_shader, camera);
 		scene.drawMesh(shadowmap_shader, camera);
@@ -178,6 +174,8 @@ int main(int argc, char* argv[]) {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		shadow_map.PushShadows(voxel_shader);
 		scene.draw(voxel_shader, camera, clip_plane_top);
+		shadow_map.PushShadows(mesh_shader);
+		scene.drawMesh(mesh_shader, camera);
 
 		camera.translateAndInvertPitch(distance);
 		water->BindRefractionFB();
@@ -199,10 +197,11 @@ int main(int argc, char* argv[]) {
 		shadow_map.PushShadows(voxbox_shader);
 		scene.drawVoxbox(voxbox_shader, camera);
 
+		water_shader.Use();
 		glUniform1f(glGetUniformLocation(water_shader.id, "time"), glfwGetTime());
-		glEnable(GL_BLEND);
+		//glEnable(GL_BLEND);
 		scene.drawWater(water_shader, camera);
-		glDisable(GL_BLEND);
+		//glDisable(GL_BLEND);
 
 		scene.drawRope(rope_shader, camera);
 		light.draw(voxel_shader, camera); // Debug light pos

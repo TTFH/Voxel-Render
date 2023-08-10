@@ -5,6 +5,10 @@
 
 #include <glm/gtc/type_ptr.hpp>
 
+static bool water_initialized = false;
+static GLuint reflectionTexture;
+static GLuint refractionTexture;
+
 static void CreateReflectionFB(GLuint &FBO, GLuint &fbTexture, GLuint &depthBuffer, int width, int height) {
 	glGenFramebuffers(1, &FBO);
 	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
@@ -74,13 +78,15 @@ WaterRender::WaterRender(vector<vec2> vertices) {
 	}
 	bounding_box = {min, max};
 
-	CreateReflectionFB(reflectionFrameBuffer, reflectionTexture, reflectionDepthBuffer,  REFLECTION_WIDTH, REFLECTION_HEIGHT);
-	CreateRefractionFB(refractionFrameBuffer, refractionTexture, refractionDepthTexture, REFRACTION_WIDTH, REFRACTION_HEIGHT);
+	if (!water_initialized) {
+		CreateReflectionFB(reflectionFrameBuffer, reflectionTexture, reflectionDepthBuffer,  REFLECTION_WIDTH, REFLECTION_HEIGHT);
+		CreateRefractionFB(refractionFrameBuffer, refractionTexture, refractionDepthTexture, REFRACTION_WIDTH, REFRACTION_HEIGHT);
+		water_initialized = true;
+	}
 
 	dudv_texture = LoadTexture("water_dudv.png", GL_RGB);
 	normal_texture = LoadTexture("water_normal.png", GL_RGB);
-
-	printf("Water initialized.\n");
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 float WaterRender::GetHeight() {

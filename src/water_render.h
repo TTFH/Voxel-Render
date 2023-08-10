@@ -37,9 +37,6 @@ private:
 	const int REFRACTION_WIDTH = 1280;
 	const int REFRACTION_HEIGHT = 720;
 public:
-	GLuint reflectionTexture;
-	GLuint refractionTexture;
-
 	WaterRender(vector<vec2> vertices);
 	float GetHeight();
 	void BindReflectionFB();

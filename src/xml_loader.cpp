@@ -97,12 +97,12 @@ void Scene::RecursiveLoad(XMLElement* element, vec3 parent_pos, quat parent_rot)
 			}
 		}
 		if (water_verts.size() > 2) {
-			WaterRender* water = new WaterRender(water_verts);
-			water->setWorldTransform(position);
-			if (waters.size() > 1)
-				printf("[Warning] Too much water! be responsible and reduces water use during drought\n");
-			else
+			//if (waters.size() == 0)  {
+				WaterRender* water = new WaterRender(water_verts);
+				water->setWorldTransform(position);
 				waters.push_back(water);
+			//} else
+			//	printf("[Warning] Too much water! be responsible and reduces water usage during drought\n");
 		}
 	} else if (strcmp(element->Name(), "rope") == 0) {
 		vector<vec3> rope_verts;
