@@ -9,29 +9,15 @@ in vec4 fragPosLight;
 
 out vec4 FragColor;
 
-float linearDepth(float depth) {
-	float near = 0.1f;
-	float far = 500.0f;
-	float z = depth * 2.0f - 1.0f;
-	return (2.0f * near * far) / (far + near - z * (far - near));
-}
-
-float logisticDepth(float depth) {
-	float steepness = 0.1f;
-	float offset = 12.0f;
-	float zval = linearDepth(depth);
-	return 1.0f / (1.0f + exp(-steepness * (zval - offset)));
-}
-
 float computeShadows() {
 	float shadow = 0.0f;
 	vec3 lightCoords = fragPosLight.xyz / fragPosLight.w;
-	if(lightCoords.z <= 1.0f) {
+	if (lightCoords.z <= 1.0f) {
 		lightCoords = (lightCoords + 1.0f) / 2.0f;
 		float currentDepth = lightCoords.z;
 		float bias = max(0.0025f * (1.0f - dot(normal, normalize(lightpos))), 0.001f);
 
-		int sampleRadius = 8;
+		int sampleRadius = 4;
 		vec2 pixelSize = 1.0f / textureSize(shadowMap, 0);
 		for (int y = -sampleRadius; y <= sampleRadius; y++) {
 			for (int x = -sampleRadius; x <= sampleRadius; x++) {
@@ -58,8 +44,4 @@ void main() {
 	// Debug light
 	//float l = max(0.0f, dot(normal, normalize(lightpos)));
 	//FragColor = vec4(0.1f, l, 0.1f, 1.0f);
-
-	// Silent Hill
-	//float depth = logisticDepth(gl_FragCoord.z);
-	//FragColor = color * (1.0f - depth) + vec4(depth * vec3(0.85f, 0.85f, 0.90f), 1.0f);
 }

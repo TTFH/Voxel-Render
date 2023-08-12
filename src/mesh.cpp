@@ -71,7 +71,7 @@ void Mesh::LoadOBJ(const char* path) {
 	}
 
 	for (unsigned int t = 0; t < mesh.size(); t++) {
-		for (int v = 2; v >= 0; v--) { // Convert to CCW
+		for (int v = 0; v < 3; v++) {
 			vec3 vert = positions[mesh[t].vertex_index[v]];
 			vec3 norm = normals[mesh[t].normal_index[v]];
 			vec2 tex = tex_coords[mesh[t].tex_index[v]];

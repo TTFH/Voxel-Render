@@ -1,7 +1,10 @@
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
+#include <algorithm>
+
 #include <glm/gtx/euler_angles.hpp>
+
 #include "xml_loader.h"
 
 // Example of how to use tinyxml2
@@ -97,12 +100,10 @@ void Scene::RecursiveLoad(XMLElement* element, vec3 parent_pos, quat parent_rot)
 			}
 		}
 		if (water_verts.size() > 2) {
-			//if (waters.size() == 0)  {
-				WaterRender* water = new WaterRender(water_verts);
-				water->setWorldTransform(position);
-				waters.push_back(water);
-			//} else
-			//	printf("[Warning] Too much water! be responsible and reduces water usage during drought\n");
+			std::reverse(water_verts.begin(), water_verts.end()); // TD order is CW
+			WaterRender* water = new WaterRender(water_verts);
+			water->setWorldTransform(position);
+			waters.push_back(water);
 		}
 	} else if (strcmp(element->Name(), "rope") == 0) {
 		vector<vec3> rope_verts;

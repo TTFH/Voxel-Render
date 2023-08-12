@@ -114,7 +114,7 @@ void VoxLoader::load(const char* filename) {
 
 	FILE* file = fopen(filename, "rb");
 	if (file == NULL) {
-		printf("[ERROR] File %s not found.\n", filename);
+		printf("[Warning] File %s not found.\n", filename);
 		return;
 	}
 	int file_size = ReadHeader(filename, file);

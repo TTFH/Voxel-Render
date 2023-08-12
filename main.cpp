@@ -52,7 +52,7 @@ int main(int argc, char* argv[]) {
 	ImVec4 clear_color = ImVec4(0.35, 0.54, 0.8, 1);
 	ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 3.0f);
 */
-
+/*
 	Mesh train("trains/shinkansen.obj", "trains/shinkansen.png");
 	Mesh glass("meshes/CAT_140M3_glass.obj", "meshes/glass.png");
 	Mesh model("meshes/CAT_140M3.obj", "meshes/CAT_140M3.png", "meshes/CAT_140M3_specular.png");
@@ -75,11 +75,12 @@ int main(int argc, char* argv[]) {
 	scene.addMesh(&train2);
 	scene.addMesh(&train3);
 	scene.addMesh(&train4);
-
+*/
 	if (scene.waters.size() == 0) {
 		printf("[ERROR] There is no water!\n");
 		exit(EXIT_FAILURE);
 	}
+
 	WaterRender* water = scene.waters[0];
 	vec4 clip_plane_top = vec4(0, 1, 0, -water->GetHeight()); // reflection
 	vec4 clip_plane_bottom = vec4(0, -1, 0, water->GetHeight()); // refraction
@@ -94,7 +95,7 @@ int main(int argc, char* argv[]) {
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_MULTISAMPLE);
 	glEnable(GL_CULL_FACE);
-	glCullFace(GL_FRONT);
+	glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -199,9 +200,9 @@ int main(int argc, char* argv[]) {
 
 		water_shader.Use();
 		glUniform1f(glGetUniformLocation(water_shader.id, "time"), glfwGetTime());
-		//glEnable(GL_BLEND);
+		glEnable(GL_BLEND);
 		scene.drawWater(water_shader, camera);
-		//glDisable(GL_BLEND);
+		glDisable(GL_BLEND);
 
 		scene.drawRope(rope_shader, camera);
 		light.draw(voxel_shader, camera); // Debug light pos

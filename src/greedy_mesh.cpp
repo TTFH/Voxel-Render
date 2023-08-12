@@ -153,12 +153,12 @@ GreedyMesh generateGreedyMesh(const MV_Shape& shape) {
 
 						// Generate the indices first
 						int start_index = mesh.vertices.size();
-						mesh.indices.push_back(start_index + 0);
 						mesh.indices.push_back(start_index + 1);
 						mesh.indices.push_back(start_index + 2);
-						mesh.indices.push_back(start_index + 2);
-						mesh.indices.push_back(start_index + 1);
 						mesh.indices.push_back(start_index + 3);
+						mesh.indices.push_back(start_index + 2);
+						mesh.indices.push_back(start_index + 1);
+						mesh.indices.push_back(start_index + 0);
 
 						mesh.vertices.push_back({ p0, normal, index });
 						mesh.vertices.push_back({ p1, normal, index });
