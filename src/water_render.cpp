@@ -9,7 +9,7 @@ static bool water_initialized = false;
 static GLuint reflectionTexture;
 static GLuint refractionTexture;
 
-static void CreateReflectionFB(GLuint &FBO, GLuint &fbTexture, GLuint &depthBuffer, int width, int height) {
+static void CreateFBwTexture(GLuint &FBO, GLuint &fbTexture, int width, int height) {
 	glGenFramebuffers(1, &FBO);
 	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
 
@@ -20,39 +20,22 @@ static void CreateReflectionFB(GLuint &FBO, GLuint &fbTexture, GLuint &depthBuff
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, fbTexture, 0);
 	glDrawBuffer(GL_COLOR_ATTACHMENT0);
+}
 
+static void CreateDepthBuffer(GLuint &depthBuffer, int width, int height) {
 	glGenRenderbuffers(1, &depthBuffer);
 	glBindRenderbuffer(GL_RENDERBUFFER, depthBuffer);
 	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthBuffer);
-
-	GLenum fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-	if (fboStatus != GL_FRAMEBUFFER_COMPLETE)
-		printf("[ERROR] Framebuffer failed with status %d\n", fboStatus);
 }
 
-static void CreateRefractionFB(GLuint &FBO, GLuint &fbTexture, GLuint &depthTexture, int width, int height) {
-	glGenFramebuffers(1, &FBO);
-	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
-
-	glGenTextures(1, &fbTexture);
-	glBindTexture(GL_TEXTURE_2D, fbTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, fbTexture, 0);
-	glDrawBuffer(GL_COLOR_ATTACHMENT0);
-
+static void CreateDepthTexture(GLuint &depthTexture, int width, int height) {
 	glGenTextures(1, &depthTexture);
 	glBindTexture(GL_TEXTURE_2D, depthTexture);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthTexture, 0);
-
-	GLenum fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-	if (fboStatus != GL_FRAMEBUFFER_COMPLETE)
-		printf("[ERROR] Framebuffer failed with status %d\n", fboStatus);
 }
 
 WaterRender::WaterRender(vector<vec2> vertices) {
@@ -76,17 +59,19 @@ WaterRender::WaterRender(vector<vec2> vertices) {
 		if (vertex.y > max.y)
 			max.y = vertex.y;
 	}
-	bounding_box = {min, max};
+	bounding_box = { min, max };
 
 	if (!water_initialized) {
-		CreateReflectionFB(reflectionFrameBuffer, reflectionTexture, reflectionDepthBuffer,  REFLECTION_WIDTH, REFLECTION_HEIGHT);
-		CreateRefractionFB(refractionFrameBuffer, refractionTexture, refractionDepthTexture, REFRACTION_WIDTH, REFRACTION_HEIGHT);
 		water_initialized = true;
+		CreateFBwTexture(reflectionFrameBuffer, reflectionTexture, REFLECTION_WIDTH, REFLECTION_HEIGHT);
+		CreateDepthBuffer(reflectionDepthBuffer, REFLECTION_WIDTH, REFLECTION_HEIGHT);
+		CreateFBwTexture(refractionFrameBuffer, refractionTexture, REFRACTION_WIDTH, REFRACTION_HEIGHT);
+		CreateDepthTexture(refractionDepthTexture, REFRACTION_WIDTH, REFRACTION_HEIGHT);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
 	dudv_texture = LoadTexture("water_dudv.png", GL_RGB);
 	normal_texture = LoadTexture("water_normal.png", GL_RGB);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 float WaterRender::GetHeight() {

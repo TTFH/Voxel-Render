@@ -20,6 +20,7 @@ private:
 	vec3 position = vec3(0, 0, 0);
 	quat rotation = quat(1, 0, 0, 0);
 	void LoadOBJ(const char* path);
+	void SaveOBJ(const char* path);
 public:
 	Mesh(const char* path, const char* diffuse_path, const char* specular_path = NULL);
 	void setWorldTransform(vec3 position, float angle = 0);

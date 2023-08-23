@@ -85,10 +85,23 @@ void Mesh::LoadOBJ(const char* path) {
 	}
 }
 
+void Mesh::SaveOBJ(const char* path) {
+	FILE* output = fopen(path, "w");
+	for (unsigned int i = 0; i < vertices.size(); i++)
+		fprintf(output, "v %f %f %f\n", vertices[i].position.x, vertices[i].position.y, vertices[i].position.z);
+	for (unsigned int i = 0; i < vertices.size(); i++)
+		fprintf(output, "vn %f %f %f\n", vertices[i].normal.x, vertices[i].normal.y, vertices[i].normal.z);
+	for (unsigned int i = 0; i < vertices.size(); i++)
+		fprintf(output, "vt %f %f\n", vertices[i].tex_coord.x, vertices[i].tex_coord.y);
+	for (unsigned int i = 0; i < vertices.size(); i += 3)
+		fprintf(output, "f %d/%d/%d %d/%d/%d %d/%d/%d\n", i + 1, i + 1, i + 1, i + 2, i + 2, i + 2, i + 3, i + 3, i + 3);
+	fclose(output);
+}
+
 Mesh::Mesh(const char* path, const char* diffuse_path, const char* specular_path) {
 	string extension = path;
-	extension = extension.substr(extension.find_last_of(".") + 1);
-	if (extension == "obj")
+	extension = extension.substr(extension.find_last_of("."));
+	if (extension == ".obj")
 		LoadOBJ(path);
 	else {
 		printf("[Warning] Unsupported mesh format: %s\n", extension.c_str());

@@ -199,13 +199,13 @@ void VoxLoader::load(const char* filename) {
 				}
 			}
 			break;
-		/*case MATL: {
+		case MATL: {
 				int material_id = ReadInt(file);
 				DICT mat_properties = ReadDict(file);
 				if (GetDictValue(mat_properties, "_type") == "_glass" && GetDictValue(mat_properties, "_alpha") != "1.0")
 					palette[material_id % 256].a = 0.5;
 			}
-			break;*/
+			break;
 		default:
 			break;
 		}
@@ -219,7 +219,7 @@ void VoxLoader::load(const char* filename) {
 	glBindTexture(GL_TEXTURE_1D, texture_id);
 	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexImage1D(GL_TEXTURE_1D, 0, GL_RGB, 256, 0, GL_RGBA, GL_UNSIGNED_BYTE, palette);
+	glTexImage1D(GL_TEXTURE_1D, 0, GL_RGBA, 256, 0, GL_RGBA, GL_UNSIGNED_BYTE, palette);
 
 	for (unsigned int i = 0; i < shapes.size(); i++) {
 	#if GREEDY_MESHING_ENABLED

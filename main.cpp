@@ -76,14 +76,6 @@ int main(int argc, char* argv[]) {
 	scene.addMesh(&train3);
 	scene.addMesh(&train4);
 */
-	if (scene.waters.size() == 0) {
-		printf("[ERROR] There is no water!\n");
-		exit(EXIT_FAILURE);
-	}
-
-	WaterRender* water = scene.waters[0];
-	vec4 clip_plane_top = vec4(0, 1, 0, -water->GetHeight()); // reflection
-	vec4 clip_plane_bottom = vec4(0, -1, 0, water->GetHeight()); // refraction
 
 	// FPS counter
 	double dt = 0;
@@ -167,25 +159,28 @@ int main(int argc, char* argv[]) {
 		shadow_map.UnbindShadowMap(camera);
 
 		// Water shader
-		glEnable(GL_CLIP_DISTANCE0);
-		float distance = 2.0 * (camera.position.y - water->GetHeight());
+		if (scene.waters.size() > 0) {
+			WaterRender* water = scene.waters[0];
+			const vec4 clip_plane_top(0, 1, 0, -water->GetHeight() + 0.5f); // reflection
+			const vec4 clip_plane_bottom(0, -1, 0, water->GetHeight()); // refraction
+			float distance = 2.0 * (camera.position.y - water->GetHeight());
+			glEnable(GL_CLIP_DISTANCE0);
 
-		camera.translateAndInvertPitch(-distance);
-		water->BindReflectionFB();
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		shadow_map.PushShadows(voxel_shader);
-		scene.draw(voxel_shader, camera, clip_plane_top);
-		shadow_map.PushShadows(mesh_shader);
-		scene.drawMesh(mesh_shader, camera);
+			camera.translateAndInvertPitch(-distance);
+			water->BindReflectionFB();
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			shadow_map.PushShadows(voxel_shader);
+			scene.draw(voxel_shader, camera, clip_plane_top);
 
-		camera.translateAndInvertPitch(distance);
-		water->BindRefractionFB();
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		shadow_map.PushShadows(voxel_shader);
-		scene.draw(voxel_shader, camera, clip_plane_bottom);
+			camera.translateAndInvertPitch(distance);
+			water->BindRefractionFB();
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			shadow_map.PushShadows(voxel_shader);
+			scene.draw(voxel_shader, camera, clip_plane_bottom);
 
-		water->UnbindFB(camera);
-		glDisable(GL_CLIP_DISTANCE0);
+			water->UnbindFB(camera);
+			glDisable(GL_CLIP_DISTANCE0);
+		}
 
 		glClearColor(0.35, 0.54, 0.8, 1);
 		//glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
