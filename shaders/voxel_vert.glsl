@@ -17,21 +17,48 @@ out vec3 normal;
 out float tex_coord;
 out vec4 fragPosLight;
 
+vec3 getHexPos(int side) {
+	vec3 pos;
+	if (side == 0) { // CUBE
+		pos = aPos;
+	} else if (side == 1) { // TOP
+		vec3 stretch = vec3(1.5f, sqrt(3), 1.0f);
+		vec3 offset = vec3(1.5 * aOffset.x, sqrt(3) * aOffset.y + mod(aOffset.x, 2) * 0.5 * sqrt(3), aOffset.z);
+		pos = (aPos + offset) / stretch;
+	} else if (side == 2) { // FRONT
+		vec3 aPos2 = vec3(aPos.x, aPos.z, -aPos.y);
+		vec3 stretch = vec3(1.5f, 1.0f, sqrt(3.0f));
+		vec3 offset = vec3(1.5 * aOffset.x, aOffset.y, sqrt(3) * aOffset.z + mod(aOffset.x, 2) * 0.5 * sqrt(3));
+		pos = (aPos2 + offset) / stretch;
+	} else if (side == 3) { // SIDE
+		vec3 aPos3 = vec3(aPos.z, -aPos.y, aPos.x);
+		vec3 stretch = vec3(1.0f, sqrt(3.0f), 1.5f);
+		vec3 offset = vec3(aOffset.x, sqrt(3) * aOffset.y + mod(aOffset.z, 2) * 0.5 * sqrt(3), 1.5 * aOffset.z);
+		pos = (aPos3 + offset) / stretch;
+	}
+	return pos;
+}
+
+vec3 getHexNormal(int side) {
+	vec3 normal;
+	if (side == 0 || side == 1)
+		normal = aNormal;
+	else if (side == 2)
+		normal = vec3(aNormal.x, aNormal.z, -aNormal.y);
+	else if (side == 3)
+		normal = vec3(aNormal.z, -aNormal.y, aNormal.x);
+	return normal;
+}
+
 void main() {
-	vec3 stretch = vec3(1.5f, sqrt(3), 1.0f);
-	vec3 offset = vec3(1.5 * aOffset.x, sqrt(3) * aOffset.y + mod(aOffset.x, 2) * 0.5 * sqrt(3), aOffset.z);
-/*
-	vec3 aPos2 = vec3(aPos.x, aPos.z, -aPos.y);
-	vec3 stretch = vec3(1.5f, 1.0f, sqrt(3.0f));
-	vec3 offset = vec3(1.5f * aOffset.x, aOffset.y, sqrt(3.0f) * aOffset.z + mod(aOffset.x, 2) * 0.5f * sqrt(3.0f));
-	// TODO: fix normals
-*/
-	vec4 pos = position * rotation * vec4((aPos + offset) / stretch, 1.0f);
+	int side = 3;
+	vec4 pos = position * rotation * vec4(getHexPos(side), 1.0f);
 	vec4 currentPos = world_pos * world_rot * vec4(pos.x, pos.z, -pos.y, 10.0f / scale);
+
 	gl_ClipDistance[0] = dot(currentPos, clip_plane);
 	gl_Position = camera * currentPos;
 
-	vec4 local_normal = rotation * vec4(aNormal, 1.0f);
+	vec4 local_normal = rotation * vec4(getHexNormal(side), 1.0f);
 	normal = normalize((world_rot * vec4(local_normal.x, local_normal.z, -local_normal.y, 1.0f)).xyz);
 
 	tex_coord = aTexCoord;

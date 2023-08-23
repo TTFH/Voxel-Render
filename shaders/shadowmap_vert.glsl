@@ -22,12 +22,6 @@ void main() {
     if (scale > 0.0f) {
 	    vec4 pos = position * rotation * vec4(aPos, 1.0f);
 	    currentPos = world_pos * world_rot * vec4(pos.x, pos.z, -pos.y, 10.0f / scale);
-
-		// Hexagons
-		/*vec3 stretch = vec3(1.5f, sqrt(3), 1.0f);
-		vec3 offset = vec3(1.5 * aOffset.x, sqrt(3) * aOffset.y + mod(aOffset.x, 2) * 0.5 * sqrt(3), aOffset.z);
-		vec4 pos = position * rotation * vec4((aPos + offset) / stretch, 1.0f);
-		currentPos = world_pos * world_rot * vec4(pos.x, pos.z, -pos.y, 10.0f / scale);*/
     }
 
 	gl_Position = lightProjection * currentPos;

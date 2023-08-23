@@ -20,6 +20,7 @@ int main(int argc, char* argv[]) {
 	GLFWwindow* window = InitOpenGL("OpenGL");
 #if GREEDY_MESHING_ENABLED
 	Shader voxel_shader("shaders/voxel_gm_vert.glsl", "shaders/voxel_frag.glsl");
+	Shader voxel_glass_shader("shaders/voxel_gm_vert.glsl", "shaders/voxel_glass_frag.glsl");
 #else
 	Shader voxel_shader("shaders/voxel_vert.glsl", "shaders/voxel_frag.glsl");
 #endif
@@ -161,7 +162,7 @@ int main(int argc, char* argv[]) {
 		// Water shader
 		if (scene.waters.size() > 0) {
 			WaterRender* water = scene.waters[0];
-			const vec4 clip_plane_top(0, 1, 0, -water->GetHeight() + 0.5f); // reflection
+			const vec4 clip_plane_top(0, 1, 0, -water->GetHeight()); // reflection
 			const vec4 clip_plane_bottom(0, -1, 0, water->GetHeight()); // refraction
 			float distance = 2.0 * (camera.position.y - water->GetHeight());
 			glEnable(GL_CLIP_DISTANCE0);
@@ -197,6 +198,7 @@ int main(int argc, char* argv[]) {
 		glUniform1f(glGetUniformLocation(water_shader.id, "time"), glfwGetTime());
 		glEnable(GL_BLEND);
 		scene.drawWater(water_shader, camera);
+		//scene.draw(voxel_glass_shader, camera);
 		glDisable(GL_BLEND);
 
 		scene.drawRope(rope_shader, camera);
