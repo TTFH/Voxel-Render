@@ -22,6 +22,9 @@ public:
 };
 
 GLFWwindow* InitOpenGL(const char* window_title);
+
+void Screenshot(GLFWwindow* window);
+void ToggleFullscreen(GLFWwindow* window);
 void key_press_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
 string GetScenePath(int argc, char* argv[]);

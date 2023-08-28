@@ -2,6 +2,7 @@
 uniform sampler1D palette;
 uniform sampler2D shadowMap;
 uniform vec3 lightpos;
+uniform bool transparent_glass;
 
 in vec3 normal;
 in float tex_coord;
@@ -36,7 +37,7 @@ void main() {
 	float shadow = computeShadows();
 	float l = 0.6f + 0.4f * max(0.0f, dot(normal, normalize(lightpos)));
 	vec4 color = texture(palette, (tex_coord + 0.5f) / 256.0f);
-	//if (color.a < 1.0f) discard;
+	if (transparent_glass && color.a < 1.0f) discard;
 	FragColor = vec4(color.rgb * l * (1.0f - shadow), 1.0f);
 
 	// Debug normals

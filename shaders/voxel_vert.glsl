@@ -4,6 +4,7 @@ layout(location = 1) in vec3 aNormal;
 layout(location = 2) in float aTexCoord;
 layout(location = 3) in vec3 aOffset;
 
+uniform int side;
 uniform mat4 camera;
 uniform float scale;
 uniform mat4 position;
@@ -17,10 +18,10 @@ out vec3 normal;
 out float tex_coord;
 out vec4 fragPosLight;
 
-vec3 getHexPos(int side) {
+vec3 getHexPos() {
 	vec3 pos;
 	if (side == 0) { // CUBE
-		pos = aPos;
+		pos = aPos + aOffset;
 	} else if (side == 1) { // TOP
 		vec3 stretch = vec3(1.5f, sqrt(3), 1.0f);
 		vec3 offset = vec3(1.5 * aOffset.x, sqrt(3) * aOffset.y + mod(aOffset.x, 2) * 0.5 * sqrt(3), aOffset.z);
@@ -39,7 +40,7 @@ vec3 getHexPos(int side) {
 	return pos;
 }
 
-vec3 getHexNormal(int side) {
+vec3 getHexNormal() {
 	vec3 normal;
 	if (side == 0 || side == 1)
 		normal = aNormal;
@@ -51,14 +52,13 @@ vec3 getHexNormal(int side) {
 }
 
 void main() {
-	int side = 3;
-	vec4 pos = position * rotation * vec4(getHexPos(side), 1.0f);
+	vec4 pos = position * rotation * vec4(getHexPos(), 1.0f);
 	vec4 currentPos = world_pos * world_rot * vec4(pos.x, pos.z, -pos.y, 10.0f / scale);
 
 	gl_ClipDistance[0] = dot(currentPos, clip_plane);
 	gl_Position = camera * currentPos;
 
-	vec4 local_normal = rotation * vec4(getHexNormal(side), 1.0f);
+	vec4 local_normal = rotation * vec4(getHexNormal(), 1.0f);
 	normal = normalize((world_rot * vec4(local_normal.x, local_normal.z, -local_normal.y, 1.0f)).xyz);
 
 	tex_coord = aTexCoord;

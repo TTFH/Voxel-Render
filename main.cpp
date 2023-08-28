@@ -11,14 +11,14 @@
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "lib/stb_image_write.h"
-/*
+
 #include "imgui/imgui.h"
 #include "imgui/backend/imgui_impl_glfw.h"
 #include "imgui/backend/imgui_impl_opengl3.h"
-*/
+
 int main(int argc, char* argv[]) {
 	GLFWwindow* window = InitOpenGL("OpenGL");
-#if GREEDY_MESHING_ENABLED
+#ifdef GREEDY_MESHING_ENABLED
 	Shader voxel_shader("shaders/voxel_gm_vert.glsl", "shaders/voxel_frag.glsl");
 	Shader voxel_glass_shader("shaders/voxel_gm_vert.glsl", "shaders/voxel_glass_frag.glsl");
 #else
@@ -35,24 +35,24 @@ int main(int argc, char* argv[]) {
 	Camera camera;
 	//UI_Rectangle rect;
 	ShadowMap shadow_map;
+	bool transparent_glass = true;
 	Light light(vec3(-35, 130, -132));
 	Skybox skybox(skybox_shader, (float)WINDOW_WIDTH / WINDOW_HEIGHT);
 	camera.initialize(WINDOW_WIDTH, WINDOW_HEIGHT, vec3(0, 2.5, 10));
 	Scene scene(GetScenePath(argc, argv));
-/*
+
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO();
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 	ImGuiWindowFlags dialog_flags = 0;
-	dialog_flags |= ImGuiWindowFlags_NoResize;
+	//dialog_flags |= ImGuiWindowFlags_NoResize;
 
 	ImGui::StyleColorsDark();
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init("#version 410");
 	ImVec4 clear_color = ImVec4(0.35, 0.54, 0.8, 1);
 	ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 3.0f);
-*/
 /*
 	Mesh train("trains/shinkansen.obj", "trains/shinkansen.png");
 	Mesh glass("meshes/CAT_140M3_glass.obj", "meshes/glass.png");
@@ -76,8 +76,11 @@ int main(int argc, char* argv[]) {
 	scene.addMesh(&train2);
 	scene.addMesh(&train3);
 	scene.addMesh(&train4);
-*/
 
+	Mesh triforce("meshes/triforce.obj", "meshes/triforce.png");
+	triforce.setWorldTransform(vec3(10, 0.05, 10));
+	scene.addMesh(&triforce);
+*/
 	// FPS counter
 	double dt = 0;
 	double prev_time = 0;
@@ -113,35 +116,51 @@ int main(int argc, char* argv[]) {
 
 		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 			glfwSetWindowShouldClose(window, true);
-		if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS) {
-			printf("Camera position: (%.2f, %.2f, %.2f)\n", camera.position.x, camera.position.y, camera.position.z);
-			printf("Camera orientation: (%.2f, %.2f, %.2f)\n", camera.orientation.x, camera.orientation.y, camera.orientation.z);
-		}
 
 		light.handleInputs(window);
 		camera.handleInputs(window);
-/*
+
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 		{
-			static float f = 0.0f;
-			static int counter = 0;
+			ImGui::Begin("Voxel Render - Settings", NULL, dialog_flags);
 
-			ImGui::Begin("Hello, world!", NULL, dialog_flags);
-			ImGui::Text("This is some useless text.");
-			ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
-			ImGui::ColorEdit3("clear color", (float*)&clear_color);
+			ImGui::Text("Camera position: (%.2f, %.2f, %.2f)", camera.position.x, camera.position.y, camera.position.z);
+			ImGui::Text("Camera orientation: (%.2f, %.2f, %.2f)", camera.orientation.x, camera.orientation.y, camera.orientation.z);
+			ImGui::Text("Light position: (%.2f, %.2f, %.2f)", light.position.x, light.position.y, light.position.z);
+			ImGui::Dummy(ImVec2(0, 10));
 
-			if (ImGui::Button("Button"))
-				counter++;
+			ImGui::Checkbox("Transparent glass", &transparent_glass);
+			ImGui::Text("Hex Voxel Orientation: ");
 			ImGui::SameLine();
-			ImGui::Text("counter = %d", counter);
+			ImGui::PushItemWidth(80);
+			static int hex_orientation = 0;
+			ImGui::Combo("##orientation", &hex_orientation, "Cube\0Top\0Front\0Side\0");
+		#ifndef GREEDY_MESHING_ENABLED
+			shadowmap_shader.Use();
+			glUniform1i(glGetUniformLocation(shadowmap_shader.id, "side"), hex_orientation);
+			voxel_shader.Use();
+			glUniform1i(glGetUniformLocation(voxel_shader.id, "side"), hex_orientation);
+		#else
+			voxel_shader.Use();
+			glUniform1i(glGetUniformLocation(voxel_shader.id, "transparent_glass"), transparent_glass);
+		#endif
+			ImGui::PopItemWidth();
 
-			ImGui::Text("Application average %.1f ms/frame (%.0f FPS)", 1000.0f / io.Framerate, io.Framerate);
+			if (ImGui::Button("Toggle fullscreen"))
+				ToggleFullscreen(window);
+			ImGui::SameLine();
+			if (ImGui::Button("Screenshot"))
+				Screenshot(window);
+
+			ImGui::ColorEdit3("Clear color", (float*)&clear_color);
+			ImGui::Dummy(ImVec2(0, 10));
+			ImGui::Text("FPS: %.0f", io.Framerate);
+			ImGui::Text("Frametime: %.1f ms", 1000.0f / io.Framerate);
 			ImGui::End();
 		}
-*/
+
 		light.pushLight(voxel_shader);
 		light.pushLight(mesh_shader);
 		light.pushLight(water_shader);
@@ -170,6 +189,8 @@ int main(int argc, char* argv[]) {
 			camera.translateAndInvertPitch(-distance);
 			water->BindReflectionFB();
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			//shadow_map.PushShadows(mesh_shader);
+			//scene.drawMesh(mesh_shader, camera);
 			shadow_map.PushShadows(voxel_shader);
 			scene.draw(voxel_shader, camera, clip_plane_top);
 
@@ -183,8 +204,8 @@ int main(int argc, char* argv[]) {
 			glDisable(GL_CLIP_DISTANCE0);
 		}
 
-		glClearColor(0.35, 0.54, 0.8, 1);
-		//glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
+		//glClearColor(0.35, 0.54, 0.8, 1);
+		glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		shadow_map.PushShadows(mesh_shader);
@@ -198,7 +219,8 @@ int main(int argc, char* argv[]) {
 		glUniform1f(glGetUniformLocation(water_shader.id, "time"), glfwGetTime());
 		glEnable(GL_BLEND);
 		scene.drawWater(water_shader, camera);
-		//scene.draw(voxel_glass_shader, camera);
+		if (transparent_glass)
+			scene.draw(voxel_glass_shader, camera);
 		glDisable(GL_BLEND);
 
 		scene.drawRope(rope_shader, camera);
@@ -208,8 +230,8 @@ int main(int argc, char* argv[]) {
 		//rect.draw(shader_2d, water->reflectionTexture, -0.9, 0.4);
 		//rect.draw(shader_2d, water->refractionTexture, 0.4, 0.4);
 
-		//ImGui::Render();
-		//ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+		ImGui::Render();
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 		glfwSwapBuffers(window);
 	}

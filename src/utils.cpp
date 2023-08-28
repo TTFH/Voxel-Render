@@ -59,38 +59,45 @@ void FlipImageVertically(int width, int height, uint8_t* data) {
 	}
 }
 
-static bool fullscreen = false;
+void Screenshot(GLFWwindow* window) {
+	int width, height;
+	glfwGetFramebufferSize(window, &width, &height);
+	uint8_t* pixels = new uint8_t[width * height * 3];
+	glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, pixels);
+	FlipImageVertically(width, height, pixels);
+	string filename = "screenshot_" + to_string(time(NULL)) + ".png";
+	stbi_write_png(filename.c_str(), width, height, 3, pixels, 3 * width);
+	delete[] pixels;
+}
+
+static bool g_fullscreen = false;
+
+void ToggleFullscreen(GLFWwindow* window) {
+	g_fullscreen = !g_fullscreen;
+	// TODO: update skybox aspect ratio
+	Camera* camera = (Camera*)glfwGetWindowUserPointer(window);
+	if (g_fullscreen) {
+		GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+		const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+		glfwSetWindowMonitor(window, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
+		glViewport(0, 0, mode->width, mode->height);
+		if (camera != NULL)
+			camera->updateScreenSize(mode->width, mode->height);
+	} else {
+		glfwSetWindowMonitor(window, NULL, 100, 100, WINDOW_WIDTH, WINDOW_HEIGHT, 0);
+		glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+		if (camera != NULL)
+			camera->updateScreenSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+	}
+}
 
 void key_press_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
 	(void)window; (void)scancode; (void)mods;
 	if (action == GLFW_RELEASE) return;
-	if (key == GLFW_KEY_F10) {
-		int width, height;
-		glfwGetFramebufferSize(window, &width, &height);
-		uint8_t* pixels = new uint8_t[width * height * 3];
-		glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, pixels);
-		FlipImageVertically(width, height, pixels);
-		string filename = "screenshot_" + to_string(time(NULL)) + ".png";
-		stbi_write_png(filename.c_str(), width, height, 3, pixels, 3 * width);
-		delete[] pixels;
-	} else if (key == GLFW_KEY_F11) {
-		// TODO: update skybox aspect ratio
-		fullscreen = !fullscreen;
-		Camera* camera = (Camera*)glfwGetWindowUserPointer(window);
-		if (fullscreen) {
-			GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-			const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-			glfwSetWindowMonitor(window, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
-			glViewport(0, 0, mode->width, mode->height);
-			if (camera != NULL)
-				camera->updateScreenSize(mode->width, mode->height);
-		} else {
-			glfwSetWindowMonitor(window, NULL, 100, 100, WINDOW_WIDTH, WINDOW_HEIGHT, 0);
-			glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
-			if (camera != NULL)
-				camera->updateScreenSize(WINDOW_WIDTH, WINDOW_HEIGHT);
-		}
-	}
+	if (key == GLFW_KEY_F10)
+		Screenshot(window);
+	else if (key == GLFW_KEY_F11)
+		ToggleFullscreen(window);
 }
 
 string GetScenePath(int argc, char* argv[]) {
