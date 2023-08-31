@@ -18,6 +18,7 @@ private:
 	VAO vao;
 public:
 	UI_Rectangle();
+	void draw(Shader& shader, float offset_x, float offset_y);
 	void draw(Shader& shader, GLuint texture_id, float offset_x, float offset_y);
 };
 
@@ -29,6 +30,7 @@ void key_press_callback(GLFWwindow* window, int key, int scancode, int action, i
 
 string GetScenePath(int argc, char* argv[]);
 
+void PushTime(Shader& shader, float offset = 0);
 GLuint LoadTexture(const char* path, GLenum format = GL_RGBA);
 void PushTexture(GLuint texture_id, Shader& shader, const char* uniform, GLuint unit = 0);
 

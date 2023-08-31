@@ -24,7 +24,7 @@ int main(int argc, char* argv[]) {
 #else
 	Shader voxel_shader("shaders/voxel_vert.glsl", "shaders/voxel_frag.glsl");
 #endif
-	//Shader shader_2d("shaders/2d_vert.glsl", "shaders/2d_tex_frag.glsl");
+	Shader shader_2d("art");
 	Shader mesh_shader("shaders/mesh_vert.glsl", "shaders/mesh_frag.glsl");
 	Shader rope_shader("shaders/rope_vert.glsl", "shaders/rope_frag.glsl");
 	Shader water_shader("shaders/water_vert.glsl", "shaders/water_frag.glsl");
@@ -33,7 +33,7 @@ int main(int argc, char* argv[]) {
 	Shader shadowmap_shader("shaders/shadowmap_vert.glsl", "shaders/shadowmap_frag.glsl");
 
 	Camera camera;
-	//UI_Rectangle rect;
+	UI_Rectangle rect;
 	ShadowMap shadow_map;
 	bool transparent_glass = true;
 	Light light(vec3(-35, 130, -132));
@@ -46,7 +46,7 @@ int main(int argc, char* argv[]) {
 	ImGuiIO& io = ImGui::GetIO();
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 	ImGuiWindowFlags dialog_flags = 0;
-	//dialog_flags |= ImGuiWindowFlags_NoResize;
+	dialog_flags |= ImGuiWindowFlags_NoResize;
 
 	ImGui::StyleColorsDark();
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
@@ -215,8 +215,7 @@ int main(int argc, char* argv[]) {
 		shadow_map.PushShadows(voxbox_shader);
 		scene.drawVoxbox(voxbox_shader, camera);
 
-		water_shader.Use();
-		glUniform1f(glGetUniformLocation(water_shader.id, "time"), glfwGetTime());
+		PushTime(water_shader);
 		glEnable(GL_BLEND);
 		scene.drawWater(water_shader, camera);
 		if (transparent_glass)
@@ -227,8 +226,10 @@ int main(int argc, char* argv[]) {
 		light.draw(voxel_shader, camera); // Debug light pos
 		skybox.draw(skybox_shader, camera);
 
-		//rect.draw(shader_2d, water->reflectionTexture, -0.9, 0.4);
-		//rect.draw(shader_2d, water->refractionTexture, 0.4, 0.4);
+		PushTime(shader_2d);
+		rect.draw(shader_2d, -0.9, 0.4);
+		PushTime(shader_2d, 1.0);
+		rect.draw(shader_2d, 0.4, 0.4);
 
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

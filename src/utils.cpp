@@ -150,6 +150,11 @@ GLuint LoadTexture(const char* path, GLenum format) {
 	return texture_id;
 }
 
+void PushTime(Shader& shader, float offset) {
+	shader.Use();
+	glUniform1f(glGetUniformLocation(shader.id, "time"), glfwGetTime() + offset);
+}
+
 void PushTexture(GLuint texture_id, Shader& shader, const char* uniform, GLuint unit) {
 	shader.Use();
 	glUniform1i(glGetUniformLocation(shader.id, uniform), unit);
@@ -165,6 +170,13 @@ UI_Rectangle::UI_Rectangle() {
 	vao.Unbind();
 	vbo.Unbind();
 	ebo.Unbind();
+}
+
+void UI_Rectangle::draw(Shader& shader, float offset_x, float offset_y) {
+	shader.Use();
+	glUniform2f(glGetUniformLocation(shader.id, "offset"), offset_x, offset_y);
+	vao.Bind();
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
 
 void UI_Rectangle::draw(Shader& shader, GLuint texture_id, float offset_x, float offset_y) {

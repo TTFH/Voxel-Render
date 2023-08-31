@@ -10,9 +10,10 @@ string ReadFile(const char* filename);
 
 class Shader {
 private:
-	void compileErrors(unsigned int shader, const char* type, const char* filename);
+	void CheckCompileErrors(unsigned int shader, const char* type, const char* filename = "");
 public:
 	GLuint id;
+	Shader(const char* name);
 	Shader(const char* vertexPath, const char* fragmentPath);
 	~Shader();
 	void Use();
