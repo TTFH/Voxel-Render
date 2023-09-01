@@ -222,7 +222,7 @@ void VoxLoader::load(const char* filename) {
 	glTexImage1D(GL_TEXTURE_1D, 0, GL_RGBA, 256, 0, GL_RGBA, GL_UNSIGNED_BYTE, palette);
 
 	for (unsigned int i = 0; i < shapes.size(); i++) {
-	#ifdef GREEDY_MESHING_ENABLED
+	#if GREEDY_MESHING_ENABLED
 		render.push_back(new FastRender(shapes[i], texture_id));
 	#else
 		render.push_back(new VoxelRender(shapes[i], texture_id));

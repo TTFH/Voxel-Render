@@ -29,7 +29,7 @@ using namespace glm;
 
 int main(int argc, char* argv[]) {
 	GLFWwindow* window = InitOpenGL("OpenGL");
-#ifdef GREEDY_MESHING_ENABLED
+#if GREEDY_MESHING_ENABLED
 	Shader voxel_shader("shaders/voxel_gm_vert.glsl", "shaders/voxel_frag.glsl");
 #else
 	Shader voxel_shader("shaders/voxel_vert.glsl", "shaders/voxel_frag.glsl");
@@ -150,7 +150,7 @@ int main(int argc, char* argv[]) {
 			ImGui::Begin("Voxel Render - Settings", NULL, dialog_flags);
 
 			ImGui::Text("Camera position: (%.2f, %.2f, %.2f)", camera.position.x, camera.position.y, camera.position.z);
-			ImGui::Text("Camera orientation: (%.2f, %.2f, %.2f)", camera.orientation.x, camera.orientation.y, camera.orientation.z);
+			ImGui::Text("Camera direction: (%.2f, %.2f, %.2f)", camera.orientation.x, camera.orientation.y, camera.orientation.z);
 			ImGui::Text("Light position: (%.2f, %.2f, %.2f)", light.position.x, light.position.y, light.position.z);
 			ImGui::Dummy(ImVec2(0, 10));
 
@@ -160,14 +160,14 @@ int main(int argc, char* argv[]) {
 			ImGui::PushItemWidth(80);
 			static int hex_orientation = 0;
 			ImGui::Combo("##orientation", &hex_orientation, "Cube\0Top\0Front\0Side\0");
-		#ifndef GREEDY_MESHING_ENABLED
+		#if GREEDY_MESHING_ENABLED
+			voxel_shader.Use();
+			glUniform1i(glGetUniformLocation(voxel_shader.id, "transparent_glass"), transparent_glass);
+		#else
 			shadowmap_shader.Use();
 			glUniform1i(glGetUniformLocation(shadowmap_shader.id, "side"), hex_orientation);
 			voxel_shader.Use();
 			glUniform1i(glGetUniformLocation(voxel_shader.id, "side"), hex_orientation);
-		#else
-			voxel_shader.Use();
-			glUniform1i(glGetUniformLocation(voxel_shader.id, "transparent_glass"), transparent_glass);
 		#endif
 			ImGui::PopItemWidth();
 
@@ -256,19 +256,21 @@ int main(int argc, char* argv[]) {
 		PushTime(water_shader);
 		glEnable(GL_BLEND);
 		scene.drawWater(water_shader, camera);
+	#if GREEDY_MESHING_ENABLED
 		if (transparent_glass)
 			scene.draw(voxel_glass_shader, camera);
+	#endif
 		glDisable(GL_BLEND);
 
 		scene.drawRope(rope_shader, camera);
 		light.draw(voxel_shader, camera); // Debug light pos
 		skybox.draw(skybox_shader, camera);
-
-		//PushTime(shader_2d);
-		//rect.draw(shader_2d, -0.9, 0.4);
+/*
+		PushTime(shader_2d);
+		rect.draw(shader_2d, -0.9, 0.4);
 		PushTime(shader_2d, 1.0);
 		rect.draw(shader_2d, 0.4, 0.4);
-
+*/
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 

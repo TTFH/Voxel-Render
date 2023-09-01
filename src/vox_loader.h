@@ -48,7 +48,7 @@ private:
 	//MV_PBR pbr[256];
 	vector<MV_Shape> shapes;
 	multimap<string, MV_Model> models;
-#ifdef GREEDY_MESHING_ENABLED
+#if GREEDY_MESHING_ENABLED
 	vector<FastRender*> render;
 #else
 	vector<VoxelRender*> render;
