@@ -9,70 +9,87 @@ string ReadFile(const char* filename) {
 		printf("Error: Could not open file %s\n", filename);
 		exit(EXIT_FAILURE);
 	}
-	string contents;
+	string content;
 	in.seekg(0, in.end);
-	contents.resize(in.tellg());
+	content.resize(in.tellg());
 	in.seekg(0, in.beg);
-	in.read(&contents[0], contents.size());
+	in.read(&content[0], content.size());
 	in.close();
-	return contents;
+	return content;
 }
 
-static const char* VERSION = "#version 410 core\n";
-static const char* VERTEX = "#define VERTEX\n";
-static const char* FRAGMENT = "#define FRAGMENT\n";
+void Shader::Create(const char* vertexSource, const char* fragmentSource) {
+	GLint hasCompiled;
+	char infoLog[1024];
+
+	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+	glShaderSource(vertexShader, 1, &vertexSource, NULL);
+	glCompileShader(vertexShader);
+	
+	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &hasCompiled);
+	if (hasCompiled == GL_FALSE) {
+		glGetShaderInfoLog(vertexShader, 1024, NULL, infoLog);
+		printf("[ERROR] Vertex shader %s failed to compile\n%s\n", path1, infoLog);
+	}
+
+	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(fragmentShader, 1, &fragmentSource, NULL);
+	glCompileShader(fragmentShader);
+
+	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &hasCompiled);
+	if (hasCompiled == GL_FALSE) {
+		glGetShaderInfoLog(fragmentShader, 1024, NULL, infoLog);
+		printf("[ERROR] Fragment shader %s failed to compile\n%s\n", path2, infoLog);
+	}
+
+	id = glCreateProgram();
+	glAttachShader(id, vertexShader);
+	glAttachShader(id, fragmentShader);
+	glLinkProgram(id);
+
+	glGetProgramiv(id, GL_LINK_STATUS, &hasCompiled);
+	if (hasCompiled == GL_FALSE) {
+		glGetProgramInfoLog(id, 1024, NULL, infoLog);
+		printf("[ERROR] Program linking failed\n%s\n", infoLog);
+		exit(EXIT_FAILURE); // TODO: Handle error
+	}
+
+	glDeleteShader(vertexShader);
+	glDeleteShader(fragmentShader);
+}
 
 Shader::Shader(const char* name) {
 	string path = "shaders/" + string(name) + ".glsl";
-	string shaderCode = ReadFile(path.c_str());
-
-	string vertexCode = string(VERSION) + VERTEX + shaderCode;
-	const char* vertexSource = vertexCode.c_str();
-	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertexShader, 1, &vertexSource, NULL);
-	glCompileShader(vertexShader);
-	CheckCompileErrors(vertexShader, "Vertex", name);
-
-	string fragmentCode = string(VERSION) + FRAGMENT + shaderCode;
-	const char* fragmentSource = fragmentCode.c_str();
-	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragmentShader, 1, &fragmentSource, NULL);
-	glCompileShader(fragmentShader);
-	CheckCompileErrors(fragmentShader, "Fragment", name);
-
-	id = glCreateProgram();
-	glAttachShader(id, vertexShader);
-	glAttachShader(id, fragmentShader);
-	glLinkProgram(id);
-	CheckCompileErrors(id, "Program", name);
-
-	glDeleteShader(vertexShader);
-	glDeleteShader(fragmentShader);
+	unified = true;
+	path1 = path.c_str();
+	path2 = path.c_str();
+	Load();
 }
 
 Shader::Shader(const char* vertexPath, const char* fragmentPath) {
-	string vertexCode = ReadFile(vertexPath);
-	const char* vertexSource = vertexCode.c_str();
-	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertexShader, 1, &vertexSource, NULL);
-	glCompileShader(vertexShader);
-	CheckCompileErrors(vertexShader, "Vertex", vertexPath);
+	unified = false;
+	path1 = vertexPath;
+	path2 = fragmentPath;
+	Load();
+}
 
-	string fragmentCode = ReadFile(fragmentPath);
-	const char* fragmentSource = fragmentCode.c_str();
-	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragmentShader, 1, &fragmentSource, NULL);
-	glCompileShader(fragmentShader);
-	CheckCompileErrors(fragmentShader, "Fragment", fragmentPath);
+void Shader::Load() {
+	if (unified) {
+		string shaderCode = ReadFile(path1);
+		string vertexCode = string(VERSION) + VERTEX + shaderCode;
+		string fragmentCode = string(VERSION) + FRAGMENT + shaderCode;
+		Create(vertexCode.c_str(), fragmentCode.c_str());
+	} else {
+		string vertexCode = ReadFile(path1);
+		string fragmentCode = ReadFile(path2);
+		Create(vertexCode.c_str(), fragmentCode.c_str());
+	}
+}
 
-	id = glCreateProgram();
-	glAttachShader(id, vertexShader);
-	glAttachShader(id, fragmentShader);
-	glLinkProgram(id);
-	CheckCompileErrors(id, "Program");
-
-	glDeleteShader(vertexShader);
-	glDeleteShader(fragmentShader);
+void Shader::Reload() {
+	GLuint old_id = id;
+	Load();
+	glDeleteProgram(old_id);
 }
 
 void Shader::Use() {
@@ -81,23 +98,4 @@ void Shader::Use() {
 
 Shader::~Shader() {
 	glDeleteProgram(id);
-}
-
-void Shader::CheckCompileErrors(unsigned int shader, const char* type, const char* filename) {
-	GLint hasCompiled;
-	char infoLog[1024];
-	if (strcmp(type, "Program") != 0) {
-		glGetShaderiv(shader, GL_COMPILE_STATUS, &hasCompiled);
-		if (hasCompiled == GL_FALSE) {
-			glGetShaderInfoLog(shader, 1024, NULL, infoLog);
-			printf("[ERROR] %s shader %s failed to compile\n%s\n", type, filename, infoLog);
-		}
-	} else {
-		glGetProgramiv(shader, GL_LINK_STATUS, &hasCompiled);
-		if (hasCompiled == GL_FALSE) {
-			glGetProgramInfoLog(shader, 1024, NULL, infoLog);
-			printf("[ERROR] %s linking failed\n%s\n", type, infoLog);
-			exit(EXIT_FAILURE);
-		}
-	}
 }

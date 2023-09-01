@@ -1,3 +1,11 @@
+#include <map>
+#include <stdio.h>
+#include <string.h>
+
+#include "../glad/glad.h"
+#include <glm/glm.hpp>
+#include <GLFW/glfw3.h>
+
 #include "src/mesh.h"
 #include "src/light.h"
 #include "src/utils.h"
@@ -16,15 +24,18 @@
 #include "imgui/backend/imgui_impl_glfw.h"
 #include "imgui/backend/imgui_impl_opengl3.h"
 
+using namespace std;
+using namespace glm;
+
 int main(int argc, char* argv[]) {
 	GLFWwindow* window = InitOpenGL("OpenGL");
 #ifdef GREEDY_MESHING_ENABLED
 	Shader voxel_shader("shaders/voxel_gm_vert.glsl", "shaders/voxel_frag.glsl");
-	Shader voxel_glass_shader("shaders/voxel_gm_vert.glsl", "shaders/voxel_glass_frag.glsl");
 #else
 	Shader voxel_shader("shaders/voxel_vert.glsl", "shaders/voxel_frag.glsl");
 #endif
 	Shader shader_2d("art");
+	Shader voxel_glass_shader("shaders/voxel_gm_vert.glsl", "shaders/voxel_glass_frag.glsl");
 	Shader mesh_shader("shaders/mesh_vert.glsl", "shaders/mesh_frag.glsl");
 	Shader rope_shader("shaders/rope_vert.glsl", "shaders/rope_frag.glsl");
 	Shader water_shader("shaders/water_vert.glsl", "shaders/water_frag.glsl");
@@ -32,10 +43,22 @@ int main(int argc, char* argv[]) {
 	Shader skybox_shader("shaders/skybox_vert.glsl", "shaders/skybox_frag.glsl");
 	Shader shadowmap_shader("shaders/shadowmap_vert.glsl", "shaders/shadowmap_frag.glsl");
 
+	map<const char*, Shader*> shaders = {
+		{"voxel_shader", &voxel_shader},
+		{"voxel_glass_shader", &voxel_glass_shader},
+		{"shader_2d", &shader_2d},
+		{"mesh_shader", &mesh_shader},
+		{"rope_shader", &rope_shader},
+		{"water_shader", &water_shader},
+		{"voxbox_shader", &voxbox_shader},
+		{"skybox_shader", &skybox_shader},
+		{"shadowmap_shader", &shadowmap_shader}
+	};
+
 	Camera camera;
 	UI_Rectangle rect;
 	ShadowMap shadow_map;
-	bool transparent_glass = true;
+	bool transparent_glass = false;
 	Light light(vec3(-35, 130, -132));
 	Skybox skybox(skybox_shader, (float)WINDOW_WIDTH / WINDOW_HEIGHT);
 	camera.initialize(WINDOW_WIDTH, WINDOW_HEIGHT, vec3(0, 2.5, 10));
@@ -46,7 +69,7 @@ int main(int argc, char* argv[]) {
 	ImGuiIO& io = ImGui::GetIO();
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 	ImGuiWindowFlags dialog_flags = 0;
-	dialog_flags |= ImGuiWindowFlags_NoResize;
+	//dialog_flags |= ImGuiWindowFlags_NoResize;
 
 	ImGui::StyleColorsDark();
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
@@ -154,6 +177,21 @@ int main(int argc, char* argv[]) {
 			if (ImGui::Button("Screenshot"))
 				Screenshot(window);
 
+			static const char* selected_shader = "voxel_shader";
+			if (ImGui::BeginCombo("##combo", selected_shader)) {
+				for (map<const char*, Shader*>::iterator it = shaders.begin(); it != shaders.end(); it++) {
+					bool is_selected = strcmp(selected_shader, it->first) == 0;
+					if (ImGui::Selectable(it->first, is_selected))
+						selected_shader = it->first;
+					if (is_selected)
+						ImGui::SetItemDefaultFocus();
+				}
+				ImGui::EndCombo();
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Reload") && selected_shader != NULL)
+				shaders[selected_shader]->Reload();
+
 			ImGui::ColorEdit3("Clear color", (float*)&clear_color);
 			ImGui::Dummy(ImVec2(0, 10));
 			ImGui::Text("FPS: %.0f", io.Framerate);
@@ -226,8 +264,8 @@ int main(int argc, char* argv[]) {
 		light.draw(voxel_shader, camera); // Debug light pos
 		skybox.draw(skybox_shader, camera);
 
-		PushTime(shader_2d);
-		rect.draw(shader_2d, -0.9, 0.4);
+		//PushTime(shader_2d);
+		//rect.draw(shader_2d, -0.9, 0.4);
 		PushTime(shader_2d, 1.0);
 		rect.draw(shader_2d, 0.4, 0.4);
 

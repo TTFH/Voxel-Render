@@ -3,7 +3,6 @@ obj/*.o
 vox_render
 vox_render.exe
 
-imgui.ini
 meshes/
 trains/
 screenshot_*.png
