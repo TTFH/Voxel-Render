@@ -1,7 +1,11 @@
 #ifndef VOX_LOADER_H
 #define VOX_LOADER_H
 
-#define GREEDY_MESHING_ENABLED 1
+#define NONE 0
+#define GREEDY 1
+#define HEXAGON 2
+#define RTX 3
+#define RENDER_METHOD GREEDY
 
 #include <map>
 #include <string>
@@ -9,7 +13,7 @@
 
 #include "camera.h"
 #include "shader.h"
-#include "voxel_render.h"
+#include "hex_render.h"
 #include "greedy_mesh.h"
 
 using namespace std;
@@ -48,10 +52,10 @@ private:
 	//MV_PBR pbr[256];
 	vector<MV_Shape> shapes;
 	multimap<string, MV_Model> models;
-#if GREEDY_MESHING_ENABLED
-	vector<FastRender*> render;
-#else
-	vector<VoxelRender*> render;
+#if RENDER_METHOD == GREEDY
+	vector<GreedyRender*> render;
+#elif RENDER_METHOD == HEXAGON
+	vector<HexRender*> render;
 #endif
 public:
 	VoxLoader();

@@ -5,7 +5,6 @@ constexpr int ID(char a, char b, char c, char d) {
 	return a | (b << 8) | (c << 16) | (d << 24);
 }
 
-const int VERSION = 150;
 const int VOX  = ID('V', 'O', 'X', ' ');
 const int MAIN = ID('M', 'A', 'I', 'N');
 const int SIZE = ID('S', 'I', 'Z', 'E');
@@ -73,7 +72,7 @@ string GetDictValue(DICT& dict, string key) {
 	return "";
 }
 
-int ReadHeader(const char* filename, FILE* file) {
+int ReadHeader( FILE* file) {
 	int magic = ReadInt(file);
 	if (magic != VOX) {
 		printf("[ERROR] Invalid .vox file format.\n");
@@ -81,8 +80,10 @@ int ReadHeader(const char* filename, FILE* file) {
 	}
 
 	int version = ReadInt(file);
-	if (version != VERSION)
-		printf("[Warning] Version mismatch in file %s\n", filename);
+	if (version != 150 && version != 200) {
+		printf("[ERROR] Invalid MV version.\n");
+		exit(EXIT_FAILURE);
+	}
 
 	Chunk mainChunk;
 	ReadChunk(file, mainChunk);
@@ -117,7 +118,7 @@ void VoxLoader::load(const char* filename) {
 		printf("[Warning] File %s not found.\n", filename);
 		return;
 	}
-	int file_size = ReadHeader(filename, file);
+	int file_size = ReadHeader(file);
 
 	while (ftell(file) < file_size) {
 		Chunk sub;
@@ -222,10 +223,10 @@ void VoxLoader::load(const char* filename) {
 	glTexImage1D(GL_TEXTURE_1D, 0, GL_RGBA, 256, 0, GL_RGBA, GL_UNSIGNED_BYTE, palette);
 
 	for (unsigned int i = 0; i < shapes.size(); i++) {
-	#if GREEDY_MESHING_ENABLED
-		render.push_back(new FastRender(shapes[i], texture_id));
-	#else
-		render.push_back(new VoxelRender(shapes[i], texture_id));
+	#if RENDER_METHOD == GREEDY
+		render.push_back(new GreedyRender(shapes[i], texture_id));
+	#elif RENDER_METHOD == HEXAGON
+		render.push_back(new HexRender(shapes[i], texture_id));
 	#endif
 	}
 }

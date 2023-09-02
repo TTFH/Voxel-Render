@@ -1,5 +1,5 @@
-#ifndef VOXEL_RENDER_H
-#define VOXEL_RENDER_H
+#ifndef HEX_RENDER_H
+#define HEX_RENDER_H
 
 #include "vao.h"
 #include "camera.h"
@@ -8,7 +8,7 @@
 
 using namespace glm;
 
-class VoxelRender {
+class HexRender {
 private:
 	VAO vao;
 	GLuint texture_id;
@@ -18,7 +18,7 @@ private:
 	vec3 world_position = vec3(0, 0, 0);
 	quat world_rotation = quat(1, 0, 0, 0);
 public:
-	VoxelRender(const MV_Shape& shape, GLuint texture_id);
+	HexRender(const MV_Shape& shape, GLuint texture_id);
 	void setTransform(vec3 position, quat rotation);
 	void setWorldTransform(vec3 position, quat rotation);
 	void draw(Shader& shader, Camera& camera, vec4 clip_plane, float scale = 1);

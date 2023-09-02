@@ -1,4 +1,4 @@
-#version 330 core
+#version 410 core
 
 uniform samplerCube skybox;
 in vec3 texCoords;

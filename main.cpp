@@ -29,10 +29,10 @@ using namespace glm;
 
 int main(int argc, char* argv[]) {
 	GLFWwindow* window = InitOpenGL("OpenGL");
-#if GREEDY_MESHING_ENABLED
+#if RENDER_METHOD == GREEDY
 	Shader voxel_shader("shaders/voxel_gm_vert.glsl", "shaders/voxel_frag.glsl");
-#else
-	Shader voxel_shader("shaders/voxel_vert.glsl", "shaders/voxel_frag.glsl");
+#elif RENDER_METHOD == HEXAGON
+	Shader voxel_shader("shaders/voxel_hex_vert.glsl", "shaders/voxel_frag.glsl");
 #endif
 	Shader shader_art("art");
 	Shader shader_2d("2d_tex");
@@ -163,10 +163,10 @@ int main(int argc, char* argv[]) {
 			ImGui::PushItemWidth(80);
 			static int hex_orientation = 0;
 			ImGui::Combo("##orientation", &hex_orientation, "Cube\0Top\0Front\0Side\0");
-		#if GREEDY_MESHING_ENABLED
+		#if RENDER_METHOD == GREEDY
 			voxel_shader.Use();
 			glUniform1i(glGetUniformLocation(voxel_shader.id, "transparent_glass"), transparent_glass);
-		#else
+		#elif RENDER_METHOD == HEXAGON
 			shadowmap_shader.Use();
 			glUniform1i(glGetUniformLocation(shadowmap_shader.id, "side"), hex_orientation);
 			voxel_shader.Use();
@@ -259,7 +259,7 @@ int main(int argc, char* argv[]) {
 		PushTime(water_shader);
 		glEnable(GL_BLEND);
 		scene.drawWater(water_shader, camera);
-	#if GREEDY_MESHING_ENABLED
+	#if RENDER_METHOD == GREEDY
 		if (transparent_glass)
 			scene.draw(voxel_glass_shader, camera);
 	#endif

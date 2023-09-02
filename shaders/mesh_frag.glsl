@@ -1,4 +1,4 @@
-#version 330 core
+#version 410 core
 uniform vec3 camera_pos;
 uniform vec3 lightpos;
 uniform sampler2D diffuse0;

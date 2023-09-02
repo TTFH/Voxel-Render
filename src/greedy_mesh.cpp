@@ -184,7 +184,7 @@ GreedyMesh generateGreedyMesh(const MV_Shape& shape) {
 	return mesh;
 }
 
-FastRender::FastRender(const MV_Shape& shape, GLuint texture_id) {
+GreedyRender::GreedyRender(const MV_Shape& shape, GLuint texture_id) {
 	GreedyMesh mesh = generateGreedyMesh(shape);
 	this->texture_id = texture_id;
 	index_count = mesh.indices.size();
@@ -202,17 +202,17 @@ FastRender::FastRender(const MV_Shape& shape, GLuint texture_id) {
 	ebo.Unbind();
 }
 
-void FastRender::setTransform(vec3 position, quat rotation) {
+void GreedyRender::setTransform(vec3 position, quat rotation) {
 	this->position = position;
 	this->rotation = rotation;
 }
 
-void FastRender::setWorldTransform(vec3 position, quat rotation) {
+void GreedyRender::setWorldTransform(vec3 position, quat rotation) {
 	this->world_position = position;
 	this->world_rotation = rotation;
 }
 
-void FastRender::draw(Shader& shader, Camera& camera, vec4 clip_plane, float scale) {
+void GreedyRender::draw(Shader& shader, Camera& camera, vec4 clip_plane, float scale) {
 	shader.Use();
 	vao.Bind();
 	camera.pushMatrix(shader, "camera");

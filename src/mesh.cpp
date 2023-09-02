@@ -50,13 +50,8 @@ void Mesh::LoadOBJ(const char* path) {
 	} while (!feof(file));
 	fclose(file);
 
-#ifdef _WIN32
-	printf("Loaded %lld vertices, %lld normals, %lld tex_coords, %lld triangles\n",
-		positions.size() - 1, normals.size() - 1, tex_coords.size() - 1, mesh.size() - 1);
-#else
-	printf("Loaded %ld vertices, %ld normals, %ld tex_coords, %ld triangles\n",
-		positions.size() - 1, normals.size() - 1, tex_coords.size() - 1, mesh.size() - 1);
-#endif
+	printf("Loaded %d vertices, %d normals, %d tex_coords, %d triangles\n",
+		(int)positions.size() - 1, (int)normals.size() - 1, (int)tex_coords.size() - 1, (int)mesh.size());
 
 	// Convert negative indices to positive
 	for (unsigned int t = 0; t < mesh.size(); t++) {

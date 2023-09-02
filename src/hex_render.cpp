@@ -1,5 +1,5 @@
 #include "ebo.h"
-#include "voxel_render.h"
+#include "hex_render.h"
 #include <glm/gtc/type_ptr.hpp>
 
 //   4 _ _ _ _ 3
@@ -154,7 +154,7 @@ static void TrimShape(uint8_t*** &voxels, int sizex, int sizey, int sizez) {
 	}
 }
 
-VoxelRender::VoxelRender(const MV_Shape& shape, GLuint texture_id) {
+HexRender::HexRender(const MV_Shape& shape, GLuint texture_id) {
 	uint8_t*** voxels = MatrixInit(shape);
 	TrimShape(voxels, shape.sizex, shape.sizey, shape.sizez);
 
@@ -191,17 +191,17 @@ VoxelRender::VoxelRender(const MV_Shape& shape, GLuint texture_id) {
 	ebo.Unbind();
 }
 
-void VoxelRender::setTransform(vec3 position, quat rotation) {
+void HexRender::setTransform(vec3 position, quat rotation) {
 	this->position = position;
 	this->rotation = rotation;
 }
 
-void VoxelRender::setWorldTransform(vec3 position, quat rotation) {
+void HexRender::setWorldTransform(vec3 position, quat rotation) {
 	this->world_position = position;
 	this->world_rotation = rotation;
 }
 
-void VoxelRender::draw(Shader& shader, Camera& camera, vec4 clip_plane, float scale) {
+void HexRender::draw(Shader& shader, Camera& camera, vec4 clip_plane, float scale) {
 	shader.Use();
 	vao.Bind();
 	camera.pushMatrix(shader, "camera");

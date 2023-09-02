@@ -14,7 +14,7 @@ struct GreedyMesh {
 	vector<GLuint> indices;
 };
 
-class FastRender {
+class GreedyRender {
 private:
 	VAO vao;
 	GLuint texture_id;
@@ -24,7 +24,7 @@ private:
 	vec3 world_position = vec3(0, 0, 0);
 	quat world_rotation = quat(1, 0, 0, 0);
 public:
-	FastRender(const MV_Shape& shape, GLuint texture_id);
+	GreedyRender(const MV_Shape& shape, GLuint texture_id);
 	void setTransform(vec3 position, quat rotation);
 	void setWorldTransform(vec3 position, quat rotation);
 	void draw(Shader& shader, Camera& camera, vec4 clip_plane, float scale = 1);
