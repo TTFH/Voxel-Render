@@ -180,9 +180,8 @@ void UI_Rectangle::draw(Shader& shader, float offset_x, float offset_y) {
 }
 
 void UI_Rectangle::draw(Shader& shader, GLuint texture_id, float offset_x, float offset_y) {
-	shader.Use();
-	glUniform2f(glGetUniformLocation(shader.id, "offset"), offset_x, offset_y);
 	PushTexture(texture_id, shader, "diffuse0", 0);
+	glUniform2f(glGetUniformLocation(shader.id, "offset"), offset_x, offset_y);
 	vao.Bind();
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
