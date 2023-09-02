@@ -34,7 +34,8 @@ int main(int argc, char* argv[]) {
 #else
 	Shader voxel_shader("shaders/voxel_vert.glsl", "shaders/voxel_frag.glsl");
 #endif
-	Shader shader_2d("art");
+	Shader shader_art("art");
+	Shader shader_2d("2d_tex");
 	Shader voxel_glass_shader("shaders/voxel_gm_vert.glsl", "shaders/voxel_glass_frag.glsl");
 	Shader mesh_shader("shaders/mesh_vert.glsl", "shaders/mesh_frag.glsl");
 	Shader rope_shader("shaders/rope_vert.glsl", "shaders/rope_frag.glsl");
@@ -46,6 +47,7 @@ int main(int argc, char* argv[]) {
 	map<const char*, Shader*> shaders = {
 		{"voxel_shader", &voxel_shader},
 		{"voxel_glass_shader", &voxel_glass_shader},
+		{"shader_art", &shader_art},
 		{"shader_2d", &shader_2d},
 		{"mesh_shader", &mesh_shader},
 		{"rope_shader", &rope_shader},
@@ -57,6 +59,7 @@ int main(int argc, char* argv[]) {
 
 	Camera camera;
 	UI_Rectangle rect;
+	GLuint test = LoadTexture("textures/td_editor.png", GL_RGB);
 	ShadowMap shadow_map;
 	bool transparent_glass = false;
 	Light light(vec3(-35, 130, -132));
@@ -265,12 +268,11 @@ int main(int argc, char* argv[]) {
 		scene.drawRope(rope_shader, camera);
 		light.draw(voxel_shader, camera); // Debug light pos
 		skybox.draw(skybox_shader, camera);
-/*
-		PushTime(shader_2d);
-		rect.draw(shader_2d, -0.9, 0.4);
-		PushTime(shader_2d, 1.0);
-		rect.draw(shader_2d, 0.4, 0.4);
-*/
+
+		PushTime(shader_art);
+		rect.draw(shader_art, -0.9, 0.4);
+		rect.draw(shader_2d, test, 0.4, 0.4);
+
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 

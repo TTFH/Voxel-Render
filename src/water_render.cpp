@@ -70,8 +70,8 @@ WaterRender::WaterRender(vector<vec2> vertices) {
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
-	dudv_texture = LoadTexture("water_dudv.png", GL_RGB);
-	normal_texture = LoadTexture("water_normal.png", GL_RGB);
+	dudv_texture = LoadTexture("textures/water_dudv.png", GL_RGB);
+	normal_texture = LoadTexture("textures/water_normal.png", GL_RGB);
 }
 
 float WaterRender::GetHeight() {

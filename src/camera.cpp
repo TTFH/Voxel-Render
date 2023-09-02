@@ -18,10 +18,8 @@ void Camera::updateScreenSize(int width, int height) {
 }
 
 void Camera::updateMatrix(float FOVdeg, float nearPlane, float farPlane) {
-	mat4 view = mat4(1.0f);
-	mat4 projection = mat4(1.0f);
-	view = lookAt(position, position + orientation, up);
-	projection = perspective(radians(FOVdeg), (float)screen_width / screen_height, nearPlane, farPlane);
+	mat4 view = lookAt(position, position + orientation, up);
+	mat4 projection = perspective(radians(FOVdeg), (float)screen_width / screen_height, nearPlane, farPlane);
 	cameraMatrix = projection * view;
 }
 

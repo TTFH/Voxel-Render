@@ -27,20 +27,22 @@ void Shader::Create(const char* vertexSource, const char* fragmentSource) {
 	glCompileShader(vertexShader);
 	
 	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &hasCompiled);
-	if (hasCompiled == GL_FALSE) {
-		glGetShaderInfoLog(vertexShader, 1024, NULL, infoLog);
+	glGetShaderInfoLog(vertexShader, 1024, NULL, infoLog);
+	if (hasCompiled == GL_FALSE)
 		printf("[ERROR] Vertex shader %s failed to compile\n%s\n", path1, infoLog);
-	}
+	else if (strcmp(infoLog, "") != 0)
+		printf("[Warning] Vertex shader %s compiled with warnings\n%s\n", path1, infoLog);
 
 	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 	glShaderSource(fragmentShader, 1, &fragmentSource, NULL);
 	glCompileShader(fragmentShader);
 
 	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &hasCompiled);
-	if (hasCompiled == GL_FALSE) {
-		glGetShaderInfoLog(fragmentShader, 1024, NULL, infoLog);
-		printf("[ERROR] Fragment shader %s failed to compile\n%s\n", path2, infoLog);
-	}
+	glGetShaderInfoLog(fragmentShader, 1024, NULL, infoLog);
+	if (hasCompiled == GL_FALSE)
+		printf("[ERROR] Fragment shader %s failed to compile\n%s\n", path1, infoLog);
+	else if (strcmp(infoLog, "") != 0)
+		printf("[Warning] Fragment shader %s compiled with warnings\n%s\n", path1, infoLog);
 
 	id = glCreateProgram();
 	glAttachShader(id, vertexShader);
@@ -49,8 +51,8 @@ void Shader::Create(const char* vertexSource, const char* fragmentSource) {
 
 	glGetProgramiv(id, GL_LINK_STATUS, &hasCompiled);
 	if (hasCompiled == GL_FALSE) {
-		glGetProgramInfoLog(id, 1024, NULL, infoLog);
-		printf("[ERROR] Program linking failed\n%s\n", infoLog);
+		//glGetProgramInfoLog(id, 1024, NULL, infoLog);
+		printf("[ERROR] Program linking failed\n");
 		exit(EXIT_FAILURE); // TODO: Handle error
 	}
 
