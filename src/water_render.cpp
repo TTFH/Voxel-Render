@@ -67,6 +67,9 @@ WaterRender::WaterRender(vector<vec2> vertices) {
 		CreateDepthBuffer(reflectionDepthBuffer, REFLECTION_WIDTH, REFLECTION_HEIGHT);
 		CreateFBwTexture(refractionFrameBuffer, refractionTexture, REFRACTION_WIDTH, REFRACTION_HEIGHT);
 		CreateDepthTexture(refractionDepthTexture, REFRACTION_WIDTH, REFRACTION_HEIGHT);
+		GLenum fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+		if (fboStatus != GL_FRAMEBUFFER_COMPLETE)
+			printf("[ERROR] Water framebuffer failed with status %d\n", fboStatus);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 

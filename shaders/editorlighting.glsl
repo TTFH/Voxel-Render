@@ -2,16 +2,16 @@ uniform sampler2D uTexture;
 uniform sampler2D uNormal;
 uniform sampler2D uDepth;
 uniform sampler2D uBlueNoise;
-uniform vec2 uPixelSize;
 
-uniform vec3 uCameraPos;
 uniform float uNear;
 uniform float uFar;
 
+uniform vec2 uPixelSize;
+uniform vec3 uCameraPos;
+uniform vec3 uLightDir;
+
 uniform mat4 uVpMatrix;
 uniform mat4 uVpInvMatrix;
-
-uniform vec3 uLightDir;
 
 varying vec2 vTexCoord;
 varying vec3 vFarVec;

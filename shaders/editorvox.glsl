@@ -1,24 +1,22 @@
-uniform mat4 uVpMatrix;		// view projection matrix
+uniform float uNear;		// near plane
+uniform float uFar;			// far plane
 uniform vec3 uCameraPos;	// camera pos
 
-uniform float uFar;			// far plane
-uniform float uNear;		// near plane
-
-uniform mat4 uMvpMatrix;	// model view projection matrix: p*v*m
 uniform mat4 uModelMatrix;	// model matrix
+uniform mat4 uVpMatrix;		// view projection matrix
+uniform mat4 uMvpMatrix;	// model view projection matrix: p*v*m
 
 uniform mat4 uVolMatrix;	// local to world matrix, used for normals
 uniform mat4 uVolMatrixInv;	// world to local matrix
 
+uniform uint uMaxValue;		// max palette index
+uniform int uPalette;		// palette id
 uniform vec4 uMultColor;	// white, why?
 uniform sampler2D uColor;	// palettes
 
-uniform uint uMaxValue;		// max palette index
-uniform int uPalette;		// palette id
-
-uniform usampler3D uVolTex;	// shape
-uniform vec3 uVolResolution;// shape size
 uniform float uVolTexelSize;// voxel size
+uniform vec3 uVolResolution;// shape size
+uniform usampler3D uVolTex;	// shape
 
 varying vec3 vWorldPos;
 varying vec3 vLocalCameraPos;

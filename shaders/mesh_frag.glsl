@@ -10,7 +10,10 @@ in vec3 normal;
 in vec2 tex_coord;
 in vec4 fragPosLight;
 
-out vec4 FragColor;
+//out vec4 FragColor;
+layout(location=0) out vec3 outputColor;
+layout(location=1) out vec3 outputNormal;
+layout(location=2) out float outputDepth;
 
 float computeShadows() {
 	float shadow = 0.0f;
@@ -57,7 +60,11 @@ vec4 directLight() {
 }
 
 void main() {
-	FragColor = directLight();
+	//FragColor = directLight();
+
+	outputColor = directLight().rgb;
+	outputNormal = normal;
+	outputDepth = gl_FragCoord.z;
 
 	// Debug normals
 	//FragColor = vec4((normal + 1.0f) / 2.0f, 1.0f);
