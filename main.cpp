@@ -59,13 +59,13 @@ int main(int argc, char* argv[]) {
 
 	Camera camera;
 	UI_Rectangle rect;
-	GLuint test = LoadTexture("textures/td_editor.png", GL_RGB);
 	ShadowMap shadow_map;
 	bool transparent_glass = false;
 	Light light(vec3(-35, 130, -132));
 	Skybox skybox(skybox_shader, (float)WINDOW_WIDTH / WINDOW_HEIGHT);
 	camera.initialize(WINDOW_WIDTH, WINDOW_HEIGHT, vec3(0, 2.5, 10));
 	Scene scene(GetScenePath(argc, argv));
+	GLuint test = LoadTexture("textures/td_editor.png", GL_RGB);
 
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -153,7 +153,7 @@ int main(int argc, char* argv[]) {
 			ImGui::Begin("Voxel Render - Settings", NULL, dialog_flags);
 
 			ImGui::Text("Camera position: (%.2f, %.2f, %.2f)", camera.position.x, camera.position.y, camera.position.z);
-			ImGui::Text("Camera direction: (%.2f, %.2f, %.2f)", camera.orientation.x, camera.orientation.y, camera.orientation.z);
+			ImGui::Text("Camera direction: (%.2f, %.2f, %.2f)", camera.direction.x, camera.direction.y, camera.direction.z);
 			ImGui::Text("Light position: (%.2f, %.2f, %.2f)", light.position.x, light.position.y, light.position.z);
 			ImGui::Dummy(ImVec2(0, 10));
 

@@ -218,8 +218,7 @@ void VoxLoader::load(const char* filename) {
 	GLuint texture_id;
 	glGenTextures(1, &texture_id);
 	glBindTexture(GL_TEXTURE_1D, texture_id);
-	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexImage1D(GL_TEXTURE_1D, 0, GL_RGBA, 256, 0, GL_RGBA, GL_UNSIGNED_BYTE, palette);
 
 	for (unsigned int i = 0; i < shapes.size(); i++) {

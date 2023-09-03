@@ -1,4 +1,5 @@
 #include <map>
+#include <list>
 #include <stdio.h>
 #include <string.h>
 
@@ -8,10 +9,10 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "src/ebo.h"
-#include "src/mesh.h"
-#include "src/light.h"
 #include "src/utils.h"
 #include "src/shader.h"
+#include "src/camera.h"
+#include "src/vox_loader.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "lib/stb_image.h"
@@ -62,7 +63,6 @@ void Screen::draw() {
 int main(/*int argc, char* argv[]*/) {
 	GLFWwindow* window = InitOpenGL("Totally not Teardown");
 
-	Shader mesh_shader("shaders/mesh_vert.glsl", "shaders/mesh_frag.glsl");
 	Shader screen_shader("editorlighting");
 	Shader shape_shader("editorvox");
 
@@ -70,33 +70,17 @@ int main(/*int argc, char* argv[]*/) {
 	//GLuint test_tex = LoadTexture("textures/td_editor.png", GL_RGB);
 	GLuint bluenoise = LoadTexture("textures/bluenoise.png", GL_RGB);
 	vec3 lightDir(0.38, -0.76, 0.53);
-	Light light(vec3(-35, 130, -132)); // remove
-
-	const int NEAR_PLANE = 0.1;
-	const int FAR_PLANE = 1000;
 
 	Camera camera;
-	vec3 cameraPos(0, 4.8, 8.8);
-	camera.initialize(WINDOW_WIDTH, WINDOW_HEIGHT, cameraPos);
-	camera.updateMatrix(45, NEAR_PLANE, FAR_PLANE);
+	camera.initialize(WINDOW_WIDTH, WINDOW_HEIGHT, vec3(0, 4.8, 8.8));
 
 	mat4 vpMatrix = camera.cameraMatrix;
 	mat4 vpInvMatrix = inverse(vpMatrix);
 
-	Mesh train1("trains/Inyo.obj", "trains/Inyo.png");
-	train1.setWorldTransform(vec3(0, 0, -5));
-/*
-	printf("vpMatrix\n");
-	printf("%.2f %.2f %.2f %.2f\n", vpMatrix[0][0], vpMatrix[0][1], vpMatrix[0][2], vpMatrix[0][3]);
-	printf("%.2f %.2f %.2f %.2f\n", vpMatrix[1][0], vpMatrix[1][1], vpMatrix[1][2], vpMatrix[1][3]);
-	printf("%.2f %.2f %.2f %.2f\n", vpMatrix[2][0], vpMatrix[2][1], vpMatrix[2][2], vpMatrix[2][3]);
-	printf("%.2f %.2f %.2f %.2f\n", vpMatrix[3][0], vpMatrix[3][1], vpMatrix[3][2], vpMatrix[3][3]);
-	printf("\n");
-*/
-	glUniform1f(glGetUniformLocation(screen_shader.id, "uNear"), NEAR_PLANE);
-	glUniform1f(glGetUniformLocation(screen_shader.id, "uFar"), FAR_PLANE);
+	glUniform1f(glGetUniformLocation(screen_shader.id, "uNear"), camera.NEAR_PLANE);
+	glUniform1f(glGetUniformLocation(screen_shader.id, "uFar"), camera.FAR_PLANE);
 	glUniform2f(glGetUniformLocation(screen_shader.id, "uPixelSize"), 0.0007, 0.00123);
-	glUniform3fv(glGetUniformLocation(screen_shader.id, "uCameraPos"), 1, value_ptr(cameraPos));
+	glUniform3fv(glGetUniformLocation(screen_shader.id, "uCameraPos"), 1, value_ptr(camera.position));
 	glUniform3fv(glGetUniformLocation(screen_shader.id, "uLightDir"), 1, value_ptr(lightDir));
 	glUniformMatrix4fv(glGetUniformLocation(screen_shader.id, "uVpMatrix"), 1, GL_FALSE, value_ptr(vpMatrix));
 	glUniformMatrix4fv(glGetUniformLocation(screen_shader.id, "uVpInvMatrix"), 1, GL_FALSE, value_ptr(vpInvMatrix));
@@ -109,26 +93,28 @@ int main(/*int argc, char* argv[]*/) {
 	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
 
 	GLuint colorTexture;
-	GLuint normalTexture;
-	GLuint depthTexture;
 	glGenTextures(1, &colorTexture);
-	glGenTextures(1, &normalTexture);
-	glGenTextures(1, &depthTexture);
-
 	glBindTexture(GL_TEXTURE_2D, colorTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorTexture, 0);
 
+	GLuint normalTexture;
+	glGenTextures(1, &normalTexture);
 	glBindTexture(GL_TEXTURE_2D, normalTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, normalTexture, 0);
 
+	GLuint depthTexture;
+	glGenTextures(1, &depthTexture);
 	glBindTexture(GL_TEXTURE_2D, depthTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthTexture, 0);
@@ -140,6 +126,25 @@ int main(/*int argc, char* argv[]*/) {
 	if (fboStatus != GL_FRAMEBUFFER_COMPLETE)
 		printf("[ERROR] Framebuffer failed with status %d\n", fboStatus);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	VoxLoader car("sportscar.vox");
+
+	const int MAX_PALETTES = 1;
+	GLuint palette_bank;
+	glGenTextures(1, &palette_bank);
+	glBindTexture(GL_TEXTURE_2D, palette_bank);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 256, MAX_PALETTES, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	for (int i = 0; i < MAX_PALETTES; i++)
+		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, i, 256, 1, GL_RGBA, GL_UNSIGNED_BYTE, car.palette);
+
+
+	
+
+
+
+
 
 /*
 	mat4 modelMatrix();
@@ -167,12 +172,11 @@ int main(/*int argc, char* argv[]*/) {
 			glfwSetWindowShouldClose(window, true);
 		camera.handleInputs(window);
 
-		light.pushLight(mesh_shader);
-		light.pushProjection(mesh_shader);
-
 		glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		train1.draw(mesh_shader, camera);
+
+
+
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 		glClearColor(0, 0, 0.1, 1);

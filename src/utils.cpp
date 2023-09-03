@@ -130,10 +130,7 @@ GLuint LoadTexture(const char* path, GLenum format) {
 
 	glGenTextures(1, &texture_id);
 	glBindTexture(GL_TEXTURE_2D, texture_id);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); // GL_LINEAR
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	float clampColor[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, clampColor);
 
@@ -185,3 +182,71 @@ void UI_Rectangle::draw(Shader& shader, GLuint texture_id, float offset_x, float
 	vao.Bind();
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
+
+const uint8_t HOLE = 255;
+
+uint8_t*** MatrixInit(const MV_Shape& shape) {
+	uint8_t*** voxels = new uint8_t**[shape.sizex];
+	for (int i = 0; i < shape.sizex; i++) {
+		voxels[i] = new uint8_t*[shape.sizey];
+		for (int j = 0; j < shape.sizey; j++) {
+			voxels[i][j] = new uint8_t[shape.sizez];
+			for (int k = 0; k < shape.sizez; k++)
+				voxels[i][j][k] = 0;
+		}
+	}
+
+	for (unsigned int i = 0; i < shape.voxels.size(); i++) {
+		MV_Voxel v = shape.voxels[i];
+		if (v.index != HOLE)
+			voxels[v.x][v.y][v.z] = v.index;
+	}
+
+	return voxels;
+}
+
+void MatrixDelete(uint8_t*** &voxels, const MV_Shape& shape) {
+	for (int i = 0; i < shape.sizex; i++) {
+		for (int j = 0; j < shape.sizey; j++)
+			delete[] voxels[i][j];
+		delete[] voxels[i];
+	}
+	delete[] voxels;
+}
+
+// Remove hidden voxels
+void TrimShape(uint8_t*** &voxels, int sizex, int sizey, int sizez) {
+	bool*** solid = new bool**[sizex];
+	for (int i = 0; i < sizex; i++) {
+		solid[i] = new bool*[sizey];
+		for (int j = 0; j < sizey; j++) {
+			solid[i][j] = new bool[sizez];
+			for (int k = 0; k < sizez; k++)
+				solid[i][j][k] = voxels[i][j][k] != 0;
+		}
+	}
+
+	int count = 0;
+	for (int i = 0; i < sizex; i++)
+		for (int j = 0; j < sizey; j++)
+			for (int k = 0; k < sizez; k++) {
+				if (i > 0 && j > 0 && k > 0 && i < sizex - 1 && j < sizey - 1 && k < sizez - 1) {
+					if (solid[i][j][k] &&
+					  solid[i - 1][j][k] && solid[i][j - 1][k] && solid[i][j][k - 1] &&
+					  solid[i + 1][j][k] && solid[i][j + 1][k] && solid[i][j][k + 1]) {
+						voxels[i][j][k] = 0;
+						count++;
+					}
+				}
+			}
+
+	if (count > 0)
+		printf("Trimmed %d voxels\n", count);
+
+	for (int i = 0; i < sizex; i++) {
+		for (int j = 0; j < sizey; j++)
+			delete[] solid[i][j];
+		delete[] solid[i];
+	}
+}
+
