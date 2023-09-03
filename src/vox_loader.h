@@ -23,9 +23,9 @@ struct MV_Entry {
 };
 /*
 struct MV_PBR { // Unused
-	bool alpha; // Transparency based on V channel of HSV
 	uint8_t flux;
 	float rough, sp, metal, emit;
+	// TODO: fix name and order
 };
 */
 struct MV_Model {
@@ -48,6 +48,8 @@ typedef multimap<string, MV_Model>::iterator mv_model_iterator;
 class VoxLoader {
 private:
 	string filename;
+	//MV_PBR pbr[256];
+	multimap<string, MV_Model> models;
 #if RENDER_METHOD == GREEDY
 	vector<GreedyRender*> render;
 #elif RENDER_METHOD == HEXAGON
@@ -55,9 +57,7 @@ private:
 #endif
 public:
 	MV_Entry palette[256];
-	//MV_PBR pbr[256];
 	vector<MV_Shape> shapes;
-	multimap<string, MV_Model> models;
 
 	VoxLoader();
 	VoxLoader(const char* filename);

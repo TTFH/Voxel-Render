@@ -20,7 +20,6 @@ private:
 public:
 	UI_Rectangle();
 	void draw(Shader& shader, float offset_x, float offset_y);
-	void draw(Shader& shader, GLuint texture_id, float offset_x, float offset_y);
 };
 
 GLFWwindow* InitOpenGL(const char* window_title);

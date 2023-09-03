@@ -2,10 +2,9 @@ uniform float uNear;		// near plane
 uniform float uFar;			// far plane
 uniform vec3 uCameraPos;	// camera pos
 
-uniform mat4 uModelMatrix;	// model matrix
-uniform mat4 uVpMatrix;		// view projection matrix
+uniform mat4 uModelMatrix;	// model matrix (scale by shape size)
+uniform mat4 uVpMatrix;		// view projection matrix (camera)
 uniform mat4 uMvpMatrix;	// model view projection matrix: p*v*m
-
 uniform mat4 uVolMatrix;	// local to world matrix, used for normals
 uniform mat4 uVolMatrixInv;	// world to local matrix
 
@@ -22,6 +21,8 @@ varying vec3 vWorldPos;
 varying vec3 vLocalCameraPos;
 varying vec3 vLocalPos;
 
+varying vec3 vpos;
+
 #ifdef VERTEX
 attribute vec3 aPosition;
 
@@ -30,6 +31,7 @@ void main() {
 	vLocalCameraPos = (uVolMatrixInv * vec4(uCameraPos, 1.0)).xyz;
 	vLocalPos = (uVolMatrixInv * vec4(vWorldPos, 1.0)).xyz;
 	gl_Position = uMvpMatrix * vec4(aPosition, 1.0);
+	vpos = aPosition;
 }
 #endif
 
@@ -164,7 +166,9 @@ void main() {
 		outputNormal = hitNormal;
 		outputDepth = hpos.w / uFar;
 		gl_FragDepth = (1.0 / hpos.w - 1.0 / uNear) / (1.0 / uFar - 1.0 / uNear);
-	} else
-		discard;
+	} else {
+		//discard;
+		outputColor = vpos;
+	}
 }
 #endif

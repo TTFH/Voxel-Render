@@ -176,13 +176,6 @@ void UI_Rectangle::draw(Shader& shader, float offset_x, float offset_y) {
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
 
-void UI_Rectangle::draw(Shader& shader, GLuint texture_id, float offset_x, float offset_y) {
-	PushTexture(texture_id, shader, "diffuse0", 0);
-	glUniform2f(glGetUniformLocation(shader.id, "offset"), offset_x, offset_y);
-	vao.Bind();
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-}
-
 const uint8_t HOLE = 255;
 
 uint8_t*** MatrixInit(const MV_Shape& shape) {

@@ -1,10 +1,12 @@
 #include <map>
 #include <stdio.h>
+#include <stdint.h>
 #include <string.h>
 
 #include "../glad/glad.h"
-#include <glm/glm.hpp>
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include "src/mesh.h"
 #include "src/light.h"
@@ -61,11 +63,11 @@ int main(int argc, char* argv[]) {
 	UI_Rectangle rect;
 	ShadowMap shadow_map;
 	bool transparent_glass = false;
-	Light light(vec3(-35, 130, -132));
+	Light light(vec3(-350, 1300, -1320));
 	Skybox skybox(skybox_shader, (float)WINDOW_WIDTH / WINDOW_HEIGHT);
 	camera.initialize(WINDOW_WIDTH, WINDOW_HEIGHT, vec3(0, 2.5, 10));
 	Scene scene(GetScenePath(argc, argv));
-	GLuint test = LoadTexture("textures/td_editor.png", GL_RGB);
+	GLuint editor_tex = LoadTexture("textures/td_editor.png", GL_RGB);
 
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -271,7 +273,8 @@ int main(int argc, char* argv[]) {
 
 		PushTime(shader_art);
 		rect.draw(shader_art, -0.9, 0.4);
-		rect.draw(shader_2d, test, 0.4, 0.4);
+		PushTexture(editor_tex, shader_2d, "diffuse0");
+		rect.draw(shader_2d, 0.4, 0.4);
 
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
