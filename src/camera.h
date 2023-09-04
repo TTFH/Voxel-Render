@@ -19,7 +19,7 @@ public:
 	const float NEAR_PLANE = 0.1;
 	const float FAR_PLANE = 1000;
 
-	mat4 cameraMatrix = mat4(1.0f);
+	mat4 vpMatrix = mat4(1.0);
 	int screen_width;
 	int screen_height;
 	const vec3 up = vec3(0, 1, 0);

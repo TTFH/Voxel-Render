@@ -138,7 +138,7 @@ int main(/*int argc, char* argv[]*/) {
 	glGenTextures(1, &colorTexture);
 	glBindTexture(GL_TEXTURE_2D, colorTexture);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorTexture, 0);
@@ -147,7 +147,7 @@ int main(/*int argc, char* argv[]*/) {
 	glGenTextures(1, &normalTexture);
 	glBindTexture(GL_TEXTURE_2D, normalTexture);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, normalTexture, 0);
@@ -249,11 +249,11 @@ int main(/*int argc, char* argv[]*/) {
 		PushTexture(paletteBank, shape_shader, "uColor", 1);
 
 		mat4 modelMatrix = scale(mat4(1.0f), vec3(shape.sizex, shape.sizey, shape.sizez) * volTexelSize);
-		mat4 vpMatrix = camera.cameraMatrix;
-		mat4 mvpMatrix = camera.cameraMatrix * modelMatrix;
-		mat4 vpInvMatrix = vpMatrix;
-		mat4 volMatrix = vpMatrix;
-		mat4 volMatrixInv = vpMatrix;
+		mat4 vpMatrix = camera.vpMatrix;
+		mat4 mvpMatrix = camera.vpMatrix * modelMatrix; // uMvpMatrix[3][0], uMvpMatrix[3][1], uMvpMatrix[3][2] depends on camera rotation and model position
+		mat4 vpInvMatrix = vpMatrix; // uVpInvMatrix[3][0], uVpInvMatrix[3][1], uVpInvMatrix[3][2] depends on camera position and rotation
+		mat4 volMatrix = mat4(1.0); // uVolMatrix[3][0], uVolMatrix[3][1], uVolMatrix[3][2] depends world position
+		mat4 volMatrixInv = mat4(1.0); // uVolMatrixInv[3][0], uVolMatrixInv[3][1], uVolMatrixInv[3][2] depends negative world position
 
 		glUniform3fv(glGetUniformLocation(screen_shader.id, "uCameraPos"), 1, value_ptr(camera.position));
 		glUniformMatrix4fv(glGetUniformLocation(screen_shader.id, "uVpMatrix"), 1, GL_FALSE, value_ptr(vpMatrix));
@@ -262,9 +262,9 @@ int main(/*int argc, char* argv[]*/) {
 		glUniform3fv(glGetUniformLocation(shape_shader.id, "uCameraPos"), 1, value_ptr(camera.position));
 		glUniformMatrix4fv(glGetUniformLocation(shape_shader.id, "uModelMatrix"), 1, GL_FALSE, value_ptr(modelMatrix));
 		glUniformMatrix4fv(glGetUniformLocation(shape_shader.id, "uVpMatrix"), 1, GL_FALSE, value_ptr(vpMatrix));
+		glUniformMatrix4fv(glGetUniformLocation(shape_shader.id, "uMvpMatrix"), 1, GL_FALSE, value_ptr(mvpMatrix));
 		glUniformMatrix4fv(glGetUniformLocation(shape_shader.id, "uVolMatrix"), 1, GL_FALSE, value_ptr(volMatrix));
 		glUniformMatrix4fv(glGetUniformLocation(shape_shader.id, "uVolMatrixInv"), 1, GL_FALSE, value_ptr(volMatrixInv));
-		glUniformMatrix4fv(glGetUniformLocation(shape_shader.id, "uMvpMatrix"), 1, GL_FALSE, value_ptr(mvpMatrix));
 
 		cube.draw();
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);

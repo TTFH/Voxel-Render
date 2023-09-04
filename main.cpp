@@ -63,7 +63,7 @@ int main(int argc, char* argv[]) {
 	UI_Rectangle rect;
 	ShadowMap shadow_map;
 	bool transparent_glass = false;
-	Light light(vec3(-350, 1300, -1320));
+	Light light(vec3(-35, 130, -132));
 	Skybox skybox(skybox_shader, (float)WINDOW_WIDTH / WINDOW_HEIGHT);
 	camera.initialize(WINDOW_WIDTH, WINDOW_HEIGHT, vec3(0, 2.5, 10));
 	Scene scene(GetScenePath(argc, argv));

@@ -20,12 +20,12 @@ void Camera::updateScreenSize(int width, int height) {
 void Camera::updateMatrix() {
 	mat4 view = lookAt(position, position + direction, up);
 	mat4 projection = perspective(radians(FOV), (float)screen_width / screen_height, NEAR_PLANE, FAR_PLANE);
-	cameraMatrix = projection * view;
+	vpMatrix = projection * view;
 }
 
 void Camera::pushMatrix(Shader& shader, const char* uniform) {
 	GLint camera_unif = glGetUniformLocation(shader.id, uniform);
-	glUniformMatrix4fv(camera_unif, 1, GL_FALSE, value_ptr(cameraMatrix));
+	glUniformMatrix4fv(camera_unif, 1, GL_FALSE, value_ptr(vpMatrix));
 }
 
 void Camera::translateAndInvertPitch(float distance) {
