@@ -113,7 +113,6 @@ int main(/*int argc, char* argv[]*/) {
 	GLFWwindow* window = InitOpenGL("Totally not Teardown");
 	Shader shape_shader("editorvox");
 	Shader screen_shader("editorlighting");
-	Shader mesh_shader("shaders/mesh_vert.glsl", "shaders/mesh_frag.glsl");
 
 	Cube cube;
 	Screen screen;
@@ -189,6 +188,7 @@ int main(/*int argc, char* argv[]*/) {
 	for (int i = 0; i < MAX_PALETTES; i++)
 		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, i, 256, 1, GL_RGBA, GL_UNSIGNED_BYTE, car.palette);
 
+
 	GLuint volumeTexture;
 	glGenTextures(1, &volumeTexture);
 	glBindTexture(GL_TEXTURE_3D, volumeTexture);
@@ -227,10 +227,6 @@ int main(/*int argc, char* argv[]*/) {
 		//glClearColor(0, 0, 0.1, 1);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		shape_shader.Use();
-		shape_shader.PushTexture3D("uVolTex", volumeTexture, 0);
-		shape_shader.PushTexture("uColor", paletteBank, 1);
-
 		vec3 shapePos(0, 0, 0);
 
 		mat4 modelMatrix = scale(mat4(1.0f), vec3(shape.sizex, shape.sizey, shape.sizez) * volTexelSize);
@@ -239,6 +235,10 @@ int main(/*int argc, char* argv[]*/) {
 		mat4 mvpMatrix = camera.vpMatrix * modelMatrix;
 		mat4 volMatrix = translate(mat4(1.0f), shapePos);
 		mat4 volMatrixInv = inverse(volMatrix);
+
+		shape_shader.Use();
+		shape_shader.PushTexture3D("uVolTex", volumeTexture, 0);
+		shape_shader.PushTexture("uColor", paletteBank, 1);
 
 		glUniform1f(glGetUniformLocation(shape_shader.id, "uNear"), camera.NEAR_PLANE);
 		glUniform1f(glGetUniformLocation(shape_shader.id, "uFar"), camera.FAR_PLANE);

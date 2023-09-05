@@ -3,8 +3,6 @@
 #include "utils.h"
 #include "water_render.h"
 
-#include <glm/gtc/type_ptr.hpp>
-
 static bool water_initialized = false;
 static GLuint reflectionTexture;
 static GLuint refractionTexture;

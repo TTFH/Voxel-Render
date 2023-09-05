@@ -22,7 +22,7 @@ private:
 	vec3 world_position = vec3(0, 0, 0);
 	quat world_rotation = quat(1, 0, 0, 0);
 public:
-	RTX_Render(const MV_Shape& shape, int paletteId, GLuint paletteBank);
+	RTX_Render(const MV_Shape& shape, GLuint paletteBank, int paletteId);
 	void setTransform(vec3 position, quat rotation);
 	void setWorldTransform(vec3 position, quat rotation);
 	void draw(Shader& shader, Camera& camera, vec4 clip_plane, float scale = 1);

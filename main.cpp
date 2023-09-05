@@ -6,7 +6,6 @@
 #include "../glad/glad.h"
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
-#include <glm/gtc/type_ptr.hpp>
 
 #include "src/mesh.h"
 #include "src/light.h"
@@ -35,6 +34,8 @@ int main(int argc, char* argv[]) {
 	Shader voxel_shader("shaders/voxel_gm_vert.glsl", "shaders/voxel_frag.glsl");
 #elif RENDER_METHOD == HEXAGON
 	Shader voxel_shader("shaders/voxel_hex_vert.glsl", "shaders/voxel_frag.glsl");
+#elif RENDER_METHOD == RTX
+	Shader voxel_shader("editorvox");
 #endif
 	Shader shader_art("art");
 	Shader shader_2d("2d_tex");
@@ -65,6 +66,7 @@ int main(int argc, char* argv[]) {
 	ShadowMap shadow_map;
 	Light light(vec3(-35, 130, -132));
 	Scene scene(GetScenePath(argc, argv));
+	printf("Scene loaded!\n");
 	bool transparent_glass = false;
 	camera.initialize(WINDOW_WIDTH, WINDOW_HEIGHT, vec3(0, 2.5, 10));
 	GLuint editor_tex = LoadTexture("textures/td_editor.png", GL_RGB);
@@ -81,7 +83,7 @@ int main(int argc, char* argv[]) {
 	ImGui_ImplOpenGL3_Init("#version 410");
 	ImVec4 clear_color = ImVec4(0.35, 0.54, 0.8, 1);
 	ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 3.0f);
-
+/*
 	Mesh train("trains/shinkansen.obj", "trains/shinkansen.png");
 	Mesh glass("meshes/CAT_140M3_glass.obj", "meshes/glass.png");
 	Mesh model("meshes/CAT_140M3.obj", "meshes/CAT_140M3.png", "meshes/CAT_140M3_specular.png");
@@ -108,7 +110,7 @@ int main(int argc, char* argv[]) {
 	Mesh triforce("meshes/triforce.obj", "meshes/triforce.png");
 	triforce.setWorldTransform(vec3(10, 0.05, 10));
 	scene.addMesh(&triforce);
-
+*/
 	// FPS counter
 	double dt = 0;
 	double prev_time = 0;
@@ -210,7 +212,7 @@ int main(int argc, char* argv[]) {
 		mesh_shader.PushMatrix("lightProjection", light.getProjection());
 		voxbox_shader.PushMatrix("lightProjection", light.getProjection());
 		shadowmap_shader.PushMatrix("lightProjection", light.getProjection());
-
+/*
 		// Shadows
 		shadow_map.BindShadowMap();
 		scene.draw(shadowmap_shader, camera);
@@ -243,14 +245,14 @@ int main(int argc, char* argv[]) {
 			water->UnbindFB(camera);
 			glDisable(GL_CLIP_DISTANCE0);
 		}
-
+*/
 		//glClearColor(0.35, 0.54, 0.8, 1);
 		glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		shadow_map.PushShadows(mesh_shader);
 		scene.drawMesh(mesh_shader, camera);
-		shadow_map.PushShadows(voxel_shader);
+		//shadow_map.PushShadows(voxel_shader);
 		scene.draw(voxel_shader, camera);
 		shadow_map.PushShadows(voxbox_shader);
 		scene.drawVoxbox(voxbox_shader, camera);
@@ -265,7 +267,7 @@ int main(int argc, char* argv[]) {
 		glDisable(GL_BLEND);
 
 		scene.drawRope(rope_shader, camera);
-		light.draw(voxel_shader, camera); // Debug light pos
+		//light.draw(voxel_shader, camera); // Debug light pos
 		skybox.draw(skybox_shader, camera);
 
 		shader_art.PushFloat("time", glfwGetTime());

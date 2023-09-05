@@ -1,7 +1,6 @@
 #include "ebo.h"
 #include "utils.h"
 #include "hex_render.h"
-#include <glm/gtc/type_ptr.hpp>
 
 //   4 _ _ _ _ 3
 //   /         \.

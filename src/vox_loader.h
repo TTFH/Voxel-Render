@@ -5,7 +5,7 @@
 #define GREEDY 1
 #define HEXAGON 2
 #define RTX 3
-#define RENDER_METHOD GREEDY
+#define RENDER_METHOD RTX
 
 #include <map>
 #include <string>
@@ -13,6 +13,7 @@
 
 #include "camera.h"
 #include "shader.h"
+#include "vox_rtx.h"
 #include "hex_render.h"
 #include "greedy_mesh.h"
 
@@ -60,6 +61,8 @@ private:
 	vector<GreedyRender*> render;
 #elif RENDER_METHOD == HEXAGON
 	vector<HexRender*> render;
+#elif RENDER_METHOD == RTX
+	vector<RTX_Render*> render;
 #endif
 public:
 	MV_Diffuse palette[256];

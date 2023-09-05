@@ -1,6 +1,5 @@
 #include "ebo.h"
 #include "voxbox_render.h"
-#include <glm/gtc/type_ptr.hpp>
 
 //   6--------7
 //  /|       /|

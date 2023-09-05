@@ -1,7 +1,6 @@
 #include "ebo.h"
 #include "utils.h"
 #include "greedy_mesh.h"
-#include <glm/gtc/type_ptr.hpp>
 
 // Based on: https://0fps.net/2012/07/07/meshing-minecraft-part-2/
 GreedyMesh generateGreedyMesh(const MV_Shape& shape) {

@@ -1,10 +1,12 @@
 <scene>
+	<vox file="MOD/sportscar.vox"/>
+	<vox file="MOD/sportscar_pink.vox" pos="4.4 1.2 2.1"/>
 	<vox file="MOD/castle.vox"/>
-	<voxbox pos="-100.0 1.7 -100.0" size="2000 1 2000"/>
-	<water pos="0.0 5.6 0.0" type="polygon">
+	<voxbox2 pos="-100.0 1.7 -100.0" size="2000 1 2000"/>
+	<water2 pos="0.0 5.6 0.0" type="polygon">
 		<vertex pos="-100.0 -100.0"/>
 		<vertex pos="100.0 -100.0"/>
 		<vertex pos="100.0 100.0"/>
 		<vertex pos="-100.0 100.0"/>
-	</water>
+	</water2>
 </scene>

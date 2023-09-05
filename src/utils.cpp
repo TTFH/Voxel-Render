@@ -5,7 +5,6 @@
 
 #include "ebo.h"
 #include "utils.h"
-#include <glm/gtc/type_ptr.hpp>
 
 #include "../lib/stb_image.h"
 #include "../lib/stb_image_write.h"

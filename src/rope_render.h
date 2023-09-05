@@ -5,6 +5,8 @@
 #include "camera.h"
 #include "shader.h"
 
+#include <glm/gtc/quaternion.hpp>
+
 class RopeRender {
 private:
 	VAO vao;
