@@ -23,6 +23,7 @@ void Camera::updateMatrix() {
 	vpMatrix = projection * view;
 }
 
+// TODO: Move to shader class
 void Camera::pushMatrix(Shader& shader, const char* uniform) {
 	GLint camera_unif = glGetUniformLocation(shader.id, uniform);
 	glUniformMatrix4fv(camera_unif, 1, GL_FALSE, value_ptr(vpMatrix));

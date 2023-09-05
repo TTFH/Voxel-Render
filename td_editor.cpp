@@ -169,11 +169,6 @@ int main(/*int argc, char* argv[]*/) {
 		printf("[ERROR] Framebuffer failed with status %d\n", fboStatus);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	glUniform1f(glGetUniformLocation(screen_shader.id, "uNear"), camera.NEAR_PLANE);
-	glUniform1f(glGetUniformLocation(screen_shader.id, "uFar"), camera.FAR_PLANE);
-	glUniform2f(glGetUniformLocation(screen_shader.id, "uPixelSize"), 0.0007, 0.00123);
-	glUniform3fv(glGetUniformLocation(screen_shader.id, "uLightDir"), 1, value_ptr(lightDir));
-
 	VoxLoader car("sportscar.vox");
 	MV_Shape shape = car.shapes[0];
 	int volume = shape.sizex * shape.sizey * shape.sizez;
@@ -217,15 +212,6 @@ int main(/*int argc, char* argv[]*/) {
 	float volTexelSize = 0.1;
 	vec3 volResolution(shape.sizex, shape.sizey, shape.sizez);
 
-	glUniform1f(glGetUniformLocation(shape_shader.id, "uNear"), camera.NEAR_PLANE);
-	glUniform1f(glGetUniformLocation(shape_shader.id, "uFar"), camera.FAR_PLANE);
-
-	glUniform1ui(glGetUniformLocation(shape_shader.id, "uMaxValue"), maxValue);
-	glUniform1i(glGetUniformLocation(shape_shader.id, "uPalette"), palette_index);
-	glUniform4fv(glGetUniformLocation(shape_shader.id, "uMultColor"), 1, value_ptr(multColor));
-	glUniform1f(glGetUniformLocation(shape_shader.id, "uVolTexelSize"), volTexelSize);
-	glUniform3fv(glGetUniformLocation(shape_shader.id, "uVolResolution"), 1, value_ptr(volResolution));
-
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_MULTISAMPLE);
 	glEnable(GL_CULL_FACE);
@@ -243,21 +229,29 @@ int main(/*int argc, char* argv[]*/) {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		train1.draw(mesh_shader, camera);
 
+		// TODO: Push 3D Texture
 		glUniform1i(glGetUniformLocation(shape_shader.id, "uVolTex"), 0);
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_3D, volumeTexture);
+
 		PushTexture(paletteBank, shape_shader, "uColor", 1);
+
+		vec3 shapePos(0, 0, 0);
 
 		mat4 modelMatrix = scale(mat4(1.0f), vec3(shape.sizex, shape.sizey, shape.sizez) * volTexelSize);
 		mat4 vpMatrix = camera.vpMatrix;
+		mat4 vpInvMatrix = inverse(vpMatrix); // uVpInvMatrix[3][0], uVpInvMatrix[3][1], uVpInvMatrix[3][2] depends on camera position and rotation
 		mat4 mvpMatrix = camera.vpMatrix * modelMatrix; // uMvpMatrix[3][0], uMvpMatrix[3][1], uMvpMatrix[3][2] depends on camera rotation and model position
-		mat4 vpInvMatrix = vpMatrix; // uVpInvMatrix[3][0], uVpInvMatrix[3][1], uVpInvMatrix[3][2] depends on camera position and rotation
-		mat4 volMatrix = mat4(1.0); // uVolMatrix[3][0], uVolMatrix[3][1], uVolMatrix[3][2] depends world position
-		mat4 volMatrixInv = mat4(1.0); // uVolMatrixInv[3][0], uVolMatrixInv[3][1], uVolMatrixInv[3][2] depends negative world position
+		mat4 volMatrix = translate(mat4(1.0f), shapePos); // uVolMatrix[3][0], uVolMatrix[3][1], uVolMatrix[3][2] depends world position
+		mat4 volMatrixInv = inverse(volMatrix); // uVolMatrixInv[3][0], uVolMatrixInv[3][1], uVolMatrixInv[3][2] depends negative world position
 
-		glUniform3fv(glGetUniformLocation(screen_shader.id, "uCameraPos"), 1, value_ptr(camera.position));
-		glUniformMatrix4fv(glGetUniformLocation(screen_shader.id, "uVpMatrix"), 1, GL_FALSE, value_ptr(vpMatrix));
-		glUniformMatrix4fv(glGetUniformLocation(screen_shader.id, "uVpInvMatrix"), 1, GL_FALSE, value_ptr(vpInvMatrix));
+		glUniform1f(glGetUniformLocation(shape_shader.id, "uNear"), camera.NEAR_PLANE);
+		glUniform1f(glGetUniformLocation(shape_shader.id, "uFar"), camera.FAR_PLANE);
+		glUniform1ui(glGetUniformLocation(shape_shader.id, "uMaxValue"), maxValue);
+		glUniform1i(glGetUniformLocation(shape_shader.id, "uPalette"), palette_index);
+		glUniform4fv(glGetUniformLocation(shape_shader.id, "uMultColor"), 1, value_ptr(multColor));
+		glUniform1f(glGetUniformLocation(shape_shader.id, "uVolTexelSize"), volTexelSize);
+		glUniform3fv(glGetUniformLocation(shape_shader.id, "uVolResolution"), 1, value_ptr(volResolution));
 
 		glUniform3fv(glGetUniformLocation(shape_shader.id, "uCameraPos"), 1, value_ptr(camera.position));
 		glUniformMatrix4fv(glGetUniformLocation(shape_shader.id, "uModelMatrix"), 1, GL_FALSE, value_ptr(modelMatrix));
@@ -276,6 +270,16 @@ int main(/*int argc, char* argv[]*/) {
 		PushTexture(normalTexture, screen_shader, "uNormal", 1);
 		PushTexture(depthTexture, screen_shader, "uDepth", 2);
 		PushTexture(bluenoise, screen_shader, "uBlueNoise", 3);
+
+		glUniform1f(glGetUniformLocation(screen_shader.id, "uNear"), camera.NEAR_PLANE);
+		glUniform1f(glGetUniformLocation(screen_shader.id, "uFar"), camera.FAR_PLANE);
+		glUniform2f(glGetUniformLocation(screen_shader.id, "uPixelSize"), 0.0007, 0.00123);
+		glUniform3fv(glGetUniformLocation(screen_shader.id, "uLightDir"), 1, value_ptr(lightDir));
+
+		glUniform3fv(glGetUniformLocation(screen_shader.id, "uCameraPos"), 1, value_ptr(camera.position));
+		glUniformMatrix4fv(glGetUniformLocation(screen_shader.id, "uVpMatrix"), 1, GL_FALSE, value_ptr(vpMatrix));
+		glUniformMatrix4fv(glGetUniformLocation(screen_shader.id, "uVpInvMatrix"), 1, GL_FALSE, value_ptr(vpInvMatrix));
+
 		screen.draw();
 
 		glfwSwapBuffers(window);

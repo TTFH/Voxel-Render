@@ -20,7 +20,6 @@ uniform usampler3D uVolTex;	// shape
 varying vec3 vWorldPos;
 varying vec3 vLocalCameraPos;
 varying vec3 vLocalPos;
-
 varying vec3 vpos;
 
 #ifdef VERTEX
@@ -166,9 +165,7 @@ void main() {
 		outputNormal = hitNormal;
 		outputDepth = hpos.w / uFar;
 		gl_FragDepth = (1.0 / hpos.w - 1.0 / uNear) / (1.0 / uFar - 1.0 / uNear);
-	} else {
-		//discard;
-		outputColor = vpos;
-	}
+	} else
+		discard;
 }
 #endif

@@ -12,7 +12,7 @@ Light::Light(vec3 pos) {
 	azimuth = atan2(pos.z, pos.x);
 	model.load("light.vox");
 }
-
+// TODO: Move to Shader class
 void Light::pushLight(Shader& shader) {
 	shader.Use();
 	glUniform3fv(glGetUniformLocation(shader.id, "lightpos"), 1, value_ptr(position));
