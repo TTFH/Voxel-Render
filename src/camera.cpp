@@ -6,10 +6,12 @@
 
 Camera::Camera() { }
 
-void Camera::initialize(int width, int height, vec3 position) {
-	this->screen_width = width;
-	this->screen_height = height;
-	this->position = position;
+void Camera::initialize(int width, int height, vec3 pos) {
+	screen_width = width;
+	screen_height = height;
+	position = pos;
+	direction = vec3(0, 0, -1);
+	updateMatrix();
 }
 
 void Camera::updateScreenSize(int width, int height) {
@@ -21,12 +23,6 @@ void Camera::updateMatrix() {
 	mat4 view = lookAt(position, position + direction, up);
 	mat4 projection = perspective(radians(FOV), (float)screen_width / screen_height, NEAR_PLANE, FAR_PLANE);
 	vpMatrix = projection * view;
-}
-
-// TODO: Move to shader class
-void Camera::pushMatrix(Shader& shader, const char* uniform) {
-	GLint camera_unif = glGetUniformLocation(shader.id, uniform);
-	glUniformMatrix4fv(camera_unif, 1, GL_FALSE, value_ptr(vpMatrix));
 }
 
 void Camera::translateAndInvertPitch(float distance) {

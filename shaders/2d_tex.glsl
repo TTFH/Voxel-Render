@@ -1,5 +1,5 @@
 uniform vec2 offset;
-uniform sampler2D diffuse0;
+uniform sampler2D diffuse;
 
 varying vec2 texCoord;
 
@@ -14,6 +14,6 @@ void main() {
 
 #ifdef FRAGMENT
 void main() {
-	gl_FragColor = texture(diffuse0, texCoord);
+	gl_FragColor = texture(diffuse, texCoord);
 }
 #endif

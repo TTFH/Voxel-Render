@@ -9,7 +9,6 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "src/ebo.h"
-#include "src/mesh.h"
 #include "src/utils.h"
 #include "src/shader.h"
 #include "src/camera.h"
@@ -122,10 +121,7 @@ int main(/*int argc, char* argv[]*/) {
 	vec3 lightDir(0.38, -0.76, 0.53);
 
 	Camera camera;
-	camera.initialize(WINDOW_WIDTH, WINDOW_HEIGHT, vec3(0, 4.8, 8.8));
-
-	Mesh train1("trains/Inyo.obj", "trains/Inyo.png");
-	train1.setWorldTransform(vec3(0, 0, -10));
+	camera.initialize(WINDOW_WIDTH, WINDOW_HEIGHT, vec3(0, 0, 0));
 
 	int width = WINDOW_WIDTH;
 	int height = WINDOW_HEIGHT;
@@ -147,7 +143,7 @@ int main(/*int argc, char* argv[]*/) {
 	glGenTextures(1, &normalTexture);
 	glBindTexture(GL_TEXTURE_2D, normalTexture);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8_SNORM, width, height, 0, GL_RGB, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, normalTexture, 0);
@@ -156,10 +152,10 @@ int main(/*int argc, char* argv[]*/) {
 	glGenTextures(1, &depthTexture);
 	glBindTexture(GL_TEXTURE_2D, depthTexture);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, width, height, 0, GL_RED, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthTexture, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, depthTexture, 0);
 
 	GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
 	glDrawBuffers(3, drawBuffers);
@@ -168,6 +164,7 @@ int main(/*int argc, char* argv[]*/) {
 	if (fboStatus != GL_FRAMEBUFFER_COMPLETE)
 		printf("[ERROR] Framebuffer failed with status %d\n", fboStatus);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
 
 	VoxLoader car("sportscar.vox");
 	MV_Shape shape = car.shapes[0];
@@ -206,6 +203,7 @@ int main(/*int argc, char* argv[]*/) {
 	glGenerateMipmap(GL_TEXTURE_3D);
 	glBindTexture(GL_TEXTURE_3D, 0);
 
+
 	unsigned int maxValue = 255;
 	int palette_index = 0;
 	vec4 multColor(1, 1, 1, 1);
@@ -226,24 +224,21 @@ int main(/*int argc, char* argv[]*/) {
 		camera.handleInputs(window);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+		//glClearColor(0, 0, 0.1, 1);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		train1.draw(mesh_shader, camera);
 
-		// TODO: Push 3D Texture
-		glUniform1i(glGetUniformLocation(shape_shader.id, "uVolTex"), 0);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_3D, volumeTexture);
-
-		PushTexture(paletteBank, shape_shader, "uColor", 1);
+		shape_shader.Use();
+		shape_shader.PushTexture3D("uVolTex", volumeTexture, 0);
+		shape_shader.PushTexture("uColor", paletteBank, 1);
 
 		vec3 shapePos(0, 0, 0);
 
 		mat4 modelMatrix = scale(mat4(1.0f), vec3(shape.sizex, shape.sizey, shape.sizez) * volTexelSize);
 		mat4 vpMatrix = camera.vpMatrix;
-		mat4 vpInvMatrix = inverse(vpMatrix); // uVpInvMatrix[3][0], uVpInvMatrix[3][1], uVpInvMatrix[3][2] depends on camera position and rotation
-		mat4 mvpMatrix = camera.vpMatrix * modelMatrix; // uMvpMatrix[3][0], uMvpMatrix[3][1], uMvpMatrix[3][2] depends on camera rotation and model position
-		mat4 volMatrix = translate(mat4(1.0f), shapePos); // uVolMatrix[3][0], uVolMatrix[3][1], uVolMatrix[3][2] depends world position
-		mat4 volMatrixInv = inverse(volMatrix); // uVolMatrixInv[3][0], uVolMatrixInv[3][1], uVolMatrixInv[3][2] depends negative world position
+		mat4 vpInvMatrix = inverse(vpMatrix);
+		mat4 mvpMatrix = camera.vpMatrix * modelMatrix;
+		mat4 volMatrix = translate(mat4(1.0f), shapePos);
+		mat4 volMatrixInv = inverse(volMatrix);
 
 		glUniform1f(glGetUniformLocation(shape_shader.id, "uNear"), camera.NEAR_PLANE);
 		glUniform1f(glGetUniformLocation(shape_shader.id, "uFar"), camera.FAR_PLANE);
@@ -266,10 +261,11 @@ int main(/*int argc, char* argv[]*/) {
 		glClearColor(0, 0, 0.1, 1);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		PushTexture(colorTexture, screen_shader, "uTexture", 0);
-		PushTexture(normalTexture, screen_shader, "uNormal", 1);
-		PushTexture(depthTexture, screen_shader, "uDepth", 2);
-		PushTexture(bluenoise, screen_shader, "uBlueNoise", 3);
+		screen_shader.Use();
+		screen_shader.PushTexture("uTexture", colorTexture, 0);
+		screen_shader.PushTexture("uNormal", normalTexture, 1);
+		screen_shader.PushTexture("uDepth", depthTexture, 2);
+		screen_shader.PushTexture("uBlueNoise", bluenoise, 3);
 
 		glUniform1f(glGetUniformLocation(screen_shader.id, "uNear"), camera.NEAR_PLANE);
 		glUniform1f(glGetUniformLocation(screen_shader.id, "uFar"), camera.FAR_PLANE);

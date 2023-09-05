@@ -142,8 +142,8 @@ void VoxLoader::load(const char* filename) {
 			}
 			break;
 		case RGBA:
-			fread(palette + 1, sizeof(MV_Entry), 255, file);
-			fread(&palette, sizeof(MV_Entry), 1, file);
+			fread(palette + 1, sizeof(MV_Diffuse), 255, file);
+			fread(&palette, sizeof(MV_Diffuse), 1, file);
 			break;
 		case nTRN: {
 				int node_id = ReadInt(file);

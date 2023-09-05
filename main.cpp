@@ -60,13 +60,13 @@ int main(int argc, char* argv[]) {
 	};
 
 	Camera camera;
+	Skybox skybox;
 	UI_Rectangle rect;
 	ShadowMap shadow_map;
-	bool transparent_glass = false;
 	Light light(vec3(-35, 130, -132));
-	Skybox skybox(skybox_shader, (float)WINDOW_WIDTH / WINDOW_HEIGHT);
-	camera.initialize(WINDOW_WIDTH, WINDOW_HEIGHT, vec3(0, 2.5, 10));
 	Scene scene(GetScenePath(argc, argv));
+	bool transparent_glass = false;
+	camera.initialize(WINDOW_WIDTH, WINDOW_HEIGHT, vec3(0, 2.5, 10));
 	GLuint editor_tex = LoadTexture("textures/td_editor.png", GL_RGB);
 
 	IMGUI_CHECKVERSION();
@@ -81,7 +81,7 @@ int main(int argc, char* argv[]) {
 	ImGui_ImplOpenGL3_Init("#version 410");
 	ImVec4 clear_color = ImVec4(0.35, 0.54, 0.8, 1);
 	ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 3.0f);
-/*
+
 	Mesh train("trains/shinkansen.obj", "trains/shinkansen.png");
 	Mesh glass("meshes/CAT_140M3_glass.obj", "meshes/glass.png");
 	Mesh model("meshes/CAT_140M3.obj", "meshes/CAT_140M3.png", "meshes/CAT_140M3_specular.png");
@@ -108,7 +108,7 @@ int main(int argc, char* argv[]) {
 	Mesh triforce("meshes/triforce.obj", "meshes/triforce.png");
 	triforce.setWorldTransform(vec3(10, 0.05, 10));
 	scene.addMesh(&triforce);
-*/
+
 	// FPS counter
 	double dt = 0;
 	double prev_time = 0;
@@ -156,7 +156,7 @@ int main(int argc, char* argv[]) {
 
 			ImGui::Text("Camera position: (%.2f, %.2f, %.2f)", camera.position.x, camera.position.y, camera.position.z);
 			ImGui::Text("Camera direction: (%.2f, %.2f, %.2f)", camera.direction.x, camera.direction.y, camera.direction.z);
-			ImGui::Text("Light position: (%.2f, %.2f, %.2f)", light.position.x, light.position.y, light.position.z);
+			ImGui::Text("Light position: (%.2f, %.2f, %.2f)", light.getPosition().x, light.getPosition().y, light.getPosition().z);
 			ImGui::Dummy(ImVec2(0, 10));
 
 			ImGui::Checkbox("Transparent glass", &transparent_glass);
@@ -166,13 +166,10 @@ int main(int argc, char* argv[]) {
 			static int hex_orientation = 0;
 			ImGui::Combo("##orientation", &hex_orientation, "Cube\0Top\0Front\0Side\0");
 		#if RENDER_METHOD == GREEDY
-			voxel_shader.Use();
-			glUniform1i(glGetUniformLocation(voxel_shader.id, "transparent_glass"), transparent_glass);
+			voxel_shader.PushInt("transparent_glass", transparent_glass);
 		#elif RENDER_METHOD == HEXAGON
-			shadowmap_shader.Use();
-			glUniform1i(glGetUniformLocation(shadowmap_shader.id, "side"), hex_orientation);
-			voxel_shader.Use();
-			glUniform1i(glGetUniformLocation(voxel_shader.id, "side"), hex_orientation);
+			shadowmap_shader.PushInt("side", hex_orientation);
+			voxel_shader.PushInt("side", hex_orientation);
 		#endif
 			ImGui::PopItemWidth();
 
@@ -204,15 +201,15 @@ int main(int argc, char* argv[]) {
 			ImGui::End();
 		}
 
-		light.pushLight(voxel_shader);
-		light.pushLight(mesh_shader);
-		light.pushLight(water_shader);
-		light.pushLight(voxbox_shader);
+		voxel_shader.PushVec3("lightpos", light.getPosition());
+		voxel_glass_shader.PushVec3("lightpos", light.getPosition());
+		mesh_shader.PushVec3("lightpos", light.getPosition());
+		voxbox_shader.PushVec3("lightpos", light.getPosition());
 
-		light.pushProjection(voxel_shader);
-		light.pushProjection(mesh_shader);
-		light.pushProjection(voxbox_shader);
-		light.pushProjection(shadowmap_shader);
+		voxel_shader.PushMatrix("lightProjection", light.getProjection());
+		mesh_shader.PushMatrix("lightProjection", light.getProjection());
+		voxbox_shader.PushMatrix("lightProjection", light.getProjection());
+		shadowmap_shader.PushMatrix("lightProjection", light.getProjection());
 
 		// Shadows
 		shadow_map.BindShadowMap();
@@ -258,7 +255,7 @@ int main(int argc, char* argv[]) {
 		shadow_map.PushShadows(voxbox_shader);
 		scene.drawVoxbox(voxbox_shader, camera);
 
-		PushTime(water_shader);
+		water_shader.PushFloat("time", glfwGetTime());
 		glEnable(GL_BLEND);
 		scene.drawWater(water_shader, camera);
 	#if RENDER_METHOD == GREEDY
@@ -271,10 +268,10 @@ int main(int argc, char* argv[]) {
 		light.draw(voxel_shader, camera); // Debug light pos
 		skybox.draw(skybox_shader, camera);
 
-		PushTime(shader_art);
-		rect.draw(shader_art, -0.9, 0.4);
-		PushTexture(editor_tex, shader_2d, "diffuse0");
-		rect.draw(shader_2d, 0.4, 0.4);
+		shader_art.PushFloat("time", glfwGetTime());
+		rect.draw(shader_art, vec2(-0.9, 0.4));
+		shader_2d.PushTexture("diffuse", editor_tex, 0);
+		rect.draw(shader_2d, vec2(0.4, 0.4));
 
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

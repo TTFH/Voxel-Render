@@ -76,17 +76,16 @@ void VoxboxRender::setWorldTransform(vec3 position, quat rotation) {
 }
 
 void VoxboxRender::draw(Shader& shader, Camera& camera) {
-	shader.Use();
 	vao.Bind();
-	camera.pushMatrix(shader, "camera");
-	glUniform3f(glGetUniformLocation(shader.id, "color"), color.x, color.y, color.z);
+	shader.PushMatrix("camera", camera.vpMatrix);
+	shader.PushVec3("color", color);
+	shader.PushVec3("size", size);
+	shader.PushFloat("scale", 0); // Flag not a voxel
 
 	mat4 pos = translate(mat4(1.0f), position);
 	mat4 rot = mat4_cast(rotation);
-	glUniform3f(glGetUniformLocation(shader.id, "size"), size.x, size.y, size.z);
-	glUniformMatrix4fv(glGetUniformLocation(shader.id, "position"), 1, GL_FALSE, value_ptr(pos));
-	glUniformMatrix4fv(glGetUniformLocation(shader.id, "rotation"), 1, GL_FALSE, value_ptr(rot));
-	glUniform1f(glGetUniformLocation(shader.id, "scale"), 0); // Flag: not an usual voxel
+	shader.PushMatrix("position", pos);
+	shader.PushMatrix("rotation", rot);
 
 	glDrawElements(GL_TRIANGLES, sizeof(cube_indices) / sizeof(GLuint), GL_UNSIGNED_INT, 0);
 	vao.Unbind();

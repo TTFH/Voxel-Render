@@ -3,17 +3,17 @@
 
 #include "../glad/glad.h"
 
+#include "vao.h"
 #include "camera.h"
 #include "shader.h"
 
 class Skybox {
 private:
-	GLuint skyboxVAO;
-	GLuint cubemapTexture;
-	float aspectRatio;
+	VAO vao;
+	GLuint texture;
 public:
-	Skybox(Shader& skyboxProgram, float aspectRatio);
-	void draw(Shader& skyboxProgram, Camera& camera);
+	Skybox();
+	void draw(Shader& shader, Camera& camera);
 };
 
 #endif

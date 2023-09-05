@@ -5,6 +5,7 @@
 
 #include "ebo.h"
 #include "utils.h"
+#include <glm/gtc/type_ptr.hpp>
 
 #include "../lib/stb_image.h"
 #include "../lib/stb_image_write.h"
@@ -74,7 +75,6 @@ static bool g_fullscreen = false;
 
 void ToggleFullscreen(GLFWwindow* window) {
 	g_fullscreen = !g_fullscreen;
-	// TODO: update skybox aspect ratio
 	Camera* camera = (Camera*)glfwGetWindowUserPointer(window);
 	if (g_fullscreen) {
 		GLFWmonitor* monitor = glfwGetPrimaryMonitor();
@@ -147,18 +147,6 @@ GLuint LoadTexture(const char* path, GLenum format) {
 	return texture_id;
 }
 
-void PushTime(Shader& shader, float offset) {
-	shader.Use();
-	glUniform1f(glGetUniformLocation(shader.id, "time"), glfwGetTime() + offset);
-}
-
-void PushTexture(GLuint texture_id, Shader& shader, const char* uniform, GLuint unit) {
-	shader.Use();
-	glUniform1i(glGetUniformLocation(shader.id, uniform), unit);
-	glActiveTexture(GL_TEXTURE0 + unit);
-	glBindTexture(GL_TEXTURE_2D, texture_id);
-}
-
 UI_Rectangle::UI_Rectangle() {
 	vao.Bind();
 	VBO vbo(vertices, sizeof(vertices));
@@ -169,9 +157,8 @@ UI_Rectangle::UI_Rectangle() {
 	ebo.Unbind();
 }
 
-void UI_Rectangle::draw(Shader& shader, float offset_x, float offset_y) {
-	shader.Use();
-	glUniform2f(glGetUniformLocation(shader.id, "offset"), offset_x, offset_y);
+void UI_Rectangle::draw(Shader& shader, vec2 offset) {
+	shader.PushVec2("offset", offset);
 	vao.Bind();
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }

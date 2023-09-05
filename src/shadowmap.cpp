@@ -36,10 +36,7 @@ void ShadowMap::UnbindShadowMap(Camera& camera) {
 }
 
 void ShadowMap::PushShadows(Shader& shader) {
-	shader.Use();
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, shadowMap);
-	glUniform1i(glGetUniformLocation(shader.id, "shadowMap"), 1);
+	shader.PushTexture("shadowMap", shadowMap, 1);
 }
 
 ShadowMap::~ShadowMap() {

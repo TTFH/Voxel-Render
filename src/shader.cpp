@@ -3,6 +3,8 @@
 #include <iostream>
 #include "shader.h"
 
+#include <glm/gtc/type_ptr.hpp>
+
 string ReadFile(const char* filename) {
 	ifstream in(filename, ifstream::binary);
 	if (!in) {
@@ -88,14 +90,72 @@ void Shader::Load() {
 	}
 }
 
-void Shader::Reload() {
-	GLuint old_id = id;
-	Load();
-	glDeleteProgram(old_id);
+void Shader::PushInt(const char* uniform, int value) {
+	this->Use();
+	glUniform1i(glGetUniformLocation(id, uniform), value);
+}
+
+void Shader::PushFloat(const char* uniform, float value) {
+	this->Use();
+	glUniform1f(glGetUniformLocation(id, uniform), value);
+}
+
+void Shader::PushVec2(const char* uniform, vec2 value) {
+	this->Use();
+	glUniform2fv(glGetUniformLocation(id, uniform), 1, value_ptr(value));
+}
+
+void Shader::PushVec3(const char* uniform, vec3 value) {
+	this->Use();
+	glUniform3fv(glGetUniformLocation(id, uniform), 1, value_ptr(value));
+}
+
+void Shader::PushVec4(const char* uniform, vec4 value) {
+	this->Use();
+	glUniform4fv(glGetUniformLocation(id, uniform), 1, value_ptr(value));
+}
+
+void Shader::PushMatrix(const char* uniform, mat4 value) {
+	this->Use();
+	glUniformMatrix4fv(glGetUniformLocation(id, uniform), 1, GL_FALSE, value_ptr(value));
+}
+
+void Shader::PushTexture1D(const char* uniform, GLuint texture_id, GLuint unit) {
+	this->Use();
+	glUniform1i(glGetUniformLocation(id, uniform), unit);
+	glActiveTexture(GL_TEXTURE0 + unit);
+	glBindTexture(GL_TEXTURE_1D, texture_id);
+}
+
+void Shader::PushTexture(const char* uniform, GLuint texture_id, GLuint unit) {
+	this->Use();
+	glUniform1i(glGetUniformLocation(id, uniform), unit);
+	glActiveTexture(GL_TEXTURE0 + unit);
+	glBindTexture(GL_TEXTURE_2D, texture_id);
+}
+
+void Shader::PushTexture3D(const char* uniform, GLuint texture_id, GLuint unit) {
+	this->Use();
+	glUniform1i(glGetUniformLocation(id, uniform), unit);
+	glActiveTexture(GL_TEXTURE0 + unit);
+	glBindTexture(GL_TEXTURE_3D, texture_id);
+}
+
+void Shader::PushTextureCubeMap(const char* uniform, GLuint texture_id, GLuint unit) {
+	this->Use();
+	glUniform1i(glGetUniformLocation(id, uniform), unit);
+	glActiveTexture(GL_TEXTURE0 + unit);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, texture_id);
 }
 
 void Shader::Use() {
 	glUseProgram(id);
+}
+
+void Shader::Reload() {
+	GLuint old_id = id;
+	Load();
+	glDeleteProgram(old_id);
 }
 
 Shader::~Shader() {

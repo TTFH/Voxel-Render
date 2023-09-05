@@ -18,15 +18,14 @@ void RopeRender::setWorldTransform(vec3 position, quat rotation) {
 }
 
 void RopeRender::draw(Shader& shader, Camera& camera) {
-	shader.Use();
 	vao.Bind();
-	camera.pushMatrix(shader, "camera");
+	shader.PushMatrix("camera", camera.vpMatrix);
+	shader.PushVec3("color", color);
 
 	mat4 pos = translate(mat4(1.0f), position);
 	mat4 rot = mat4_cast(rotation);
-	glUniformMatrix4fv(glGetUniformLocation(shader.id, "position"), 1, GL_FALSE, value_ptr(pos));
-	glUniformMatrix4fv(glGetUniformLocation(shader.id, "rotation"), 1, GL_FALSE, value_ptr(rot));
-	glUniform3f(glGetUniformLocation(shader.id, "color"), color.x, color.y, color.z);
+	shader.PushMatrix("position", pos);
+	shader.PushMatrix("rotation", rot);
 
 	glDrawArrays(GL_LINE_STRIP, 0, points_count);
 	vao.Unbind();

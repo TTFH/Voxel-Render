@@ -122,21 +122,20 @@ void Mesh::setWorldTransform(vec3 position, float angle) {
 }
 
 void Mesh::draw(Shader& shader, Camera& camera) {
-	shader.Use();
 	vao.Bind();
-
-	PushTexture(diffuse_texture, shader, "diffuse0", 0);
-	PushTexture(specular_texture, shader, "specular0", 1);
-
-	camera.pushMatrix(shader, "camera");
-	glUniform3fv(glGetUniformLocation(shader.id, "camera_pos"), 1, value_ptr(camera.position));
+	shader.PushMatrix("camera", camera.vpMatrix);
+	shader.PushVec3("camera_pos", camera.position);
+	shader.PushFloat("scale", 0); // Flag not a voxel
+	shader.PushVec3("size", vec3(0, 0, 0)); // Flag not a voxagon
 
 	mat4 pos = translate(mat4(1.0f), position);
 	mat4 rot = mat4_cast(rotation);
-	glUniformMatrix4fv(glGetUniformLocation(shader.id, "position"), 1, GL_FALSE, value_ptr(pos));
-	glUniformMatrix4fv(glGetUniformLocation(shader.id, "rotation"), 1, GL_FALSE, value_ptr(rot));
-	// When rendering to a shadow map, use the next flags to diferentiate between types of objects
-	glUniform1f(glGetUniformLocation(shader.id, "scale"), 0); // Flag: not a voxel
-	glUniform3f(glGetUniformLocation(shader.id, "size"), 0, 0, 0); // Flag: not a prism
+	shader.PushMatrix("position", pos);
+	shader.PushMatrix("rotation", rot);
+
+	shader.PushTexture("diffuse0", diffuse_texture, 0);
+	shader.PushTexture("specular0", specular_texture, 1);
+
 	glDrawArrays(GL_TRIANGLES, 0, vertices.size());
+	vao.Unbind();
 }

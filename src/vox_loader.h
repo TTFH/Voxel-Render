@@ -18,15 +18,21 @@
 
 using namespace std;
 
-struct MV_Entry {
+struct MV_Diffuse {
 	uint8_t r, g, b, a;
 };
 /*
 struct MV_PBR { // Unused
 	uint8_t flux;
 	float rough, sp, metal, emit;
-	// TODO: fix name and order
 };
+
+struct MV_Material { // Unused
+	float reflectivity;
+	float shinyness;
+	float metalness;
+	float emissive;
+}
 */
 struct MV_Model {
 	int shape_index;
@@ -56,7 +62,7 @@ private:
 	vector<HexRender*> render;
 #endif
 public:
-	MV_Entry palette[256];
+	MV_Diffuse palette[256];
 	vector<MV_Shape> shapes;
 
 	VoxLoader();
