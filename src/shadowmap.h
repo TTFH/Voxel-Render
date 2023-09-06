@@ -1,7 +1,6 @@
 #ifndef SHADOWMAP_H
 #define SHADOWMAP_H
 
-#include <stdio.h>
 #include "camera.h"
 #include "shader.h"
 

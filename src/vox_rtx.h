@@ -16,6 +16,7 @@ private:
 	GLuint paletteBank;
 	GLuint volumeTexture;
 	vec3 shapeSize;
+	uint8_t* voxels;
 
 	vec3 position = vec3(0, 0, 0);
 	quat rotation = quat(1, 0, 0, 0);
@@ -26,6 +27,7 @@ public:
 	void setTransform(vec3 position, quat rotation);
 	void setWorldTransform(vec3 position, quat rotation);
 	void draw(Shader& shader, Camera& camera, vec4 clip_plane, float scale = 1);
+	~RTX_Render();
 };
 
 #endif

@@ -24,6 +24,7 @@ public:
 };
 
 GLFWwindow* InitOpenGL(const char* window_title);
+void debug(const char* message);
 
 void Screenshot(GLFWwindow* window);
 void ToggleFullscreen(GLFWwindow* window);

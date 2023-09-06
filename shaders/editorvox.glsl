@@ -1,36 +1,34 @@
-uniform float uNear;		// near plane
-uniform float uFar;			// far plane
-uniform vec3 uCameraPos;	// camera pos
+uniform float uNear;
+uniform float uFar;
+uniform vec3 uCameraPos;
 
-uniform mat4 uModelMatrix;	// model matrix (scale by shape size)
-uniform mat4 uVpMatrix;		// view projection matrix (camera)
-uniform mat4 uMvpMatrix;	// model view projection matrix: p*v*m
-uniform mat4 uVolMatrix;	// local to world matrix, used for normals
-uniform mat4 uVolMatrixInv;	// world to local matrix
+uniform mat4 uModelMatrix;
+uniform mat4 uVpMatrix;
+uniform mat4 uMvpMatrix;
+uniform mat4 uVolMatrix;
+uniform mat4 uVolMatrixInv;
 
-uniform uint uMaxValue;		// max palette index
-uniform int uPalette;		// palette id
-uniform vec4 uMultColor;	// white, why?
-uniform sampler2D uColor;	// palettes
+uniform uint uMaxValue;
+uniform int uPalette;
+uniform vec4 uMultColor;
+uniform sampler2D uColor;
 
-uniform float uVolTexelSize;// voxel size
-uniform vec3 uVolResolution;// shape size
-uniform usampler3D uVolTex;	// shape
+uniform float uVolTexelSize;
+uniform vec3 uVolResolution;
+uniform usampler3D uVolTex;
 
 varying vec3 vWorldPos;
 varying vec3 vLocalCameraPos;
 varying vec3 vLocalPos;
-varying vec3 vpos;
 
 #ifdef VERTEX
 attribute vec3 aPosition;
 
 void main() {
 	vWorldPos = (uModelMatrix * vec4(aPosition, 1.0)).xyz;
-	vLocalCameraPos = (uVolMatrixInv * vec4(uCameraPos, 1.0)).xyz;
 	vLocalPos = (uVolMatrixInv * vec4(vWorldPos, 1.0)).xyz;
+	vLocalCameraPos = (uVolMatrixInv * vec4(uCameraPos, 1.0)).xyz;
 	gl_Position = uMvpMatrix * vec4(aPosition, 1.0);
-	vpos = aPosition;
 }
 #endif
 

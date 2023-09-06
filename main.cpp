@@ -1,5 +1,4 @@
 #include <map>
-#include <stdio.h>
 #include <stdint.h>
 #include <string.h>
 
@@ -69,7 +68,7 @@ int main(int argc, char* argv[]) {
 	printf("Scene loaded!\n");
 	bool transparent_glass = false;
 	camera.initialize(WINDOW_WIDTH, WINDOW_HEIGHT, vec3(0, 2.5, 10));
-	GLuint editor_tex = LoadTexture("textures/td_editor.png", GL_RGB);
+	//GLuint editor_tex = LoadTexture("textures/td_editor.png", GL_RGB);
 
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -125,7 +124,7 @@ int main(int argc, char* argv[]) {
 	glFrontFace(GL_CCW);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	// Handle screenshoots and fullscreen
+	// Handle screenshoot and fullscreen keys
 	glfwSetWindowUserPointer(window, &camera);
 	glfwSetKeyCallback(window, key_press_callback);
 
@@ -212,7 +211,7 @@ int main(int argc, char* argv[]) {
 		mesh_shader.PushMatrix("lightProjection", light.getProjection());
 		voxbox_shader.PushMatrix("lightProjection", light.getProjection());
 		shadowmap_shader.PushMatrix("lightProjection", light.getProjection());
-/*
+
 		// Shadows
 		shadow_map.BindShadowMap();
 		scene.draw(shadowmap_shader, camera);
@@ -244,15 +243,16 @@ int main(int argc, char* argv[]) {
 
 			water->UnbindFB(camera);
 			glDisable(GL_CLIP_DISTANCE0);
-		}
-*/
+		} else
+			glDisable(GL_CLIP_DISTANCE0);
+
 		//glClearColor(0.35, 0.54, 0.8, 1);
 		glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		shadow_map.PushShadows(mesh_shader);
 		scene.drawMesh(mesh_shader, camera);
-		//shadow_map.PushShadows(voxel_shader);
+		shadow_map.PushShadows(voxel_shader);
 		scene.draw(voxel_shader, camera);
 		shadow_map.PushShadows(voxbox_shader);
 		scene.drawVoxbox(voxbox_shader, camera);
@@ -269,12 +269,12 @@ int main(int argc, char* argv[]) {
 		scene.drawRope(rope_shader, camera);
 		//light.draw(voxel_shader, camera); // Debug light pos
 		skybox.draw(skybox_shader, camera);
-
+/*
 		shader_art.PushFloat("time", glfwGetTime());
 		rect.draw(shader_art, vec2(-0.9, 0.4));
 		shader_2d.PushTexture("diffuse", editor_tex, 0);
 		rect.draw(shader_2d, vec2(0.4, 0.4));
-
+*/
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 

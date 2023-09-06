@@ -2,7 +2,6 @@
 #include "utils.h"
 #include "vox_rtx.h"
 #include <glm/glm.hpp>
-#include <stdio.h>
 
 static GLfloat cube_vertices[] = {
 	0, 0, 0,
@@ -42,11 +41,9 @@ RTX_Render::RTX_Render(const MV_Shape& shape, GLuint paletteBank, int paletteId)
 	this->paletteId = paletteId;
 	this->paletteBank = paletteBank;
 	shapeSize = vec3(shape.sizex, shape.sizey, shape.sizez);
-	printf("Palette ID: %d\n", paletteId);
-	printf("Size: %d %d %d\n", shape.sizex, shape.sizey, shape.sizez);
 
 	int volume = shape.sizex * shape.sizey * shape.sizez;
-	uint8_t* voxels = new uint8_t[volume];
+	voxels = new uint8_t[volume];
 	for (int i = 0; i < volume; i++)
 		voxels[i] = 0;
 	for (unsigned int i = 0; i < shape.voxels.size(); i++) {
@@ -55,7 +52,6 @@ RTX_Render::RTX_Render(const MV_Shape& shape, GLuint paletteBank, int paletteId)
 		int z = shape.voxels[i].z;
 		voxels[x + shape.sizex * (y + shape.sizey * z)] = shape.voxels[i].index;
 	}
-	printf("Palette ID %d loaded!\n\n", paletteId);
 
 	glGenTextures(1, &volumeTexture);
 	glBindTexture(GL_TEXTURE_3D, volumeTexture);
@@ -69,7 +65,6 @@ RTX_Render::RTX_Render(const MV_Shape& shape, GLuint paletteBank, int paletteId)
 	glTexImage3D(GL_TEXTURE_3D, 0, GL_R8UI, shape.sizex, shape.sizey, shape.sizez, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, voxels);
 	glGenerateMipmap(GL_TEXTURE_3D);
 	glBindTexture(GL_TEXTURE_3D, 0);
-	delete[] voxels;
 }
 
 void RTX_Render::setTransform(vec3 position, quat rotation) {
@@ -83,14 +78,12 @@ void RTX_Render::setWorldTransform(vec3 position, quat rotation) {
 }
 
 void RTX_Render::draw(Shader& shader, Camera& camera, vec4 clip_plane, float scale) {
-	glDisable(GL_CLIP_DISTANCE0);
 	(void)clip_plane;
-	(void)scale;
-
+	glDisable(GL_CLIP_DISTANCE0);
 	vao.Bind();
 
-	shader.PushTexture3D("uVolTex", volumeTexture, 0);
-	shader.PushTexture("uColor", paletteBank, 1);
+	shader.PushTexture("uColor", paletteBank, 0);
+	shader.PushTexture3D("uVolTex", volumeTexture, 1);
 
 	shader.PushFloat("uNear", camera.NEAR_PLANE);
 	shader.PushFloat("uFar", camera.FAR_PLANE);
@@ -101,11 +94,27 @@ void RTX_Render::draw(Shader& shader, Camera& camera, vec4 clip_plane, float sca
 	shader.PushVec3("uVolResolution", shapeSize);
 	shader.PushVec3("uCameraPos", camera.position);
 
-	mat4 volMatrix = translate(mat4(1.0f), world_position);
-	mat4 volMatrixInv = inverse(volMatrix);
-	mat4 modelMatrix = volMatrix * glm::scale(mat4(1.0f), shapeSize * 0.1f);
+	mat4 scaleBox = glm::scale(mat4(1.0f), 0.1f * scale * shapeSize);
+	mat4 toWorldCoords = mat4(vec4(1, 0, 0, 0),
+							  vec4(0, 0, -1, 0),
+							  vec4(0, 1, 0, 0),
+							  vec4(0, 0, 0, 1));
+
+	// Coordinate system: x right, z up, y forward, scale 10:1
+	mat4 pos = translate(mat4(1.0f), position * 0.1f);
+	mat4 rot = mat4_cast(rotation);
+	mat4 localTr = toWorldCoords * pos * rot;
+
+	// Coordinate system: x right, y up, -z forward, scale 1:1
+	mat4 world_pos = translate(mat4(1.0f), world_position);
+	mat4 world_rot = mat4_cast(world_rotation);
+	mat4 worldTr = world_pos * world_rot;
+
+	mat4 modelMatrix = worldTr * localTr * scaleBox;
 	mat4 vpMatrix = camera.vpMatrix;
-	mat4 mvpMatrix = camera.vpMatrix * modelMatrix;
+	mat4 mvpMatrix = vpMatrix * modelMatrix;
+	mat4 volMatrix = worldTr * localTr;
+	mat4 volMatrixInv = inverse(volMatrix);
 
 	shader.PushMatrix("uModelMatrix", modelMatrix);
 	shader.PushMatrix("uVpMatrix", vpMatrix);
@@ -114,4 +123,9 @@ void RTX_Render::draw(Shader& shader, Camera& camera, vec4 clip_plane, float sca
 	shader.PushMatrix("uVolMatrixInv", volMatrixInv);
 
 	glDrawElements(GL_TRIANGLES, sizeof(cube_indices) / sizeof(GLuint), GL_UNSIGNED_INT, 0);
+}
+
+RTX_Render::~RTX_Render() {
+	glDeleteTextures(1, &volumeTexture);
+	delete[] voxels;
 }

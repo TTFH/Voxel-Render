@@ -228,7 +228,8 @@ void VoxLoader::load(const char* filename) {
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 256, MAX_PALETTES, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	}
+	} else
+		glBindTexture(GL_TEXTURE_2D, paletteBank);
 	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, paletteCount, 256, 1, GL_RGBA, GL_UNSIGNED_BYTE, palette);
 	paletteCount++;
 #else

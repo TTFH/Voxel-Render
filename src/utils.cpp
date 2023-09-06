@@ -46,6 +46,15 @@ GLFWwindow* InitOpenGL(const char* window_title) {
 	return window;
 }
 
+void debug(const char* message) {
+	GLenum error;
+	do {
+		error = glGetError();
+		if (error != GL_NO_ERROR)
+			printf("ERROR %d %s\n", error, message);
+	} while (error != GL_NO_ERROR);
+}
+
 void FlipImageVertically(int width, int height, uint8_t* data) {
 	uint8_t rgb[3];
 	for (int y = 0; y < height / 2; y++) {
