@@ -2,9 +2,11 @@
 #define SHADER_H
 
 #include "../glad/glad.h"
+#include <glm/glm.hpp>
 #include <string>
 
 using namespace std;
+using namespace glm;
 
 string ReadFile(const char* filename);
 
@@ -23,9 +25,19 @@ public:
 	GLuint id;
 	Shader(const char* name);
 	Shader(const char* vertexPath, const char* fragmentPath);
+	void PushInt(const char* uniform, int value);
+	void PushFloat(const char* uniform, float value);
+	void PushVec2(const char* uniform, vec2 value);
+	void PushVec3(const char* uniform, vec3 value);
+	void PushVec4(const char* uniform, vec4 value);
+	void PushMatrix(const char* uniform, mat4 value);
+	void PushTexture1D(const char* uniform, GLuint texture_id, GLuint unit);
+	void PushTexture(const char* uniform, GLuint texture_id, GLuint unit);
+	void PushTexture3D(const char* uniform, GLuint texture_id, GLuint unit);
+	void PushTextureCubeMap(const char* uniform, GLuint texture_id, GLuint unit);
+	void Use();
 	void Reload();
 	~Shader();
-	void Use();
 };
 
 #endif

@@ -13,20 +13,27 @@
 
 #include "camera.h"
 #include "shader.h"
+#include "vox_rtx.h"
 #include "hex_render.h"
 #include "greedy_mesh.h"
 
 using namespace std;
 
-struct MV_Entry {
+struct MV_Diffuse {
 	uint8_t r, g, b, a;
 };
 /*
 struct MV_PBR { // Unused
-	bool alpha; // Transparency based on V channel of HSV
 	uint8_t flux;
 	float rough, sp, metal, emit;
 };
+
+struct MV_Material { // Unused
+	float reflectivity;
+	float shinyness;
+	float metalness;
+	float emissive;
+}
 */
 struct MV_Model {
 	int shape_index;
@@ -48,14 +55,16 @@ typedef multimap<string, MV_Model>::iterator mv_model_iterator;
 class VoxLoader {
 private:
 	string filename;
-	MV_Entry palette[256];
 	//MV_PBR pbr[256];
+	MV_Diffuse palette[256];
 	vector<MV_Shape> shapes;
 	multimap<string, MV_Model> models;
 #if RENDER_METHOD == GREEDY
 	vector<GreedyRender*> render;
 #elif RENDER_METHOD == HEXAGON
 	vector<HexRender*> render;
+#elif RENDER_METHOD == RTX
+	vector<RTX_Render*> render;
 #endif
 public:
 	VoxLoader();

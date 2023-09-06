@@ -1,6 +1,6 @@
 #include "ebo.h"
+#include "utils.h"
 #include "hex_render.h"
-#include <glm/gtc/type_ptr.hpp>
 
 //   4 _ _ _ _ 3
 //   /         \.
@@ -89,71 +89,6 @@ static GLuint hex_prism_indices[] = {
 	32, 34, 35,
 };
 
-static uint8_t*** MatrixInit(const MV_Shape& shape) {
-	uint8_t*** voxels = new uint8_t**[shape.sizex];
-	for (int i = 0; i < shape.sizex; i++) {
-		voxels[i] = new uint8_t*[shape.sizey];
-		for (int j = 0; j < shape.sizey; j++) {
-			voxels[i][j] = new uint8_t[shape.sizez];
-			for (int k = 0; k < shape.sizez; k++)
-				voxels[i][j][k] = 0;
-		}
-	}
-
-	for (unsigned int i = 0; i < shape.voxels.size(); i++) {
-		MV_Voxel v = shape.voxels[i];
-		if (v.index != 255)
-			voxels[v.x][v.y][v.z] = v.index;
-	}
-
-	return voxels;
-}
-
-static void MatrixDelete(uint8_t*** &voxels, const MV_Shape& shape) {
-	for (int i = 0; i < shape.sizex; i++) {
-		for (int j = 0; j < shape.sizey; j++)
-			delete[] voxels[i][j];
-		delete[] voxels[i];
-	}
-	delete[] voxels;
-}
-
-// Remove hidden voxels
-static void TrimShape(uint8_t*** &voxels, int sizex, int sizey, int sizez) {
-	bool*** solid = new bool**[sizex];
-	for (int i = 0; i < sizex; i++) {
-		solid[i] = new bool*[sizey];
-		for (int j = 0; j < sizey; j++) {
-			solid[i][j] = new bool[sizez];
-			for (int k = 0; k < sizez; k++)
-				solid[i][j][k] = voxels[i][j][k] != 0;
-		}
-	}
-
-	int count = 0;
-	for (int i = 0; i < sizex; i++)
-		for (int j = 0; j < sizey; j++)
-			for (int k = 0; k < sizez; k++) {
-				if (i > 0 && j > 0 && k > 0 && i < sizex - 1 && j < sizey - 1 && k < sizez - 1) {
-					if (solid[i][j][k] &&
-					  solid[i - 1][j][k] && solid[i][j - 1][k] && solid[i][j][k - 1] &&
-					  solid[i + 1][j][k] && solid[i][j + 1][k] && solid[i][j][k + 1]) {
-						voxels[i][j][k] = 0;
-						count++;
-					}
-				}
-			}
-/*
-	if (count > 0)
-		printf("Trimmed %d voxels\n", count);
-*/
-	for (int i = 0; i < sizex; i++) {
-		for (int j = 0; j < sizey; j++)
-			delete[] solid[i][j];
-		delete[] solid[i];
-	}
-}
-
 HexRender::HexRender(const MV_Shape& shape, GLuint texture_id) {
 	uint8_t*** voxels = MatrixInit(shape);
 	TrimShape(voxels, shape.sizex, shape.sizey, shape.sizez);
@@ -202,26 +137,22 @@ void HexRender::setWorldTransform(vec3 position, quat rotation) {
 }
 
 void HexRender::draw(Shader& shader, Camera& camera, vec4 clip_plane, float scale) {
-	shader.Use();
 	vao.Bind();
-	camera.pushMatrix(shader, "camera");
+	shader.PushMatrix("camera", camera.vpMatrix);
 
 	mat4 pos = translate(mat4(1.0f), position);
 	mat4 rot = mat4_cast(rotation);
-	glUniformMatrix4fv(glGetUniformLocation(shader.id, "position"), 1, GL_FALSE, value_ptr(pos));
-	glUniformMatrix4fv(glGetUniformLocation(shader.id, "rotation"), 1, GL_FALSE, value_ptr(rot));
+	shader.PushMatrix("position", pos);
+	shader.PushMatrix("rotation", rot);
 
 	mat4 world_pos = translate(mat4(1.0f), world_position);
 	mat4 world_rot = mat4_cast(world_rotation);
-	glUniformMatrix4fv(glGetUniformLocation(shader.id, "world_pos"), 1, GL_FALSE, value_ptr(world_pos));
-	glUniformMatrix4fv(glGetUniformLocation(shader.id, "world_rot"), 1, GL_FALSE, value_ptr(world_rot));
+	shader.PushMatrix("world_pos", world_pos);
+	shader.PushMatrix("world_rot", world_rot);
 
-	glUniform4fv(glGetUniformLocation(shader.id, "clip_plane"), 1, value_ptr(clip_plane));
-
-	glUniform1f(glGetUniformLocation(shader.id, "scale"), scale);
-	glUniform1i(glGetUniformLocation(shader.id, "palette"), 0);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_1D, texture_id);
+	shader.PushVec4("clip_plane", clip_plane);
+	shader.PushFloat("scale", scale);
+	shader.PushTexture1D("palette", texture_id, 0);
 
 	// Use GL_LINES for wireframe
 	glDrawElementsInstanced(GL_TRIANGLES, sizeof(hex_prism_indices) / sizeof(GLuint), GL_UNSIGNED_INT, 0, voxel_count);

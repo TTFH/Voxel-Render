@@ -11,23 +11,11 @@
 
 using namespace std;
 
-static GLfloat vertices[] = {
-	0, 0,
-	1, 0,
-	0, 1,
-	1, 1,
-};
-
-static GLuint indices[] = {
-	0, 1, 2,
-	1, 3, 2,
-};
-
 GLFWwindow* InitOpenGL(const char* window_title) {
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
-	glfwWindowHint(GLFW_SAMPLES, 2); // MSAA
+	glfwWindowHint(GLFW_SAMPLES, 1); // MSAA
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 #ifdef __APPLE__
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
@@ -44,6 +32,15 @@ GLFWwindow* InitOpenGL(const char* window_title) {
 	gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 	glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 	return window;
+}
+
+void debug(const char* message) {
+	GLenum error;
+	do {
+		error = glGetError();
+		if (error != GL_NO_ERROR)
+			printf("ERROR %d %s\n", error, message);
+	} while (error != GL_NO_ERROR);
 }
 
 void FlipImageVertically(int width, int height, uint8_t* data) {
@@ -74,7 +71,6 @@ static bool g_fullscreen = false;
 
 void ToggleFullscreen(GLFWwindow* window) {
 	g_fullscreen = !g_fullscreen;
-	// TODO: update skybox aspect ratio
 	Camera* camera = (Camera*)glfwGetWindowUserPointer(window);
 	if (g_fullscreen) {
 		GLFWmonitor* monitor = glfwGetPrimaryMonitor();
@@ -115,11 +111,11 @@ string GetScenePath(int argc, char* argv[]) {
 }
 
 /*
-	diffuse		- GL_RGBA
 	specular	- GL_RED
+	displacement- GL_RED
 	dudv		- GL_RGB
 	normal		- GL_RGB
-	displacement- GL_RED
+	diffuse		- GL_RGBA
 */
 GLuint LoadTexture(const char* path, GLenum format) {
 	GLuint texture_id;
@@ -130,10 +126,7 @@ GLuint LoadTexture(const char* path, GLenum format) {
 
 	glGenTextures(1, &texture_id);
 	glBindTexture(GL_TEXTURE_2D, texture_id);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); // GL_LINEAR
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	float clampColor[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, clampColor);
 
@@ -150,39 +143,70 @@ GLuint LoadTexture(const char* path, GLenum format) {
 	return texture_id;
 }
 
-void PushTime(Shader& shader, float offset) {
-	shader.Use();
-	glUniform1f(glGetUniformLocation(shader.id, "time"), glfwGetTime() + offset);
+const uint8_t HOLE = 255;
+
+uint8_t*** MatrixInit(const MV_Shape& shape) {
+	uint8_t*** voxels = new uint8_t**[shape.sizex];
+	for (int i = 0; i < shape.sizex; i++) {
+		voxels[i] = new uint8_t*[shape.sizey];
+		for (int j = 0; j < shape.sizey; j++) {
+			voxels[i][j] = new uint8_t[shape.sizez];
+			for (int k = 0; k < shape.sizez; k++)
+				voxels[i][j][k] = 0;
+		}
+	}
+
+	for (unsigned int i = 0; i < shape.voxels.size(); i++) {
+		MV_Voxel v = shape.voxels[i];
+		if (v.index != HOLE)
+			voxels[v.x][v.y][v.z] = v.index;
+	}
+
+	return voxels;
 }
 
-void PushTexture(GLuint texture_id, Shader& shader, const char* uniform, GLuint unit) {
-	shader.Use();
-	glUniform1i(glGetUniformLocation(shader.id, uniform), unit);
-	glActiveTexture(GL_TEXTURE0 + unit);
-	glBindTexture(GL_TEXTURE_2D, texture_id);
+void MatrixDelete(uint8_t*** &voxels, const MV_Shape& shape) {
+	for (int i = 0; i < shape.sizex; i++) {
+		for (int j = 0; j < shape.sizey; j++)
+			delete[] voxels[i][j];
+		delete[] voxels[i];
+	}
+	delete[] voxels;
 }
 
-UI_Rectangle::UI_Rectangle() {
-	vao.Bind();
-	VBO vbo(vertices, sizeof(vertices));
-	EBO ebo(indices, sizeof(indices));
-	vao.LinkAttrib(vbo, 0, 2, GL_FLOAT, 2 * sizeof(GLfloat), (GLvoid*)0);
-	vao.Unbind();
-	vbo.Unbind();
-	ebo.Unbind();
+// Remove hidden voxels
+void TrimShape(uint8_t*** &voxels, int sizex, int sizey, int sizez) {
+	bool*** solid = new bool**[sizex];
+	for (int i = 0; i < sizex; i++) {
+		solid[i] = new bool*[sizey];
+		for (int j = 0; j < sizey; j++) {
+			solid[i][j] = new bool[sizez];
+			for (int k = 0; k < sizez; k++)
+				solid[i][j][k] = voxels[i][j][k] != 0;
+		}
+	}
+
+	int count = 0;
+	for (int i = 0; i < sizex; i++)
+		for (int j = 0; j < sizey; j++)
+			for (int k = 0; k < sizez; k++) {
+				if (i > 0 && j > 0 && k > 0 && i < sizex - 1 && j < sizey - 1 && k < sizez - 1) {
+					if (solid[i][j][k] &&
+					  solid[i - 1][j][k] && solid[i][j - 1][k] && solid[i][j][k - 1] &&
+					  solid[i + 1][j][k] && solid[i][j + 1][k] && solid[i][j][k + 1]) {
+						voxels[i][j][k] = 0;
+						count++;
+					}
+				}
+			}
+
+	if (count > 0)
+		printf("Trimmed %d voxels\n", count);
+
+	for (int i = 0; i < sizex; i++) {
+		for (int j = 0; j < sizey; j++)
+			delete[] solid[i][j];
+		delete[] solid[i];
+	}
 }
 
-void UI_Rectangle::draw(Shader& shader, float offset_x, float offset_y) {
-	shader.Use();
-	glUniform2f(glGetUniformLocation(shader.id, "offset"), offset_x, offset_y);
-	vao.Bind();
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-}
-
-void UI_Rectangle::draw(Shader& shader, GLuint texture_id, float offset_x, float offset_y) {
-	shader.Use();
-	glUniform2f(glGetUniformLocation(shader.id, "offset"), offset_x, offset_y);
-	PushTexture(texture_id, shader, "diffuse0", 0);
-	vao.Bind();
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-}

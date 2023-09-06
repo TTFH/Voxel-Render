@@ -3,8 +3,6 @@
 #include "utils.h"
 #include "water_render.h"
 
-#include <glm/gtc/type_ptr.hpp>
-
 static bool water_initialized = false;
 static GLuint reflectionTexture;
 static GLuint refractionTexture;
@@ -15,7 +13,7 @@ static void CreateFBwTexture(GLuint &FBO, GLuint &fbTexture, int width, int heig
 
 	glGenTextures(1, &fbTexture);
 	glBindTexture(GL_TEXTURE_2D, fbTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, fbTexture, 0);
@@ -32,7 +30,7 @@ static void CreateDepthBuffer(GLuint &depthBuffer, int width, int height) {
 static void CreateDepthTexture(GLuint &depthTexture, int width, int height) {
 	glGenTextures(1, &depthTexture);
 	glBindTexture(GL_TEXTURE_2D, depthTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthTexture, 0);
@@ -67,6 +65,9 @@ WaterRender::WaterRender(vector<vec2> vertices) {
 		CreateDepthBuffer(reflectionDepthBuffer, REFLECTION_WIDTH, REFLECTION_HEIGHT);
 		CreateFBwTexture(refractionFrameBuffer, refractionTexture, REFRACTION_WIDTH, REFRACTION_HEIGHT);
 		CreateDepthTexture(refractionDepthTexture, REFRACTION_WIDTH, REFRACTION_HEIGHT);
+		GLenum fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+		if (fboStatus != GL_FRAMEBUFFER_COMPLETE)
+			printf("[ERROR] Water framebuffer failed with status %d\n", fboStatus);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
@@ -98,22 +99,20 @@ void WaterRender::setWorldTransform(vec3 position) {
 }
 
 void WaterRender::draw(Shader& shader, Camera& camera) {
-	shader.Use();
 	vao.Bind();
-	camera.pushMatrix(shader, "camera");
-	glUniform3fv(glGetUniformLocation(shader.id, "camera_pos"), 1, value_ptr(camera.position));
+	shader.PushMatrix("camera", camera.vpMatrix);
+	shader.PushVec3("camera_pos", camera.position);
+	shader.PushVec2("min", bounding_box.min);
+	shader.PushVec2("max", bounding_box.max);
 
 	mat4 pos = translate(mat4(1.0f), position);
-	glUniformMatrix4fv(glGetUniformLocation(shader.id, "position"), 1, GL_FALSE, value_ptr(pos));
+	shader.PushMatrix("position", pos);
 
-	glUniform2fv(glGetUniformLocation(shader.id, "min"), 1, value_ptr(bounding_box.min));
-	glUniform2fv(glGetUniformLocation(shader.id, "max"), 1, value_ptr(bounding_box.max));
-
-	PushTexture(reflectionTexture, shader, "reflectionTexture", 0);
-	PushTexture(refractionTexture, shader, "refractionTexture", 1);
-	PushTexture(dudv_texture, shader, "dudvMap", 2);
-	PushTexture(normal_texture, shader, "normalMap", 3);
-	PushTexture(refractionDepthTexture, shader, "depthMap", 4);
+	shader.PushTexture("reflectionTexture", reflectionTexture, 0);
+	shader.PushTexture("refractionTexture", refractionTexture, 1);
+	shader.PushTexture("dudvMap", dudv_texture, 2);
+	shader.PushTexture("normalMap", normal_texture, 3);
+	shader.PushTexture("depthMap", refractionDepthTexture, 4);
 
 	glDrawArrays(GL_TRIANGLE_FAN, 0, vertex_count);
 	vao.Unbind();

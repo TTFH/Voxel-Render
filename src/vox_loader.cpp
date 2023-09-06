@@ -104,6 +104,12 @@ VoxLoader::VoxLoader(const char* filename) {
 	load(filename);
 }
 
+#if RENDER_METHOD == RTX
+static const int MAX_PALETTES = 128;
+static int paletteCount = 0;
+static GLuint paletteBank;
+#endif
+
 void VoxLoader::load(const char* filename) {
 	this->filename = filename;
 	vector<MV_Voxel> voxels;
@@ -142,8 +148,8 @@ void VoxLoader::load(const char* filename) {
 			}
 			break;
 		case RGBA:
-			fread(palette + 1, sizeof(MV_Entry), 255, file);
-			fread(&palette, sizeof(MV_Entry), 1, file);
+			fread(palette + 1, sizeof(MV_Diffuse), 255, file);
+			fread(&palette, sizeof(MV_Diffuse), 1, file);
 			break;
 		case nTRN: {
 				int node_id = ReadInt(file);
@@ -215,18 +221,32 @@ void VoxLoader::load(const char* filename) {
 	fclose(file);
 	//printf("File loaded: %s\n", filename);
 
+#if RENDER_METHOD == RTX
+	if (paletteCount == 0) { // Create texture
+		glGenTextures(1, &paletteBank);
+		glBindTexture(GL_TEXTURE_2D, paletteBank);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 256, MAX_PALETTES, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	} else
+		glBindTexture(GL_TEXTURE_2D, paletteBank);
+	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, paletteCount, 256, 1, GL_RGBA, GL_UNSIGNED_BYTE, palette);
+	paletteCount++;
+#else
 	GLuint texture_id;
 	glGenTextures(1, &texture_id);
 	glBindTexture(GL_TEXTURE_1D, texture_id);
-	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexImage1D(GL_TEXTURE_1D, 0, GL_RGBA, 256, 0, GL_RGBA, GL_UNSIGNED_BYTE, palette);
+#endif
 
 	for (unsigned int i = 0; i < shapes.size(); i++) {
 	#if RENDER_METHOD == GREEDY
 		render.push_back(new GreedyRender(shapes[i], texture_id));
 	#elif RENDER_METHOD == HEXAGON
 		render.push_back(new HexRender(shapes[i], texture_id));
+	#elif RENDER_METHOD == RTX
+		render.push_back(new RTX_Render(shapes[i], paletteBank, paletteCount - 1));
 	#endif
 	}
 }
