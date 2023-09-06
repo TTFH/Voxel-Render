@@ -11,18 +11,6 @@
 
 using namespace std;
 
-static GLfloat vertices[] = {
-	0, 0,
-	1, 0,
-	0, 1,
-	1, 1,
-};
-
-static GLuint indices[] = {
-	0, 1, 2,
-	1, 3, 2,
-};
-
 GLFWwindow* InitOpenGL(const char* window_title) {
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -123,11 +111,11 @@ string GetScenePath(int argc, char* argv[]) {
 }
 
 /*
-	diffuse		- GL_RGBA
 	specular	- GL_RED
+	displacement- GL_RED
 	dudv		- GL_RGB
 	normal		- GL_RGB
-	displacement- GL_RED
+	diffuse		- GL_RGBA
 */
 GLuint LoadTexture(const char* path, GLenum format) {
 	GLuint texture_id;
@@ -153,22 +141,6 @@ GLuint LoadTexture(const char* path, GLenum format) {
 	stbi_image_free(data);
 	glBindTexture(GL_TEXTURE_2D, 0);
 	return texture_id;
-}
-
-UI_Rectangle::UI_Rectangle() {
-	vao.Bind();
-	VBO vbo(vertices, sizeof(vertices));
-	EBO ebo(indices, sizeof(indices));
-	vao.LinkAttrib(vbo, 0, 2, GL_FLOAT, 2 * sizeof(GLfloat), (GLvoid*)0);
-	vao.Unbind();
-	vbo.Unbind();
-	ebo.Unbind();
-}
-
-void UI_Rectangle::draw(Shader& shader, vec2 offset) {
-	shader.PushVec2("offset", offset);
-	vao.Bind();
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
 
 const uint8_t HOLE = 255;

@@ -15,7 +15,7 @@ Light::Light(vec3 pos) {
 	altitude = pos.y;
 	radius = sqrt(pos.x * pos.x + pos.z * pos.z);
 	azimuth = atan2(pos.z, pos.x);
-	//model.load("light.vox");
+	model.load("light.vox");
 	updateProjection();
 }
 

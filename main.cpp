@@ -36,8 +36,6 @@ int main(int argc, char* argv[]) {
 #elif RENDER_METHOD == RTX
 	Shader voxel_shader("editorvox");
 #endif
-	Shader shader_art("art");
-	Shader shader_2d("2d_tex");
 	Shader voxel_glass_shader("shaders/voxel_gm_vert.glsl", "shaders/voxel_glass_frag.glsl");
 	Shader mesh_shader("shaders/mesh_vert.glsl", "shaders/mesh_frag.glsl");
 	Shader rope_shader("shaders/rope_vert.glsl", "shaders/rope_frag.glsl");
@@ -49,8 +47,6 @@ int main(int argc, char* argv[]) {
 	map<const char*, Shader*> shaders = {
 		{"voxel_shader", &voxel_shader},
 		{"voxel_glass_shader", &voxel_glass_shader},
-		{"shader_art", &shader_art},
-		{"shader_2d", &shader_2d},
 		{"mesh_shader", &mesh_shader},
 		{"rope_shader", &rope_shader},
 		{"water_shader", &water_shader},
@@ -61,55 +57,26 @@ int main(int argc, char* argv[]) {
 
 	Camera camera;
 	Skybox skybox;
-	UI_Rectangle rect;
 	ShadowMap shadow_map;
 	Light light(vec3(-35, 130, -132));
 	Scene scene(GetScenePath(argc, argv));
 	printf("Scene loaded!\n");
 	bool transparent_glass = false;
 	camera.initialize(WINDOW_WIDTH, WINDOW_HEIGHT, vec3(0, 2.5, 10));
-	//GLuint editor_tex = LoadTexture("textures/td_editor.png", GL_RGB);
 
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO();
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 	ImGuiWindowFlags dialog_flags = 0;
-	//dialog_flags |= ImGuiWindowFlags_NoResize;
+	dialog_flags |= ImGuiWindowFlags_NoResize;
 
 	ImGui::StyleColorsDark();
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init("#version 410");
 	ImVec4 clear_color = ImVec4(0.35, 0.54, 0.8, 1);
 	ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 3.0f);
-/*
-	Mesh train("trains/shinkansen.obj", "trains/shinkansen.png");
-	Mesh glass("meshes/CAT_140M3_glass.obj", "meshes/glass.png");
-	Mesh model("meshes/CAT_140M3.obj", "meshes/CAT_140M3.png", "meshes/CAT_140M3_specular.png");
-	train.setWorldTransform(vec3(20, 0, 80));
-	glass.setWorldTransform(vec3(12, 4.3, 30), 170);
-	model.setWorldTransform(vec3(12, 4.3, 30), 170);
-	scene.addMesh(&train);
-	scene.addMesh(&glass);
-	scene.addMesh(&model);
 
-	Mesh train1("trains/Inyo.obj", "trains/Inyo.png");
-	Mesh train2("trains/BigGreen.obj", "trains/BigGreen.png");
-	Mesh train3("trains/PrussianT3.obj", "trains/PrussianT3.png");
-	Mesh train4("trains/Crampton.obj", "trains/Crampton.png");
-	train1.setWorldTransform(vec3(0, 0, 40));
-	train2.setWorldTransform(vec3(5, 1.3, 50));
-	train3.setWorldTransform(vec3(10, 0, 60));
-	train4.setWorldTransform(vec3(15, 0, 70));
-	scene.addMesh(&train1);
-	scene.addMesh(&train2);
-	scene.addMesh(&train3);
-	scene.addMesh(&train4);
-
-	Mesh triforce("meshes/triforce.obj", "meshes/triforce.png");
-	triforce.setWorldTransform(vec3(10, 0.05, 10));
-	scene.addMesh(&triforce);
-*/
 	// FPS counter
 	double dt = 0;
 	double prev_time = 0;
@@ -230,8 +197,8 @@ int main(int argc, char* argv[]) {
 			camera.translateAndInvertPitch(-distance);
 			water->BindReflectionFB();
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			//shadow_map.PushShadows(mesh_shader);
-			//scene.drawMesh(mesh_shader, camera);
+			shadow_map.PushShadows(mesh_shader);
+			scene.drawMesh(mesh_shader, camera);
 			shadow_map.PushShadows(voxel_shader);
 			scene.draw(voxel_shader, camera, clip_plane_top);
 
@@ -246,7 +213,6 @@ int main(int argc, char* argv[]) {
 		} else
 			glDisable(GL_CLIP_DISTANCE0);
 
-		//glClearColor(0.35, 0.54, 0.8, 1);
 		glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -267,14 +233,9 @@ int main(int argc, char* argv[]) {
 		glDisable(GL_BLEND);
 
 		scene.drawRope(rope_shader, camera);
-		//light.draw(voxel_shader, camera); // Debug light pos
+		light.draw(voxel_shader, camera);
 		skybox.draw(skybox_shader, camera);
-/*
-		shader_art.PushFloat("time", glfwGetTime());
-		rect.draw(shader_art, vec2(-0.9, 0.4));
-		shader_2d.PushTexture("diffuse", editor_tex, 0);
-		rect.draw(shader_2d, vec2(0.4, 0.4));
-*/
+
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 

@@ -35,7 +35,7 @@ ifeq ($(OS), Windows_NT)
 	CXXFLAGS += -Wno-array-bounds
 	CXXFLAGS += `pkg-config --cflags glfw3`
 	CXXFLAGS += -IC:/msys64/mingw64/include
-	LIBS = -lglfw3 -lgdi32 -lopengl32 -limm32 dont_td.res
+	LIBS = -lglfw3 -lgdi32 -lopengl32 -limm32 #dont_td.res
 endif
 
 ifeq ($(UNAME_S), Darwin)

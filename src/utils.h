@@ -15,14 +15,6 @@ using namespace std;
 const unsigned int WINDOW_WIDTH = 1280;
 const unsigned int WINDOW_HEIGHT = 720;
 
-class UI_Rectangle {
-private:
-	VAO vao;
-public:
-	UI_Rectangle();
-	void draw(Shader& shader, vec2 offset);
-};
-
 GLFWwindow* InitOpenGL(const char* window_title);
 void debug(const char* message);
 
