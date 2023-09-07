@@ -1,7 +1,9 @@
+#include <string.h>
+#include <glm/glm.hpp>
+
 #include "ebo.h"
 #include "utils.h"
 #include "vox_rtx.h"
-#include <glm/glm.hpp>
 
 static GLfloat cube_vertices[] = {
 	0, 0, 0,
@@ -44,8 +46,8 @@ RTX_Render::RTX_Render(const MV_Shape& shape, GLuint paletteBank, int paletteId)
 
 	int volume = shape.sizex * shape.sizey * shape.sizez;
 	voxels = new uint8_t[volume];
-	for (int i = 0; i < volume; i++)
-		voxels[i] = 0;
+	memset(voxels, 0, volume);
+
 	for (unsigned int i = 0; i < shape.voxels.size(); i++) {
 		int x = shape.voxels[i].x;
 		int y = shape.voxels[i].y;
@@ -58,9 +60,9 @@ RTX_Render::RTX_Render(const MV_Shape& shape, GLuint paletteBank, int paletteId)
 
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);
 
 	glTexImage3D(GL_TEXTURE_3D, 0, GL_R8UI, shape.sizex, shape.sizey, shape.sizez, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, voxels);
 	glGenerateMipmap(GL_TEXTURE_3D);
