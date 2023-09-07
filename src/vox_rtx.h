@@ -16,7 +16,6 @@ private:
 	GLuint paletteBank;
 	GLuint volumeTexture;
 	vec3 shapeSize;
-	uint8_t* voxels;
 
 	vec3 position = vec3(0, 0, 0);
 	quat rotation = quat(1, 0, 0, 0);

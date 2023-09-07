@@ -1,5 +1,5 @@
+#include <stdint.h>
 #include <string.h>
-#include <glm/glm.hpp>
 
 #include "ebo.h"
 #include "utils.h"
@@ -45,7 +45,7 @@ RTX_Render::RTX_Render(const MV_Shape& shape, GLuint paletteBank, int paletteId)
 	shapeSize = vec3(shape.sizex, shape.sizey, shape.sizez);
 
 	int volume = shape.sizex * shape.sizey * shape.sizez;
-	voxels = new uint8_t[volume];
+	uint8_t* voxels = new uint8_t[volume];
 	memset(voxels, 0, volume);
 
 	for (unsigned int i = 0; i < shape.voxels.size(); i++) {
@@ -64,9 +64,12 @@ RTX_Render::RTX_Render(const MV_Shape& shape, GLuint paletteBank, int paletteId)
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);
 
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // fuck, Fuck, FUCK! are you fucking kidding me?!
 	glTexImage3D(GL_TEXTURE_3D, 0, GL_R8UI, shape.sizex, shape.sizey, shape.sizez, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, voxels);
 	glGenerateMipmap(GL_TEXTURE_3D);
+
 	glBindTexture(GL_TEXTURE_3D, 0);
+	delete[] voxels;
 }
 
 void RTX_Render::setTransform(vec3 position, quat rotation) {
@@ -129,5 +132,5 @@ void RTX_Render::draw(Shader& shader, Camera& camera, vec4 clip_plane, float sca
 
 RTX_Render::~RTX_Render() {
 	glDeleteTextures(1, &volumeTexture);
-	delete[] voxels;
+	//delete[] voxels;
 }

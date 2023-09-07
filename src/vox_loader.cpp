@@ -225,12 +225,13 @@ void VoxLoader::load(const char* filename) {
 	if (paletteCount == 0) { // Create texture
 		glGenTextures(1, &paletteBank);
 		glBindTexture(GL_TEXTURE_2D, paletteBank);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 256, MAX_PALETTES, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, MAX_PALETTES, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 	} else
 		glBindTexture(GL_TEXTURE_2D, paletteBank);
 	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, paletteCount, 256, 1, GL_RGBA, GL_UNSIGNED_BYTE, palette);
+	glBindTexture(GL_TEXTURE_2D, 0);
 	paletteCount++;
 #else
 	GLuint texture_id;
@@ -238,6 +239,7 @@ void VoxLoader::load(const char* filename) {
 	glBindTexture(GL_TEXTURE_1D, texture_id);
 	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexImage1D(GL_TEXTURE_1D, 0, GL_RGBA, 256, 0, GL_RGBA, GL_UNSIGNED_BYTE, palette);
+	glBindTexture(GL_TEXTURE_1D, 0);
 #endif
 
 	for (unsigned int i = 0; i < shapes.size(); i++) {
