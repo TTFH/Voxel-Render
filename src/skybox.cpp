@@ -73,15 +73,13 @@ Skybox::Skybox() {
 	for (unsigned int i = 0; i < 6; i++) {
 		int width, height, channels = 3;
 		uint8_t* data = stbi_load(facesCubemap[i], &width, &height, &channels, STBI_rgb);
-		//printf("Loading texture %s with %d channels\n", facesCubemap[i], channels);
+		printf("Loading texture %s with %d channels\n", facesCubemap[i], channels);
 		if (data != NULL) {
 			stbi_set_flip_vertically_on_load(false);
 			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 			stbi_image_free(data);
-		} else {
+		} else
 			printf("[ERROR] Failed to load texture: %s\n", facesCubemap[i]);
-			stbi_image_free(data);
-		}
 	}
 }
 

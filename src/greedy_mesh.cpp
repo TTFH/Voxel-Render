@@ -28,7 +28,7 @@ GreedyMesh generateGreedyMesh(const MV_Shape& shape) {
 
 		// For each slice
 		for (x[d] = -1; x[d] < dims[d]; ) {
-			int n = 0; // slide index (linear)
+			int n = 0; // slice index (linear)
 			for (x[v] = 0; x[v] < dims[v]; x[v]++) {
 				for (x[u] = 0; x[u] < dims[u]; x[u]++) {
 					int16_t a = x[d] >= 0		   ? GetVoxelAt(x[0],		 x[1],		  x[2]		 ) : 0;

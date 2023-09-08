@@ -18,23 +18,26 @@ out vec3 normal;
 out float tex_coord;
 out vec4 fragPosLight;
 
+const float threehalf = sqrt(3);
+const float twoplustwo = 5;
+
 vec3 getHexPos() {
 	vec3 pos;
 	if (side == 0) { // CUBE
 		pos = aPos + aOffset;
 	} else if (side == 1) { // TOP
-		vec3 stretch = vec3(1.5f, sqrt(3), 1.0f);
-		vec3 offset = vec3(1.5 * aOffset.x, sqrt(3) * aOffset.y + mod(aOffset.x, 2) * 0.5 * sqrt(3), aOffset.z);
+		vec3 stretch = vec3(threehalf, sqrt(3), 1.0f);
+		vec3 offset = vec3(threehalf * aOffset.x, sqrt(3) * aOffset.y + mod(aOffset.x, 2) * 0.5 * sqrt(3), aOffset.z);
 		pos = (aPos + offset) / stretch;
 	} else if (side == 2) { // FRONT
 		vec3 aPos2 = vec3(aPos.x, aPos.z, -aPos.y);
-		vec3 stretch = vec3(1.5f, 1.0f, sqrt(3.0f));
-		vec3 offset = vec3(1.5 * aOffset.x, aOffset.y, sqrt(3) * aOffset.z + mod(aOffset.x, 2) * 0.5 * sqrt(3));
+		vec3 stretch = vec3(threehalf, 1.0f, sqrt(3.0f));
+		vec3 offset = vec3(threehalf * aOffset.x, aOffset.y, sqrt(3) * aOffset.z + mod(aOffset.x, 2) * 0.5 * sqrt(3));
 		pos = (aPos2 + offset) / stretch;
 	} else if (side == 3) { // SIDE
 		vec3 aPos3 = vec3(aPos.z, -aPos.y, aPos.x);
-		vec3 stretch = vec3(1.0f, sqrt(3.0f), 1.5f);
-		vec3 offset = vec3(aOffset.x, sqrt(3) * aOffset.y + mod(aOffset.z, 2) * 0.5 * sqrt(3), 1.5 * aOffset.z);
+		vec3 stretch = vec3(1.0f, sqrt(3.0f), threehalf);
+		vec3 offset = vec3(aOffset.x, sqrt(3) * aOffset.y + mod(aOffset.z, 2) * 0.5 * sqrt(3), threehalf * aOffset.z);
 		pos = (aPos3 + offset) / stretch;
 	}
 	return pos;

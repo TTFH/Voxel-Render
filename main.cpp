@@ -30,16 +30,14 @@ using namespace glm;
 
 int main(int argc, char* argv[]) {
 	GLFWwindow* window = InitOpenGL("OpenGL");
-	Skybox skybox;
 #if RENDER_METHOD == GREEDY
 	Shader voxel_shader("shaders/voxel_gm_vert.glsl", "shaders/voxel_frag.glsl");
 #elif RENDER_METHOD == HEXAGON
 	Shader voxel_shader("shaders/voxel_hex_vert.glsl", "shaders/voxel_frag.glsl");
 #elif RENDER_METHOD == RTX
-	Screen screen;
 	Shader voxel_shader("editorvox");
-	Shader screen_shader("editorlighting");
 #endif
+	Shader screen_shader("editorlighting");
 	Shader voxel_glass_shader("shaders/voxel_gm_vert.glsl", "shaders/voxel_glass_frag.glsl");
 	Shader mesh_shader("shaders/mesh_vert.glsl", "shaders/mesh_frag.glsl");
 	Shader rope_shader("shaders/rope_vert.glsl", "shaders/rope_frag.glsl");
@@ -51,6 +49,7 @@ int main(int argc, char* argv[]) {
 	map<const char*, Shader*> shaders = {
 		{"voxel_shader", &voxel_shader},
 		{"voxel_glass_shader", &voxel_glass_shader},
+		{"screen_shader", &screen_shader},
 		{"mesh_shader", &mesh_shader},
 		{"rope_shader", &rope_shader},
 		{"water_shader", &water_shader},
@@ -59,11 +58,12 @@ int main(int argc, char* argv[]) {
 		{"shadowmap_shader", &shadowmap_shader}
 	};
 
+	Skybox skybox;
 	Camera camera;
+	Screen screen;
 	ShadowMap shadow_map;
 	Light light(vec3(-35, 130, -132));
 	Scene scene(GetScenePath(argc, argv));
-	printf("Scene loaded!\n");
 	bool transparent_glass = false;
 	camera.initialize(WINDOW_WIDTH, WINDOW_HEIGHT, vec3(0, 2.5, 10));
 

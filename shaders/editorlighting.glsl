@@ -50,7 +50,7 @@ void main() {
 		float rad = depth * uFar * 0.1;
 		rad = clamp(rad, 0.5, 2.0);
 
-		for (int i = 0; i<count; i++) {
+		for (int i = 0; i < count; i++) {
 			blueNoiseTc += vec2(0.39, 0.23);
 			vec3 dir = normalize(r3 * 2.0 - vec3(1.0));
 
@@ -62,7 +62,6 @@ void main() {
 				continue;
 
 			vec3 probe = pos + dir * (r1 * rad);
-
 			vec4 hp = uVpMatrix * vec4(probe, 1.0);
 			vec2 tc = hp.xy / hp.w * 0.5 + 0.5;
 

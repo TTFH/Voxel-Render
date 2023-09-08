@@ -18,8 +18,8 @@ uniform vec3 uVolResolution;
 uniform usampler3D uVolTex;
 
 varying vec3 vWorldPos;
-varying vec3 vLocalCameraPos;
 varying vec3 vLocalPos;
+varying vec3 vLocalCameraPos;
 
 #ifdef VERTEX
 attribute vec3 aPosition;

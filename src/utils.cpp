@@ -200,8 +200,8 @@ void TrimShape(uint8_t*** &voxels, int sizex, int sizey, int sizez) {
 				}
 			}
 
-	if (count > 0)
-		printf("Trimmed %d voxels\n", count);
+	//if (count > 0)
+	//	printf("Trimmed %d voxels\n", count);
 
 	for (int i = 0; i < sizex; i++) {
 		for (int j = 0; j < sizey; j++)
