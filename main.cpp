@@ -13,6 +13,7 @@
 #include "src/skybox.h"
 #include "src/shadowmap.h"
 #include "src/xml_loader.h"
+#include "src/lighting_rtx.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "lib/stb_image.h"
@@ -29,12 +30,15 @@ using namespace glm;
 
 int main(int argc, char* argv[]) {
 	GLFWwindow* window = InitOpenGL("OpenGL");
+	Skybox skybox;
 #if RENDER_METHOD == GREEDY
 	Shader voxel_shader("shaders/voxel_gm_vert.glsl", "shaders/voxel_frag.glsl");
 #elif RENDER_METHOD == HEXAGON
 	Shader voxel_shader("shaders/voxel_hex_vert.glsl", "shaders/voxel_frag.glsl");
 #elif RENDER_METHOD == RTX
+	Screen screen;
 	Shader voxel_shader("editorvox");
+	Shader screen_shader("editorlighting");
 #endif
 	Shader voxel_glass_shader("shaders/voxel_gm_vert.glsl", "shaders/voxel_glass_frag.glsl");
 	Shader mesh_shader("shaders/mesh_vert.glsl", "shaders/mesh_frag.glsl");
@@ -56,7 +60,6 @@ int main(int argc, char* argv[]) {
 	};
 
 	Camera camera;
-	Skybox skybox;
 	ShadowMap shadow_map;
 	Light light(vec3(-35, 130, -132));
 	Scene scene(GetScenePath(argc, argv));
@@ -168,7 +171,36 @@ int main(int argc, char* argv[]) {
 			ImGui::Text("Frametime: %.1f ms", 1000.0f / io.Framerate);
 			ImGui::End();
 		}
+#if RENDER_METHOD == RTX
+		screen.start();
+		scene.draw(voxel_shader, camera);
+		screen.end();
+		glClearColor(1, 1, 1, 1);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		screen.draw(screen_shader, camera);
 
+		mesh_shader.PushVec3("lightpos", light.getPosition());
+		voxbox_shader.PushVec3("lightpos", light.getPosition());
+		mesh_shader.PushMatrix("lightProjection", light.getProjection());
+		voxbox_shader.PushMatrix("lightProjection", light.getProjection());
+		shadowmap_shader.PushMatrix("lightProjection", light.getProjection());
+
+		shadow_map.BindShadowMap();
+		scene.drawMesh(shadowmap_shader, camera);
+		scene.drawVoxbox(shadowmap_shader, camera);
+		shadow_map.UnbindShadowMap(camera);
+
+		shadow_map.PushShadows(mesh_shader);
+		scene.drawMesh(mesh_shader, camera);
+		shadow_map.PushShadows(voxbox_shader);
+		scene.drawVoxbox(voxbox_shader, camera);
+		scene.drawRope(rope_shader, camera);
+
+		glEnable(GL_BLEND);
+		scene.drawWater(water_shader, camera);
+		glDisable(GL_BLEND);
+		skybox.draw(skybox_shader, camera);
+#else
 		voxel_shader.PushVec3("lightpos", light.getPosition());
 		voxel_glass_shader.PushVec3("lightpos", light.getPosition());
 		mesh_shader.PushVec3("lightpos", light.getPosition());
@@ -196,7 +228,6 @@ int main(int argc, char* argv[]) {
 
 			camera.translateAndInvertPitch(-distance);
 			water->BindReflectionFB();
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			shadow_map.PushShadows(mesh_shader);
 			scene.drawMesh(mesh_shader, camera);
 			shadow_map.PushShadows(voxel_shader);
@@ -204,7 +235,6 @@ int main(int argc, char* argv[]) {
 
 			camera.translateAndInvertPitch(distance);
 			water->BindRefractionFB();
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			shadow_map.PushShadows(voxel_shader);
 			scene.draw(voxel_shader, camera, clip_plane_bottom);
 
@@ -235,10 +265,9 @@ int main(int argc, char* argv[]) {
 		scene.drawRope(rope_shader, camera);
 		light.draw(voxel_shader, camera);
 		skybox.draw(skybox_shader, camera);
-
+#endif
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
 		glfwSwapBuffers(window);
 	}
 

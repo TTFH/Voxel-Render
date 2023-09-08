@@ -25,8 +25,8 @@ ShadowMap::ShadowMap() {
 }
 
 void ShadowMap::BindShadowMap() {
-	glViewport(0, 0, shadowMapWidth, shadowMapHeight);
 	glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFBO);
+	glViewport(0, 0, shadowMapWidth, shadowMapHeight);
 	glClear(GL_DEPTH_BUFFER_BIT);
 }
 

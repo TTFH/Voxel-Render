@@ -17,8 +17,8 @@ private:
 	const char* FRAGMENT = "#define FRAGMENT\n";
 
 	bool unified;
-	const char* path1;
-	const char* path2;
+	string path1;
+	string path2;
 	void Load();
 	void Create(const char* vertexSource, const char* fragmentSource);
 public:

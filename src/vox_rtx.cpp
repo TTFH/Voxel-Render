@@ -132,5 +132,4 @@ void RTX_Render::draw(Shader& shader, Camera& camera, vec4 clip_plane, float sca
 
 RTX_Render::~RTX_Render() {
 	glDeleteTextures(1, &volumeTexture);
-	//delete[] voxels;
 }

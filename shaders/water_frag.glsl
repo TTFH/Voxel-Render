@@ -71,6 +71,6 @@ vec4 FancyShader() {
 }
 
 void main() {
-	//FragColor = vec4(0.22f, 0.22f, 0.44f, 0.9f);
-	FragColor = FancyShader();
+	FragColor = vec4(0.22f, 0.22f, 0.44f, 0.9f);
+	//FragColor = FancyShader();
 }

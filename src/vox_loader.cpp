@@ -105,7 +105,7 @@ VoxLoader::VoxLoader(const char* filename) {
 }
 
 #if RENDER_METHOD == RTX
-static const int MAX_PALETTES = 128;
+static const int MAX_PALETTES = 512;
 static int paletteCount = 0;
 static GLuint paletteBank;
 #endif
@@ -230,9 +230,12 @@ void VoxLoader::load(const char* filename) {
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, MAX_PALETTES, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 	} else
 		glBindTexture(GL_TEXTURE_2D, paletteBank);
-	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, paletteCount, 256, 1, GL_RGBA, GL_UNSIGNED_BYTE, palette);
-	glBindTexture(GL_TEXTURE_2D, 0);
+	if (paletteCount < MAX_PALETTES)
+		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, paletteCount, 256, 1, GL_RGBA, GL_UNSIGNED_BYTE, palette);
+	else if (paletteCount == MAX_PALETTES)
+		printf("[Warning] Palette limit reached!\n");
 	paletteCount++;
+	glBindTexture(GL_TEXTURE_2D, 0);
 #else
 	GLuint texture_id;
 	glGenTextures(1, &texture_id);

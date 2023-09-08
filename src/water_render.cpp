@@ -83,11 +83,13 @@ float WaterRender::GetHeight() {
 void WaterRender::BindReflectionFB() {
 	glBindFramebuffer(GL_FRAMEBUFFER, reflectionFrameBuffer);
 	glViewport(0, 0, REFLECTION_WIDTH, REFLECTION_HEIGHT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void WaterRender::BindRefractionFB() {
 	glBindFramebuffer(GL_FRAMEBUFFER, refractionFrameBuffer);
 	glViewport(0, 0, REFRACTION_WIDTH, REFRACTION_HEIGHT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void WaterRender::UnbindFB(Camera& camera) {

@@ -1,7 +1,6 @@
 #ifndef VOX_RTX_H
 #define VOX_RTX_H
 
-#include <vector>
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 

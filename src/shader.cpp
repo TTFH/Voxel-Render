@@ -31,9 +31,9 @@ void Shader::Create(const char* vertexSource, const char* fragmentSource) {
 	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &hasCompiled);
 	glGetShaderInfoLog(vertexShader, 1024, NULL, infoLog);
 	if (hasCompiled == GL_FALSE)
-		printf("[ERROR] Vertex shader %s failed to compile\n%s\n", path1, infoLog);
+		printf("[ERROR] Vertex shader %s failed to compile\n%s\n", path1.c_str(), infoLog);
 	else if (strcmp(infoLog, "") != 0)
-		printf("[Warning] Vertex shader %s compiled with warnings\n%s\n", path1, infoLog);
+		printf("[Warning] Vertex shader %s compiled with warnings\n%s\n", path1.c_str(), infoLog);
 
 	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 	glShaderSource(fragmentShader, 1, &fragmentSource, NULL);
@@ -42,9 +42,9 @@ void Shader::Create(const char* vertexSource, const char* fragmentSource) {
 	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &hasCompiled);
 	glGetShaderInfoLog(fragmentShader, 1024, NULL, infoLog);
 	if (hasCompiled == GL_FALSE)
-		printf("[ERROR] Fragment shader %s failed to compile\n%s\n", path1, infoLog);
+		printf("[ERROR] Fragment shader %s failed to compile\n%s\n", path2.c_str(), infoLog);
 	else if (strcmp(infoLog, "") != 0)
-		printf("[Warning] Fragment shader %s compiled with warnings\n%s\n", path1, infoLog);
+		printf("[Warning] Fragment shader %s compiled with warnings\n%s\n", path2.c_str(), infoLog);
 
 	id = glCreateProgram();
 	glAttachShader(id, vertexShader);
@@ -65,8 +65,8 @@ void Shader::Create(const char* vertexSource, const char* fragmentSource) {
 Shader::Shader(const char* name) {
 	string path = "shaders/" + string(name) + ".glsl";
 	unified = true;
-	path1 = path.c_str();
-	path2 = path.c_str();
+	path1 = path;
+	path2 = path;
 	Load();
 }
 
@@ -79,13 +79,13 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath) {
 
 void Shader::Load() {
 	if (unified) {
-		string shaderCode = ReadFile(path1);
+		string shaderCode = ReadFile(path1.c_str());
 		string vertexCode = string(VERSION) + VERTEX + shaderCode;
 		string fragmentCode = string(VERSION) + FRAGMENT + shaderCode;
 		Create(vertexCode.c_str(), fragmentCode.c_str());
 	} else {
-		string vertexCode = ReadFile(path1);
-		string fragmentCode = ReadFile(path2);
+		string vertexCode = ReadFile(path1.c_str());
+		string fragmentCode = ReadFile(path2.c_str());
 		Create(vertexCode.c_str(), fragmentCode.c_str());
 	}
 }
