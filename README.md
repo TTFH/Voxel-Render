@@ -1,13 +1,13 @@
 # Voxel Rendering Engine
 
-This is a simple voxel rendering engine written in C++ and OpenGL, it uses conventional rasterization instead of raytracing.
+This is a simple voxel rendering engine written in C++ and OpenGL, it can render voxels using conventional rasterization or raytracing.  
 
-This program is cross-platform and has been tested on Windows 7, 10, 11 and Linux. It can load a scene from a XML file and render voxels (cubes), voxagons (rectangular prisms), transparent water (2D triangle fan), ropes (line strips) and triangular meshes (wait, what?).  
+This program is cross-platform and has been tested on Windows 7, 10, 11 and Linux and MacOS. It can load a scene from a XML file and render voxels (cubes), voxagons (rectangular prisms), water (2D triangle fan), ropes (line strips) and triangular meshes (wait, what?).  
 It optionally uses a greedy meshing algorithm to generate the triangular meshes for the voxels, based on the post [Meshing in a Minecraft Game (Part 2)](https://0fps.net/2012/07/07/meshing-minecraft-part-2/) by Mikola Lysenko.  
-It also supports Dear ImGui, the amazing GUI library used by Teardown and GTA VI.
+It can also render voxels like hexagonal prisms instead of cubes, and align the hexagons on all 3 orientations.  
+It supports Dear ImGui, the amazing GUI library used by Teardown and GTA VI.  
 
-It make use of the following libraries:
-
+It make use of the following libraries:  
 -   [GLAD](https://glad.dav1d.de/) for OpenGL function loading.
 -   [GLFW](https://www.glfw.org/) for window management.
 -   [GLM](https://glm.g-truc.net/0.9.9/index.html) for vector and matrix math.
@@ -20,7 +20,7 @@ It make use of the following libraries:
 Open a command prompt in the project folder and run the command: `make`
 
 Render the example scene:  
-`./vox_render example`
+`./vox_render example/`
 
 Render the castle scene:  
 Extract castle.7z  
@@ -35,7 +35,6 @@ WASD, Space & Ctrl to move the camera
 Hold Shift to move the camera faster  
 Hold Right Mouse Button and drag to look around  
 Arrow keys, Q & E to move the light  
-P to print the camera and light positions  
 F10 save screenshot  
 F11 toggle fullscreen
 
