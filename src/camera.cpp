@@ -1,13 +1,13 @@
 #include <glm/gtx/vector_angle.hpp>
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+
 #include "camera.h"
+#include "utils.h"
 
-Camera::Camera() { }
-
-void Camera::initialize(int width, int height, vec3 pos) {
-	screen_width = width;
-	screen_height = height;
+Camera::Camera(vec3 pos) {
+	screen_width = WINDOW_WIDTH;
+	screen_height = WINDOW_HEIGHT;
 	position = pos;
 	direction = vec3(0, 0, -1);
 	updateMatrix();
@@ -56,8 +56,7 @@ void Camera::handleInputs(GLFWwindow* window) {
 			firstClick = false;
 		}
 
-		double mouseX;
-		double mouseY;
+		double mouseX, mouseY;
 		glfwGetCursorPos(window, &mouseX, &mouseY);
 		float rotX = sensitivity * (float)(mouseY - (screen_height / 2)) / screen_height;
 		float rotY = sensitivity * (float)(mouseX - (screen_width / 2)) / screen_width;

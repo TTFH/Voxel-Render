@@ -95,7 +95,7 @@ void RTX_Render::draw(Shader& shader, Camera& camera, vec4 clip_plane, float sca
 	glUniform1ui(glGetUniformLocation(shader.id, "uMaxValue"), 255);
 	shader.PushInt("uPalette", paletteId);
 	shader.PushVec4("uMultColor", vec4(1, 1, 1, 1));
-	shader.PushFloat("uVolTexelSize", 0.1);
+	shader.PushFloat("uVolTexelSize", 0.1f * scale);
 	shader.PushVec3("uVolResolution", shapeSize);
 	shader.PushVec3("uCameraPos", camera.position);
 

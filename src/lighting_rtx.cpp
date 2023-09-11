@@ -2,7 +2,7 @@
 #include "utils.h"
 #include "lighting_rtx.h"
 
-static GLfloat vertices[] = {
+static GLfloat screen_vertices[] = {
 	// pos  uv
 	-1, -1, 0, 0,
 	 1, -1, 1, 0,
@@ -10,7 +10,7 @@ static GLfloat vertices[] = {
 	 1,  1, 1, 1,
 };
 
-static GLuint indices[] = {
+static GLuint screen_indices[] = {
 	0, 1, 2,
 	1, 3, 2,
 };
@@ -29,7 +29,7 @@ void Screen::initFrameBuffer(int width, int height) {
 	glBindTexture(GL_TEXTURE_2D, colorTexture);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGB, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_FLOAT, NULL);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorTexture, 0);
 
 	glGenTextures(1, &normalTexture);
@@ -57,8 +57,8 @@ void Screen::initFrameBuffer(int width, int height) {
 
 Screen::Screen() {
 	vao.Bind();
-	VBO vbo(vertices, sizeof(vertices));
-	EBO ebo(indices, sizeof(indices));
+	VBO vbo(screen_vertices, sizeof(screen_vertices));
+	EBO ebo(screen_indices, sizeof(screen_indices));
 	vao.LinkAttrib(vbo, 0, 2, GL_FLOAT, 4 * sizeof(GLfloat), (GLvoid*)0);
 	vao.LinkAttrib(vbo, 1, 2, GL_FLOAT, 4 * sizeof(GLfloat), (GLvoid*)(2 * sizeof(GLfloat)));
 	vao.Unbind();
@@ -95,5 +95,5 @@ void Screen::draw(Shader& shader, Camera& camera) {
 	shader.PushTexture("uDepth", depthTexture, 2);
 	shader.PushTexture("uBlueNoise", bluenoise, 3);
 
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, sizeof(screen_indices) / sizeof(GLuint), GL_UNSIGNED_INT, 0);
 }

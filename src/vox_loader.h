@@ -57,7 +57,7 @@ private:
 	string filename;
 	//MV_PBR pbr[256];
 	MV_Diffuse palette[256];
-	vector<MV_Shape> shapes;
+	
 	multimap<string, MV_Model> models;
 #if RENDER_METHOD == GREEDY
 	vector<GreedyRender*> render;
@@ -67,6 +67,7 @@ private:
 	vector<RTX_Render*> render;
 #endif
 public:
+	vector<MV_Shape> shapes;
 	VoxLoader();
 	VoxLoader(const char* filename);
 	void load(const char* filename);

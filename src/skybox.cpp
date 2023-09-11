@@ -6,7 +6,7 @@
 #include "../lib/stb_image.h"
 #include "ebo.h"
 
-static GLfloat vertices[] = {
+static GLfloat cube_vertices[] = {
 	 1,  1,  1,
 	 1,  1, -1,
 	 1, -1,  1,
@@ -17,7 +17,7 @@ static GLfloat vertices[] = {
 	-1, -1, -1,
 };
 
-static GLuint indices[] = {
+static GLuint cube_indices[] = {
 	0, 2, 6,
 	3, 7, 6,
 	4, 6, 5,
@@ -34,8 +34,8 @@ static GLuint indices[] = {
 
 Skybox::Skybox() {
 	vao.Bind();
-	VBO vbo(vertices, sizeof(vertices));
-	EBO ebo(indices, sizeof(indices));
+	VBO vbo(cube_vertices, sizeof(cube_vertices));
+	EBO ebo(cube_indices, sizeof(cube_indices));
 	vao.LinkAttrib(vbo, 0, 3, GL_FLOAT, 3 * sizeof(GLfloat), (GLvoid*)0);
 	vao.Unbind();
 	vbo.Unbind();
@@ -91,7 +91,7 @@ void Skybox::draw(Shader& shader, Camera& camera) {
 	glDepthFunc(GL_LEQUAL);
 	vao.Bind();
 	shader.PushTextureCubeMap("skybox", texture, 0);
-	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, sizeof(cube_indices) / sizeof(GLuint), GL_UNSIGNED_INT, 0);
 	vao.Unbind();
 	glDepthFunc(GL_LESS);
 }

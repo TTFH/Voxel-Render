@@ -2,13 +2,11 @@
 obj/*.o
 vox_render
 vox_render.exe
-
-meshes/
-trains/
 screenshot_*.png
+*.vox
 
+hub34/
 Water Test/
-castle.vox
 caveisland_sandbox/
 csgo_de_train/
 heistexample/

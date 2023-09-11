@@ -59,13 +59,12 @@ int main(int argc, char* argv[]) {
 	};
 
 	Skybox skybox;
-	Camera camera;
 	Screen screen;
 	ShadowMap shadow_map;
+	Camera camera(vec3(0, 2.5, 10));
 	Light light(vec3(-35, 130, -132));
 	Scene scene(GetScenePath(argc, argv));
 	bool transparent_glass = false;
-	camera.initialize(WINDOW_WIDTH, WINDOW_HEIGHT, vec3(0, 2.5, 10));
 
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
