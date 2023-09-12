@@ -5,6 +5,7 @@
 #define GREEDY 1
 #define HEXAGON 2
 #define RTX 3
+#define SHADOW 4
 #define RENDER_METHOD RTX
 
 #include <map>

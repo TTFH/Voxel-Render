@@ -28,28 +28,11 @@ ShadowVolume::ShadowVolume() {
 	vao.Unbind();
 	vbo.Unbind();
 	ebo.Unbind();
-}
 
-void ShadowVolume::addShape(const MV_Shape& shape) {
-	int width = shape.sizex / 2;// + shape.sizex % 2;
-	int height = shape.sizez / 2;// + shape.sizez % 2;
-	int depth = shape.sizey / 2;// + shape.sizey % 2;
-	volumeSize = vec3(width, height, depth);
-
-	int volume = width * height * depth;
-	uint8_t* shadowVolume = new uint8_t[volume];
+	width = 200; height = 150; depth = 200;
+	volume = width * height * depth;
+	shadowVolume = new uint8_t[volume];
 	memset(shadowVolume, 0, volume);
-
-	for (unsigned int i = 0; i < shape.voxels.size(); i++) {
-		int x = shape.voxels[i].x;
-		int y = shape.voxels[i].z;
-		int z = shape.sizey - shape.voxels[i].y;
-
-		// Up to 8 voxels share the same index
-		int index = (x / 2) + width * ((y / 2) + height * (z / 2));
-		if (index < volume)
-			shadowVolume[index] += 1 << ((x % 2) + 2 * (y % 2) + 4 * (z % 2));
-	}
 
 	glGenTextures(1, &volumeTexture);
 	glBindTexture(GL_TEXTURE_3D, volumeTexture);
@@ -64,10 +47,30 @@ void ShadowVolume::addShape(const MV_Shape& shape) {
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAX_LEVEL, 2);
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	glTexImage3D(GL_TEXTURE_3D, 0, GL_R8UI, width, height, depth, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, shadowVolume);
+	glTexImage3D(GL_TEXTURE_3D, 0, GL_R8UI, width, height, depth, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, NULL);
 
 	glBindTexture(GL_TEXTURE_3D, 0);
-	delete[] shadowVolume;
+}
+
+void ShadowVolume::addShape(const MV_Shape& shape, vec3 position) {
+	for (unsigned int i = 0; i < shape.voxels.size(); i++) {
+		int x = shape.voxels[i].x + position.x * 10.0f;
+		int y = shape.voxels[i].z + position.y * 10.0f;
+		int z = shape.sizey - shape.voxels[i].y + position.z * 10.0f;
+
+		if (x < 0 || x >= width || y < 0 || y >= height || z < 0 || z >= depth)
+			continue;
+
+		// Up to 8 voxels share the same index
+		int index = (x / 2) + width * ((y / 2) + height * (z / 2));
+		if (index < volume)
+			shadowVolume[index] += 1 << ((x % 2) + 2 * (y % 2) + 4 * (z % 2));
+	}
+
+	glBindTexture(GL_TEXTURE_3D, volumeTexture);
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	glTexSubImage3D(GL_TEXTURE_3D, 0, 0, 0, 0, width, height, depth, GL_RED_INTEGER, GL_UNSIGNED_BYTE, shadowVolume);
+	glBindTexture(GL_TEXTURE_3D, 0);
 }
 
 void ShadowVolume::draw(Shader& shader, Camera& camera) {
@@ -76,7 +79,7 @@ void ShadowVolume::draw(Shader& shader, Camera& camera) {
 	shader.PushFloat("uVolTexelSize", 0.2);
 	shader.PushVec3("uCameraPos", camera.position);
 	shader.PushVec3("uVolOffset", vec3(0, 0, 0));
-	shader.PushVec3("uVolResolution", volumeSize);
+	shader.PushVec3("uVolResolution", vec3(width, height, depth));
 	shader.PushMatrix("uVpInvMatrix", inverse(camera.vpMatrix));
 	shader.PushTexture3D("uVolTex", volumeTexture, 0);
 
@@ -85,4 +88,9 @@ void ShadowVolume::draw(Shader& shader, Camera& camera) {
 	shader.PushMatrix("uVpMatrix", camera.vpMatrix);
 
 	glDrawElements(GL_TRIANGLES, sizeof(screen_indices) / sizeof(GLuint), GL_UNSIGNED_INT, 0);
+}
+
+ShadowVolume::~ShadowVolume() {
+	glDeleteTextures(1, &volumeTexture);
+	delete[] shadowVolume;
 }

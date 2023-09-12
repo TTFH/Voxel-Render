@@ -261,6 +261,7 @@ void VoxLoader::draw(Shader& shader, Camera& camera, vec4 clip_plane, vec3 posit
 		int index = it->second.shape_index;
 		const MV_Shape& shape = shapes[index];
 		vec3 pos = it->second.position - (it->second.rotation * vec3(shape.sizex / 2, shape.sizey / 2, shape.sizez / 2));
+		pos.y -= 1.0f; // TODO: why?
 		render[index]->setTransform(pos, it->second.rotation);
 		render[index]->setWorldTransform(position, rotation);
 		render[index]->draw(shader, camera, clip_plane, scale);

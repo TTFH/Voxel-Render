@@ -19,13 +19,14 @@ using namespace glm;
 int main() {
 	GLFWwindow* window = InitOpenGL("OpenGL");
 	Shader sv_shader("debugvolume");
+	//Shader screen_shader("screen_test");
 	Shader voxel_shader("editorvox");
 
 	Camera camera(vec3(0, 2.5, 10));
 	VoxLoader test_file("scorpionking.vox");
 
 	ShadowVolume shadow_volume;
-	shadow_volume.addShape(test_file.shapes[0]);
+	shadow_volume.addShape(test_file.shapes[0], vec3(0, 0, 0));
 
 	// Flags
 	glEnable(GL_DEPTH_TEST);
