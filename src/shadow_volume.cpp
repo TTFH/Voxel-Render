@@ -37,7 +37,7 @@ ShadowVolume::ShadowVolume() {
 	glGenTextures(1, &volumeTexture);
 	glBindTexture(GL_TEXTURE_3D, volumeTexture);
 
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
@@ -48,6 +48,8 @@ ShadowVolume::ShadowVolume() {
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glTexImage3D(GL_TEXTURE_3D, 0, GL_R8UI, width, height, depth, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, NULL);
+	glTexImage3D(GL_TEXTURE_3D, 1, GL_R8UI, width / 2, height / 2, depth / 2, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, NULL);
+	glTexImage3D(GL_TEXTURE_3D, 2, GL_R8UI, width / 4, height / 4, depth / 4, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, NULL);
 
 	glBindTexture(GL_TEXTURE_3D, 0);
 }
@@ -66,11 +68,54 @@ void ShadowVolume::addShape(const MV_Shape& shape, vec3 position) {
 		if (index < volume)
 			shadowVolume[index] += 1 << ((x % 2) + 2 * (y % 2) + 4 * (z % 2));
 	}
+}
+
+void ShadowVolume::updateTexture() {
+	int width_mip1 = width / 2;
+	int height_mip1 = height / 2;
+	int depth_mip1 = depth / 2;
+	int volume_mip1 = width_mip1 * height_mip1 * depth_mip1;
+	uint8_t* shadowVolume_mip1 = new uint8_t[volume_mip1];
+	memset(shadowVolume_mip1, 0, volume_mip1);
+
+	for (int i = 0; i < width; i++) {
+		for (int j = 0; j < height; j++) {
+			for (int k = 0; k < depth; k++) {
+				int index = i + width * (j + height * k);
+				int index_mip1 = (i / 2) + width_mip1 * ((j / 2) + height_mip1 * (k / 2));
+				if (index_mip1 < volume_mip1)
+					shadowVolume_mip1[index_mip1] |= shadowVolume[index];
+			}
+		}
+	}
+
+	int width_mip2 = width_mip1 / 2;
+	int height_mip2 = height_mip1 / 2;
+	int depth_mip2 = depth_mip1 / 2;
+	int volume_mip2 = width_mip2 * height_mip2 * depth_mip2;
+	uint8_t* shadowVolume_mip2 = new uint8_t[volume_mip2];
+	memset(shadowVolume_mip2, 0, volume_mip2);
+
+	for (int i = 0; i < width_mip1; i++) {
+		for (int j = 0; j < height_mip1; j++) {
+			for (int k = 0; k < depth_mip1; k++) {
+				int index = i + width_mip1 * (j + height_mip1 * k);
+				int index_mip2 = (i / 2) + width_mip2 * ((j / 2) + height_mip2 * (k / 2));
+				if (index_mip2 < volume_mip2)
+					shadowVolume_mip2[index_mip2] |= shadowVolume_mip1[index];
+			}
+		}
+	}
 
 	glBindTexture(GL_TEXTURE_3D, volumeTexture);
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glTexSubImage3D(GL_TEXTURE_3D, 0, 0, 0, 0, width, height, depth, GL_RED_INTEGER, GL_UNSIGNED_BYTE, shadowVolume);
+	glTexSubImage3D(GL_TEXTURE_3D, 1, 0, 0, 0, width_mip1, height_mip1, depth_mip1, GL_RED_INTEGER, GL_UNSIGNED_BYTE, shadowVolume_mip1);
+	glTexSubImage3D(GL_TEXTURE_3D, 2, 0, 0, 0, width_mip2, height_mip2, depth_mip2, GL_RED_INTEGER, GL_UNSIGNED_BYTE, shadowVolume_mip2);
 	glBindTexture(GL_TEXTURE_3D, 0);
+
+	delete[] shadowVolume_mip1;
+	delete[] shadowVolume_mip2;
 }
 
 void ShadowVolume::draw(Shader& shader, Camera& camera) {

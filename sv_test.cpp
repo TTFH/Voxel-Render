@@ -27,6 +27,7 @@ int main() {
 
 	ShadowVolume shadow_volume;
 	shadow_volume.addShape(test_file.shapes[0], vec3(0, 0, 0));
+	shadow_volume.updateTexture();
 
 	// Flags
 	glEnable(GL_DEPTH_TEST);

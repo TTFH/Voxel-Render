@@ -3,13 +3,14 @@ obj/*.o
 vox_render
 vox_render.exe
 screenshot_*.png
-*.vox
+castle.vox
 
-hub34/
+ShadowTest/
 Water Test/
 caveisland_sandbox/
 csgo_de_train/
 heistexample/
+hub34/
 hub_carib_sandbox/
 lee_sandbox/
 marina_sandbox/

@@ -48,7 +48,7 @@ void Scene::RecursiveLoad(XMLElement* element, vec3 parent_pos, quat parent_rot)
 	rotation = parent_rot * rotation;
 
 	if (strcmp(element->Name(), "vox") == 0) {
-		shape_t vox = { "", "", position, rotation, 1.0f };
+		shape_t vox = { "", "ALL_OBJECTS", position, rotation, 1.0f };
 		const char* file = element->Attribute("file");
 		if (file == NULL) {
 			printf("[ERROR] No file specified for vox\n");
@@ -158,7 +158,7 @@ void Scene::addMesh(Mesh* mesh) {
 void Scene::draw(Shader& shader, Camera& camera, vec4 clip_plane) {
 	for (vector<shape_t>::iterator it = shapes.begin(); it != shapes.end(); it++) {
 		VoxLoader* model = models[it->file];
-		if (it->object == "")
+		if (it->object == "ALL_OBJECTS")
 			model->draw(shader, camera, clip_plane, it->position, it->rotation, it->scale);
 		else
 			model->draw(shader, camera, clip_plane, it->object, it->position, it->rotation, it->scale);

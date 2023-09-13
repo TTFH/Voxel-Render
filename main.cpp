@@ -193,11 +193,11 @@ int main(int argc, char* argv[]) {
 		scene.drawMesh(mesh_shader, camera);
 		shadow_map.PushShadows(voxbox_shader);
 		scene.drawVoxbox(voxbox_shader, camera);
-		scene.drawRope(rope_shader, camera);
 
 		glEnable(GL_BLEND);
 		scene.drawWater(water_shader, camera);
 		glDisable(GL_BLEND);
+		scene.drawRope(rope_shader, camera);
 		skybox.draw(skybox_shader, camera);
 #else
 		voxel_shader.PushVec3("lightpos", light.getPosition());
@@ -239,8 +239,7 @@ int main(int argc, char* argv[]) {
 
 			water->UnbindFB(camera);
 			glDisable(GL_CLIP_DISTANCE0);
-		} else
-			glDisable(GL_CLIP_DISTANCE0);
+		}
 
 		glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

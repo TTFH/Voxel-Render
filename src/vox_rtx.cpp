@@ -55,21 +55,71 @@ RTX_Render::RTX_Render(const MV_Shape& shape, GLuint paletteBank, int paletteId)
 		voxels[x + shape.sizex * (y + shape.sizey * z)] = shape.voxels[i].index;
 	}
 
+	int width_mip1 = shape.sizex / 2;
+	int height_mip1 = shape.sizey / 2;
+	int depth_mip1 = shape.sizez / 2;
+	int volume_mip1 = width_mip1 * height_mip1 * depth_mip1;
+	uint8_t* voxels_mip1 = new uint8_t[volume_mip1];
+	memset(voxels_mip1, 0, volume_mip1);
+
+	for (int x = 0; x < shape.sizex; x++) {
+		for (int y = 0; y < shape.sizey; y++) {
+			for (int z = 0; z < shape.sizez; z++) {
+				int index = x + shape.sizex * (y + shape.sizey * z);
+				int index_mip1 = (x / 2) + width_mip1 * ((y / 2) + height_mip1 * (z / 2));
+				if (index_mip1 < volume_mip1 && voxels_mip1[index_mip1] == 0)
+					voxels_mip1[index_mip1] = voxels[index];
+			}
+		}
+	}
+
+	int width_mip2 = width_mip1 / 2;
+	int height_mip2 = height_mip1 / 2;
+	int depth_mip2 = depth_mip1 / 2;
+	int volume_mip2 = width_mip2 * height_mip2 * depth_mip2;
+	uint8_t* voxels_mip2 = new uint8_t[volume_mip2];
+	memset(voxels_mip2, 0, volume_mip2);
+
+	for (int x = 0; x < width_mip1; x++) {
+		for (int y = 0; y < height_mip1; y++) {
+			for (int z = 0; z < depth_mip1; z++) {
+				int index = x + width_mip1 * (y + height_mip1 * z);
+				int index_mip2 = (x / 2) + width_mip2 * ((y / 2) + height_mip2 * (z / 2));
+				if (index_mip2 < volume_mip2 && voxels_mip2[index_mip2] == 0)
+					voxels_mip2[index_mip2] = voxels_mip1[index];
+			}
+		}
+	}
+
+	int max_mip = 0;
+	if (width_mip1 > 0 && height_mip1 > 0 && depth_mip1 > 0)
+		max_mip = 1;
+	if (width_mip2 > 0 && height_mip2 > 0 && depth_mip2 > 0)
+		max_mip = 2;
+
 	glGenTextures(1, &volumeTexture);
 	glBindTexture(GL_TEXTURE_3D, volumeTexture);
 
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);
 
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_BASE_LEVEL, 0);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAX_LEVEL, max_mip);
+
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glTexImage3D(GL_TEXTURE_3D, 0, GL_R8UI, shape.sizex, shape.sizey, shape.sizez, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, voxels);
-	glGenerateMipmap(GL_TEXTURE_3D);
+	if (max_mip >= 1)
+	glTexImage3D(GL_TEXTURE_3D, 1, GL_R8UI, width_mip1, height_mip1, depth_mip1, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, voxels_mip1);
+	if (max_mip >= 2)
+	glTexImage3D(GL_TEXTURE_3D, 2, GL_R8UI, width_mip2, height_mip2, depth_mip2, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, voxels_mip2);
 
 	glBindTexture(GL_TEXTURE_3D, 0);
 	delete[] voxels;
+	delete[] voxels_mip1;
+	delete[] voxels_mip2;
 }
 
 void RTX_Render::setTransform(vec3 position, quat rotation) {
@@ -84,7 +134,6 @@ void RTX_Render::setWorldTransform(vec3 position, quat rotation) {
 
 void RTX_Render::draw(Shader& shader, Camera& camera, vec4 clip_plane, float scale) {
 	(void)clip_plane;
-	glDisable(GL_CLIP_DISTANCE0);
 	vao.Bind();
 
 	shader.PushTexture("uColor", paletteBank, 0);

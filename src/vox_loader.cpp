@@ -174,6 +174,7 @@ void VoxLoader::load(const char* filename) {
 							position[0] = stoi(pos, &end1);
 							position[1] = stoi(pos.substr(end1), &end2);
 							position[2] = stoi(pos.substr(end1 + end2));
+							//printf("Position: %g %g %g\n", position[0], position[1], position[2]);
 						} else if (it->first == "_r") {
 							int v = stoi(it->second);
 							int x = (v >> 0) & 3;
@@ -261,7 +262,6 @@ void VoxLoader::draw(Shader& shader, Camera& camera, vec4 clip_plane, vec3 posit
 		int index = it->second.shape_index;
 		const MV_Shape& shape = shapes[index];
 		vec3 pos = it->second.position - (it->second.rotation * vec3(shape.sizex / 2, shape.sizey / 2, shape.sizez / 2));
-		pos.y -= 1.0f; // TODO: why?
 		render[index]->setTransform(pos, it->second.rotation);
 		render[index]->setWorldTransform(position, rotation);
 		render[index]->draw(shader, camera, clip_plane, scale);
@@ -269,10 +269,6 @@ void VoxLoader::draw(Shader& shader, Camera& camera, vec4 clip_plane, vec3 posit
 }
 
 void VoxLoader::draw(Shader& shader, Camera& camera, vec4 clip_plane, string shape_name, vec3 position, quat rotation, float scale) {
-	if (shape_name == "") {
-		printf("[ERROR] Called individual draw for group of shapes.\n");
-		exit(EXIT_FAILURE);
-	}
 	pair<mv_model_iterator, mv_model_iterator> homonym_shapes = models.equal_range(shape_name);
 	for (mv_model_iterator it = homonym_shapes.first; it != homonym_shapes.second; it++) {
 		int index = it->second.shape_index;

@@ -84,7 +84,7 @@ float raycastShadowVolume(vec3 origin, vec3 dir, float dist) {
 			int c = mip < 2 ? 8 : 1024;
 			while (t < dist) {
 				if (c-- == 0) {
-					//mip++;
+					mip++;
 					break;
 				}
 				uint a = textureLod(uVolTex, ti, mip).x;
