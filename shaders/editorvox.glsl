@@ -33,9 +33,9 @@ void main() {
 #endif
 
 #ifdef FRAGMENT
-layout(location=0) out vec3 outputColor;
-layout(location=1) out vec3 outputNormal;
-layout(location=2) out float outputDepth;
+layout(location = 0) out vec3 outputColor;
+layout(location = 1) out vec3 outputNormal;
+layout(location = 2) out float outputDepth;
 
 float raycastVolume(vec3 origin, vec3 dir, float dist, int mip, out int normal, out uint value) {
 	float mipScale = float(1 << mip);
@@ -157,19 +157,9 @@ void main() {
 		vec4 hitPos = vec4(uCameraPos + away * hitDist, 1.0);
 		vec4 hpos = uVpMatrix * hitPos;
 
-		// Show voxel grid
-		/*float lineWidth = 0.02;
-		vec3 vcoord = 10.0 * (localPos + localDir * hitDist);
-		float ex = min(step(lineWidth, vcoord.x - floor(vcoord.x)), step(vcoord.x - floor(vcoord.x), 1.0 - lineWidth));
-		float ey = min(step(lineWidth, vcoord.y - floor(vcoord.y)), step(vcoord.y - floor(vcoord.y), 1.0 - lineWidth));
-		float ez = min(step(lineWidth, vcoord.z - floor(vcoord.z)), step(vcoord.z - floor(vcoord.z), 1.0 - lineWidth));
-		float inner = (ex == 0.0 && ey == 0.0) || (ex == 0.0 && ez == 0.0) || (ey == 0.0 && ez == 0.0) ? 0.0 : 1.0;
-		float l = 0.6 + 0.4 * inner;*/
-		float l = 1.0;
-
 		vec4 c = texelFetch(uColor, ivec2(value, uPalette), 0);
 		c *= uMultColor;
-		outputColor = c.rgb * l;
+		outputColor = c.rgb;
 		outputNormal = hitNormal;
 		outputDepth = hpos.w / uFar;
 		gl_FragDepth = (1.0 / hpos.w - 1.0 / uNear) / (1.0 / uFar - 1.0 / uNear);

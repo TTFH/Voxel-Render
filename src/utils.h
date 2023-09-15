@@ -25,6 +25,7 @@ void key_press_callback(GLFWwindow* window, int key, int scancode, int action, i
 string GetScenePath(int argc, char* argv[]);
 GLuint LoadTexture(const char* path, GLenum format = GL_RGBA);
 
+int RoundTo_nth_Power(int value, int n);
 uint8_t*** MatrixInit(const MV_Shape& shape);
 void MatrixDelete(uint8_t*** &voxels, const MV_Shape& shape);
 void TrimShape(uint8_t*** &voxels, int sizex, int sizey, int sizez);

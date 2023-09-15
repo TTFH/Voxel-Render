@@ -15,7 +15,7 @@ private:
 	GLuint volumeTexture;
 	uint8_t* shadowVolume;
 public:
-	ShadowVolume(int width_m, int height_m, int depth_m);
+	ShadowVolume(float width_m, float height_m, float depth_m);
 	void addShape(const MV_Shape& shape, mat4 modelMatrix);
 	void updateTexture();
 	void draw(Shader& shader, Camera& camera);

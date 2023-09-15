@@ -19,7 +19,7 @@ static GLuint screen_indices[] = {
 	1, 3, 2,
 };
 
-ShadowVolume::ShadowVolume(int width_m, int height_m, int depth_m) {
+ShadowVolume::ShadowVolume(float width_m, float height_m, float depth_m) {
 	vao.Bind();
 	VBO vbo(screen_vertices, sizeof(screen_vertices));
 	EBO ebo(screen_indices, sizeof(screen_indices));
@@ -29,10 +29,11 @@ ShadowVolume::ShadowVolume(int width_m, int height_m, int depth_m) {
 	vbo.Unbind();
 	ebo.Unbind();
 
-	width = 10 * width_m;
-	height = 10 * height_m;
-	depth = 10 * depth_m;
-	volume = width * height * depth; // TODO: multiple of 4
+	width = RoundTo_nth_Power(10.0f * width_m, 2);
+	height = RoundTo_nth_Power(10.0f * height_m, 2);
+	depth = RoundTo_nth_Power(10.0f * depth_m, 2);
+
+	volume = width * height * depth;
 	shadowVolume = new uint8_t[volume];
 	memset(shadowVolume, 0, volume);
 
@@ -58,13 +59,13 @@ ShadowVolume::ShadowVolume(int width_m, int height_m, int depth_m) {
 
 void ShadowVolume::addShape(const MV_Shape& shape, mat4 modelMatrix) {
 	for (unsigned int i = 0; i < shape.voxels.size(); i++) {
-		int xv = shape.voxels[i].x;
-		int yv = shape.voxels[i].y;
-		int zv = shape.voxels[i].z;
-		vec4 voxel_pos = modelMatrix * vec4(xv, yv, zv, 1);
-		int x = voxel_pos.x + width / 2;
-		int y = voxel_pos.y;
-		int z = voxel_pos.z + depth / 2;
+		float xv = shape.voxels[i].x;
+		float yv = shape.voxels[i].y;
+		float zv = shape.voxels[i].z;
+		vec4 voxel_pos = modelMatrix * vec4(xv, yv, zv, 1.0f);
+		int x = (int)voxel_pos.x + width / 2;
+		int y = (int)voxel_pos.y;
+		int z = (int)voxel_pos.z + depth / 2;
 
 		if (x < 0 || x >= width || y < 0 || y >= height || z < 0 || z >= depth)
 			continue;
@@ -128,7 +129,7 @@ void ShadowVolume::draw(Shader& shader, Camera& camera) {
 
 	shader.PushFloat("uVolTexelSize", 0.2);
 	shader.PushVec3("uCameraPos", camera.position);
-	shader.PushVec3("uVolOffset", vec3(0, 0, 0));
+	shader.PushVec3("uVolOffset", vec3(-width / 20.0f, 0.0f, -depth / 20.0f));
 	shader.PushVec3("uVolResolution", vec3(width, height, depth));
 	shader.PushMatrix("uVpInvMatrix", inverse(camera.vpMatrix));
 	shader.PushTexture3D("uVolTex", volumeTexture, 0);

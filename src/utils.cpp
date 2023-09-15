@@ -144,6 +144,14 @@ GLuint LoadTexture(const char* path, GLenum format) {
 	return texture_id;
 }
 
+int RoundTo_nth_Power(int value, int n) {
+	int exp = 1 << n;
+	int result = value;
+	if (value % exp != 0)
+		result += exp - (value % exp);
+	return result;
+}
+
 const uint8_t HOLE = 255;
 
 uint8_t*** MatrixInit(const MV_Shape& shape) {

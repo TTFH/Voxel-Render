@@ -40,35 +40,34 @@ RTX_Render::RTX_Render(const MV_Shape& shape, GLuint paletteBank, int paletteId)
 	vbo.Unbind();
 	ebo.Unbind();
 
-	this->paletteId = paletteId;
-	this->paletteBank = paletteBank;
-	shapeSize = vec3(shape.sizex, shape.sizey, shape.sizez);
-
-	int volume = shape.sizex * shape.sizey * shape.sizez; // TODO: multiple of 4
-	uint8_t* voxels = new uint8_t[volume];
-	memset(voxels, 0, volume);
+	int width_mip0 = RoundTo_nth_Power(shape.sizex, 2);
+	int height_mip0 = RoundTo_nth_Power(shape.sizey, 2);
+	int depth_mip0 = RoundTo_nth_Power(shape.sizez, 2);
+	int volume_mip0 = width_mip0 * height_mip0 * depth_mip0;
+	uint8_t* voxels_mip0 = new uint8_t[volume_mip0];
+	memset(voxels_mip0, 0, volume_mip0);
 
 	for (unsigned int i = 0; i < shape.voxels.size(); i++) {
 		int x = shape.voxels[i].x;
 		int y = shape.voxels[i].y;
 		int z = shape.voxels[i].z;
-		voxels[x + shape.sizex * (y + shape.sizey * z)] = shape.voxels[i].index;
+		voxels_mip0[x + width_mip0 * (y + height_mip0 * z)] = shape.voxels[i].index;
 	}
 
-	int width_mip1 = shape.sizex / 2;
-	int height_mip1 = shape.sizey / 2;
-	int depth_mip1 = shape.sizez / 2;
+	int width_mip1 = width_mip0 / 2;
+	int height_mip1 = height_mip0 / 2;
+	int depth_mip1 = depth_mip0 / 2;
 	int volume_mip1 = width_mip1 * height_mip1 * depth_mip1;
 	uint8_t* voxels_mip1 = new uint8_t[volume_mip1];
 	memset(voxels_mip1, 0, volume_mip1);
 
-	for (int x = 0; x < shape.sizex; x++) {
-		for (int y = 0; y < shape.sizey; y++) {
-			for (int z = 0; z < shape.sizez; z++) {
-				int index = x + shape.sizex * (y + shape.sizey * z);
+	for (int x = 0; x < width_mip0; x++) {
+		for (int y = 0; y <height_mip0; y++) {
+			for (int z = 0; z < depth_mip0; z++) {
+				int index = x + width_mip0 * (y + height_mip0 * z);
 				int index_mip1 = (x / 2) + width_mip1 * ((y / 2) + height_mip1 * (z / 2));
 				if (index_mip1 < volume_mip1 && voxels_mip1[index_mip1] == 0)
-					voxels_mip1[index_mip1] = voxels[index];
+					voxels_mip1[index_mip1] = voxels_mip0[index];
 			}
 		}
 	}
@@ -110,16 +109,20 @@ RTX_Render::RTX_Render(const MV_Shape& shape, GLuint paletteBank, int paletteId)
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAX_LEVEL, max_mip);
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	glTexImage3D(GL_TEXTURE_3D, 0, GL_R8UI, shape.sizex, shape.sizey, shape.sizez, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, voxels);
+	glTexImage3D(GL_TEXTURE_3D, 0, GL_R8UI, width_mip0, height_mip0, depth_mip0, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, voxels_mip0);
 	if (max_mip >= 1)
 	glTexImage3D(GL_TEXTURE_3D, 1, GL_R8UI, width_mip1, height_mip1, depth_mip1, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, voxels_mip1);
 	if (max_mip >= 2)
 	glTexImage3D(GL_TEXTURE_3D, 2, GL_R8UI, width_mip2, height_mip2, depth_mip2, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, voxels_mip2);
 
 	glBindTexture(GL_TEXTURE_3D, 0);
-	delete[] voxels;
+	delete[] voxels_mip0;
 	delete[] voxels_mip1;
 	delete[] voxels_mip2;
+
+	this->paletteId = paletteId;
+	this->paletteBank = paletteBank;
+	shapeSize = vec3(width_mip0, height_mip0, depth_mip0);
 }
 
 void RTX_Render::setTransform(vec3 position, quat rotation) {
@@ -155,7 +158,7 @@ void RTX_Render::draw(Shader& shader, Camera& camera, vec4 clip_plane, float sca
 							  vec4(0, 0, 0, 1));
 
 	// Coordinate system: x right, z up, y forward, scale 10 voxels : 1 meter
-	mat4 pos = translate(mat4(1.0f), position * 0.1f);
+	mat4 pos = translate(mat4(1.0f), 0.1f * position);
 	mat4 rot = mat4_cast(rotation);
 	mat4 localTr = toWorldCoords * pos * rot;
 

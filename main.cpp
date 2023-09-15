@@ -37,6 +37,7 @@ int main(int argc, char* argv[]) {
 #elif RENDER_METHOD == RTX
 	Shader voxel_shader("editorvox");
 #endif
+	Shader sv_shader("debugvolume");
 	Shader screen_shader("editorlighting");
 	Shader voxel_glass_shader("shaders/voxel_gm_vert.glsl", "shaders/voxel_glass_frag.glsl");
 	Shader mesh_shader("shaders/mesh_vert.glsl", "shaders/mesh_frag.glsl");
@@ -47,15 +48,16 @@ int main(int argc, char* argv[]) {
 	Shader shadowmap_shader("shaders/shadowmap_vert.glsl", "shaders/shadowmap_frag.glsl");
 
 	map<const char*, Shader*> shaders = {
-		{"voxel_shader", &voxel_shader},
-		{"voxel_glass_shader", &voxel_glass_shader},
-		{"screen_shader", &screen_shader},
 		{"mesh_shader", &mesh_shader},
 		{"rope_shader", &rope_shader},
-		{"water_shader", &water_shader},
-		{"voxbox_shader", &voxbox_shader},
+		{"screen_shader", &screen_shader},
+		{"shadowmap_shader", &shadowmap_shader},
 		{"skybox_shader", &skybox_shader},
-		{"shadowmap_shader", &shadowmap_shader}
+		{"sv_shader", &sv_shader},
+		{"voxbox_shader", &voxbox_shader},
+		{"voxel_glass_shader", &voxel_glass_shader},
+		{"voxel_shader", &voxel_shader},
+		{"water_shader", &water_shader}
 	};
 
 	Skybox skybox;
@@ -65,6 +67,10 @@ int main(int argc, char* argv[]) {
 	Light light(vec3(-35, 130, -132));
 	Scene scene(GetScenePath(argc, argv));
 	bool transparent_glass = false;
+
+	ShadowVolume shadow_volume(40, 10, 40);
+	//scene.draw(shadow_volume);
+	shadow_volume.updateTexture();
 
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -173,6 +179,7 @@ int main(int argc, char* argv[]) {
 #if RENDER_METHOD == RTX
 		screen.start();
 		scene.draw(voxel_shader, camera);
+		shadow_volume.draw(sv_shader, camera);
 		screen.end();
 		glClearColor(1, 1, 1, 1);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

@@ -289,9 +289,9 @@ void VoxLoader::draw(ShadowVolume& shadow_volume, string shape_name, vec3 world_
 		vec3 position = it->second.rotation * vec3(-shape.sizex / 2, -shape.sizey / 2, 0);
 
 		mat4 toWorldCoords = mat4(vec4(1, 0, 0, 0),
-								vec4(0, 0, -1, 0),
-								vec4(0, 1, 0, 0),
-								vec4(0, 0, 0, 1));
+								  vec4(0, 0, -1, 0),
+								  vec4(0, 1, 0, 0),
+								  vec4(0, 0, 0, 1));
 
 		// Coordinate system: x right, z up, y forward, scale 1:1 (in voxels)
 		mat4 pos = translate(mat4(1.0f), position);
