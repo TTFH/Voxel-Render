@@ -44,7 +44,7 @@ RTX_Render::RTX_Render(const MV_Shape& shape, GLuint paletteBank, int paletteId)
 	this->paletteBank = paletteBank;
 	shapeSize = vec3(shape.sizex, shape.sizey, shape.sizez);
 
-	int volume = shape.sizex * shape.sizey * shape.sizez;
+	int volume = shape.sizex * shape.sizey * shape.sizez; // TODO: multiple of 4
 	uint8_t* voxels = new uint8_t[volume];
 	memset(voxels, 0, volume);
 
@@ -154,12 +154,12 @@ void RTX_Render::draw(Shader& shader, Camera& camera, vec4 clip_plane, float sca
 							  vec4(0, 1, 0, 0),
 							  vec4(0, 0, 0, 1));
 
-	// Coordinate system: x right, z up, y forward, scale 10:1
+	// Coordinate system: x right, z up, y forward, scale 10 voxels : 1 meter
 	mat4 pos = translate(mat4(1.0f), position * 0.1f);
 	mat4 rot = mat4_cast(rotation);
 	mat4 localTr = toWorldCoords * pos * rot;
 
-	// Coordinate system: x right, y up, -z forward, scale 1:1
+	// Coordinate system: x right, y up, -z forward, scale 1:1 (in meters)
 	mat4 world_pos = translate(mat4(1.0f), world_position);
 	mat4 world_rot = mat4_cast(world_rotation);
 	mat4 worldTr = world_pos * world_rot;

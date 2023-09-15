@@ -4,7 +4,7 @@
 
 #include "src/utils.h"
 #include "src/shader.h"
-#include "src/vox_loader.h"
+#include "src/xml_loader.h"
 #include "src/shadow_volume.h"
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -16,17 +16,15 @@
 using namespace std;
 using namespace glm;
 
-int main() {
+int main(int argc, char* argv[]) {
 	GLFWwindow* window = InitOpenGL("OpenGL");
 	Shader sv_shader("debugvolume");
-	//Shader screen_shader("screen_test");
 	Shader voxel_shader("editorvox");
-
 	Camera camera(vec3(0, 2.5, 10));
-	VoxLoader test_file("scorpionking.vox");
 
-	ShadowVolume shadow_volume;
-	shadow_volume.addShape(test_file.shapes[0], vec3(0, 0, 0));
+	ShadowVolume shadow_volume(21, 6, 21);
+	Scene scene(GetScenePath(argc, argv));
+	scene.draw(shadow_volume);
 	shadow_volume.updateTexture();
 
 	// Flags
@@ -54,7 +52,7 @@ int main() {
 		glEnable(GL_BLEND);
 		shadow_volume.draw(sv_shader, camera);
 		glDisable(GL_BLEND);
-		test_file.draw(voxel_shader, camera, vec4(0, 1, 0, 0), vec3(6.8, 0, 0));
+		scene.draw(voxel_shader, camera);
 
 		glfwSwapBuffers(window);
 	}

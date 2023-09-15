@@ -237,7 +237,7 @@ void VoxLoader::load(const char* filename) {
 		printf("[Warning] Palette limit reached!\n");
 	paletteCount++;
 	glBindTexture(GL_TEXTURE_2D, 0);
-#else
+#elif RENDER_METHOD == GREEDY || RENDER_METHOD == HEXAGON
 	GLuint texture_id;
 	glGenTextures(1, &texture_id);
 	glBindTexture(GL_TEXTURE_1D, texture_id);
@@ -277,6 +277,34 @@ void VoxLoader::draw(Shader& shader, Camera& camera, vec4 clip_plane, string sha
 		render[index]->setTransform(pos, it->second.rotation);
 		render[index]->setWorldTransform(position, rotation);
 		render[index]->draw(shader, camera, clip_plane, scale);
+	}
+}
+
+void VoxLoader::draw(ShadowVolume& shadow_volume, string shape_name, vec3 world_position, quat world_rotation, float scale) {
+	(void)scale;
+	pair<mv_model_iterator, mv_model_iterator> homonym_shapes = models.equal_range(shape_name);
+	for (mv_model_iterator it = homonym_shapes.first; it != homonym_shapes.second; it++) {
+		int index = it->second.shape_index;
+		const MV_Shape& shape = shapes[index];
+		vec3 position = it->second.rotation * vec3(-shape.sizex / 2, -shape.sizey / 2, 0);
+
+		mat4 toWorldCoords = mat4(vec4(1, 0, 0, 0),
+								vec4(0, 0, -1, 0),
+								vec4(0, 1, 0, 0),
+								vec4(0, 0, 0, 1));
+
+		// Coordinate system: x right, z up, y forward, scale 1:1 (in voxels)
+		mat4 pos = translate(mat4(1.0f), position);
+		mat4 rot = mat4_cast(it->second.rotation);
+		mat4 localTr = toWorldCoords * pos * rot;
+
+		// Coordinate system: x right, y up, -z forward, scale 0.1 meters : 1 voxel
+		mat4 world_pos = translate(mat4(1.0f), 10.0f * world_position);
+		mat4 world_rot = mat4_cast(world_rotation);
+		mat4 worldTr = world_pos * world_rot;
+
+		mat4 modelMatrix = worldTr * localTr;
+		shadow_volume.addShape(shape, modelMatrix);
 	}
 }
 

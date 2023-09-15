@@ -106,7 +106,7 @@ float raycastShadowVolume(vec3 origin, vec3 dir, float dist) {
 void main() {
 	vec3 pos = uCameraPos;
 	vec3 dir = normalize(vFarVec);
-	float maxDist = 32.0;
+	float maxDist = 64.0;
 
 	float dist = raycastShadowVolume(pos, dir, maxDist);
 	float a = 1.0 - dist / maxDist;

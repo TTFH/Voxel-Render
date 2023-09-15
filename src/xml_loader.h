@@ -10,6 +10,7 @@
 #include "rope_render.h"
 #include "water_render.h"
 #include "voxbox_render.h"
+#include "shadow_volume.h"
 #include "../lib/tinyxml2.h"
 
 using namespace tinyxml2;
@@ -36,6 +37,7 @@ public:
 	Scene(string path);
 	~Scene();
 	void addMesh(Mesh* mesh);
+	void draw(ShadowVolume& shadow_volume);
 	void draw(Shader& shader, Camera& camera, vec4 clip_plane = vec4(0, 1, 0, 0));
 	void drawMesh(Shader& shader, Camera& camera);
 	void drawRope(Shader& shader, Camera& camera);

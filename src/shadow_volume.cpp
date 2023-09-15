@@ -19,7 +19,7 @@ static GLuint screen_indices[] = {
 	1, 3, 2,
 };
 
-ShadowVolume::ShadowVolume() {
+ShadowVolume::ShadowVolume(int width_m, int height_m, int depth_m) {
 	vao.Bind();
 	VBO vbo(screen_vertices, sizeof(screen_vertices));
 	EBO ebo(screen_indices, sizeof(screen_indices));
@@ -29,8 +29,10 @@ ShadowVolume::ShadowVolume() {
 	vbo.Unbind();
 	ebo.Unbind();
 
-	width = 200; height = 150; depth = 200;
-	volume = width * height * depth;
+	width = 10 * width_m;
+	height = 10 * height_m;
+	depth = 10 * depth_m;
+	volume = width * height * depth; // TODO: multiple of 4
 	shadowVolume = new uint8_t[volume];
 	memset(shadowVolume, 0, volume);
 
@@ -54,19 +56,22 @@ ShadowVolume::ShadowVolume() {
 	glBindTexture(GL_TEXTURE_3D, 0);
 }
 
-void ShadowVolume::addShape(const MV_Shape& shape, vec3 position) {
+void ShadowVolume::addShape(const MV_Shape& shape, mat4 modelMatrix) {
 	for (unsigned int i = 0; i < shape.voxels.size(); i++) {
-		int x = shape.voxels[i].x + position.x * 10.0f;
-		int y = shape.voxels[i].z + position.y * 10.0f;
-		int z = shape.sizey - shape.voxels[i].y + position.z * 10.0f;
+		int xv = shape.voxels[i].x;
+		int yv = shape.voxels[i].y;
+		int zv = shape.voxels[i].z;
+		vec4 voxel_pos = modelMatrix * vec4(xv, yv, zv, 1);
+		int x = voxel_pos.x + width / 2;
+		int y = voxel_pos.y;
+		int z = voxel_pos.z + depth / 2;
 
 		if (x < 0 || x >= width || y < 0 || y >= height || z < 0 || z >= depth)
 			continue;
 
 		// Up to 8 voxels share the same index
 		int index = (x / 2) + width * ((y / 2) + height * (z / 2));
-		if (index < volume)
-			shadowVolume[index] += 1 << ((x % 2) + 2 * (y % 2) + 4 * (z % 2));
+		shadowVolume[index] += 1 << ((x % 2) + 2 * (y % 2) + 4 * (z % 2));
 	}
 }
 

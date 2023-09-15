@@ -17,6 +17,7 @@
 #include "vox_rtx.h"
 #include "hex_render.h"
 #include "greedy_mesh.h"
+#include "shadow_volume.h"
 
 using namespace std;
 
@@ -58,7 +59,7 @@ private:
 	string filename;
 	//MV_PBR pbr[256];
 	MV_Diffuse palette[256];
-	
+	vector<MV_Shape> shapes;
 	multimap<string, MV_Model> models;
 #if RENDER_METHOD == GREEDY
 	vector<GreedyRender*> render;
@@ -68,12 +69,12 @@ private:
 	vector<RTX_Render*> render;
 #endif
 public:
-	vector<MV_Shape> shapes;
 	VoxLoader();
 	VoxLoader(const char* filename);
 	void load(const char* filename);
 	void draw(Shader& shader, Camera& camera, vec4 clip_plane, vec3 position = vec3(0, 0, 0), quat rotation = quat(1, 0, 0, 0), float scale = 1);
 	void draw(Shader& shader, Camera& camera, vec4 clip_plane, string shape_name, vec3 position = vec3(0, 0, 0), quat rotation = quat(1, 0, 0, 0), float scale = 1);
+	void draw(ShadowVolume& shadow_volume, string shape_name, vec3 position = vec3(0, 0, 0), quat rotation = quat(1, 0, 0, 0), float scale = 1);
 	~VoxLoader();
 };
 
