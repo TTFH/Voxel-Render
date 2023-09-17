@@ -56,6 +56,8 @@ void Scene::RecursiveLoad(XMLElement* element, vec3 parent_pos, quat parent_rot)
 		}
 		if (strncmp(file, "MOD/", 4) == 0)
 			vox.file = parent_folder + string(file + 4);
+		else if (strncmp(file, "LEVEL/", 6) == 0)
+			vox.file = child_folder + string(file + 6);
 		else
 			vox.file = file;
 		if (models.find(vox.file) == models.end()) {
@@ -142,7 +144,10 @@ Scene::Scene(string path) {
 		printf("[Warning] XML file %s not found or corrupted.\n", path.c_str());
 		return;
 	}
-	parent_folder = path.substr(0, path.find_last_of("/\\") + 1);
+	size_t last_slash_idx = path.find_last_of("\\/");
+	parent_folder = path.substr(0, last_slash_idx + 1);
+	child_folder = path.substr(0, path.rfind('.')) + "/";
+
 	XMLElement* root = xml_file.RootElement();
 	//iterate_xml(root, 0);
 	vec3 position = vec3(0, 0, 0);

@@ -26,6 +26,7 @@ struct shape_t {
 class Scene {
 private:
 	string parent_folder;
+	string child_folder;
 	vector<shape_t> shapes;
 	vector<Mesh*> meshes;
 	vector<RopeRender*> ropes;

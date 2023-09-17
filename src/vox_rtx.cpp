@@ -90,12 +90,6 @@ RTX_Render::RTX_Render(const MV_Shape& shape, GLuint paletteBank, int paletteId)
 		}
 	}
 
-	int max_mip = 0;
-	if (width_mip1 > 0 && height_mip1 > 0 && depth_mip1 > 0)
-		max_mip = 1;
-	if (width_mip2 > 0 && height_mip2 > 0 && depth_mip2 > 0)
-		max_mip = 2;
-
 	glGenTextures(1, &volumeTexture);
 	glBindTexture(GL_TEXTURE_3D, volumeTexture);
 
@@ -106,13 +100,11 @@ RTX_Render::RTX_Render(const MV_Shape& shape, GLuint paletteBank, int paletteId)
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);
 
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_BASE_LEVEL, 0);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAX_LEVEL, max_mip);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAX_LEVEL, 2);
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glTexImage3D(GL_TEXTURE_3D, 0, GL_R8UI, width_mip0, height_mip0, depth_mip0, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, voxels_mip0);
-	if (max_mip >= 1)
 	glTexImage3D(GL_TEXTURE_3D, 1, GL_R8UI, width_mip1, height_mip1, depth_mip1, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, voxels_mip1);
-	if (max_mip >= 2)
 	glTexImage3D(GL_TEXTURE_3D, 2, GL_R8UI, width_mip2, height_mip2, depth_mip2, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, voxels_mip2);
 
 	glBindTexture(GL_TEXTURE_3D, 0);

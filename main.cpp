@@ -179,7 +179,7 @@ int main(int argc, char* argv[]) {
 #if RENDER_METHOD == RTX
 		screen.start();
 		scene.draw(voxel_shader, camera);
-		shadow_volume.draw(sv_shader, camera);
+		//shadow_volume.draw(sv_shader, camera);
 		screen.end();
 		glClearColor(1, 1, 1, 1);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
