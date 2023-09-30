@@ -1,6 +1,5 @@
 <scene version="1.4.0" shadowVolume="100 25 100">
 	<voxbox name="ground" pos="-50.0 -0.1 -50.0" size="1000 1 1000" color="0.29 0.37 0.25"/>
-	<vox name="test" pos="2.0 3.0 -12.0" file="MOD/vox/small.vox"/>
 	<water pos="-13.3 0.0 -5.5" type="polygon">
 		<vertex pos="0.0 0.0"/>
 		<vertex pos="2.0 0.0"/>

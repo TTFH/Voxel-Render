@@ -12,9 +12,19 @@
 using namespace std;
 
 GLFWwindow* InitOpenGL(const char* window_title) {
+	int major = 4;
+	int minor = 6;
+#ifdef __APPLE__
+	major = 4;
+	minor = 1;
+#elif __linux__
+	major = 4;
+	minor = 2;
+#endif
+
 	glfwInit();
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, major);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, minor);
 	glfwWindowHint(GLFW_SAMPLES, 1); // MSAA
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 #ifdef __APPLE__
