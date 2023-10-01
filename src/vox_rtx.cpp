@@ -177,10 +177,10 @@ void RTX_Render::draw(Shader& shader, Camera& camera, float scale, vec4 texture)
 	mat4 world_rot = mat4_cast(world_rotation);
 	mat4 worldTr = world_pos * world_rot;
 
-	mat4 modelMatrix = worldTr * localTr * scaleBox;
+	mat4 volMatrix = worldTr * localTr;
+	mat4 modelMatrix = volMatrix * scaleBox;
 	mat4 vpMatrix = camera.vpMatrix;
 	mat4 mvpMatrix = vpMatrix * modelMatrix;
-	mat4 volMatrix = worldTr * localTr;
 	mat4 volMatrixInv = inverse(volMatrix);
 
 	shader.PushMatrix("uModelMatrix", modelMatrix);
@@ -195,8 +195,8 @@ void RTX_Render::draw(Shader& shader, Camera& camera, float scale, vec4 texture)
 void RTX_Render::draw(Shader& shader, Camera& camera, float scale, vec4 texture) {
 	vao.Bind();
 
-	shader.PushTexture("uColor", paletteBank, 0);
-	shader.PushTexture3D("uVolTex", volumeTexture, 1);
+	shader.PushTexture3D("uVolTex", volumeTexture, 0);
+	shader.PushTexture("uColor", paletteBank, 1);
 	//shader.PushTexture("uMaterial", materialBank, 2);
 	shader.PushTexture("uAlbedoMap", albedoMap, 3);
 	shader.PushTexture("uBlendMap", blendMap, 4);

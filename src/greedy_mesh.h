@@ -27,7 +27,7 @@ public:
 	GreedyRender(const MV_Shape& shape, GLuint texture_id);
 	void setTransform(vec3 position, quat rotation);
 	void setWorldTransform(vec3 position, quat rotation);
-	void draw(Shader& shader, Camera& camera, float scale = 1);
+	void draw(Shader& shader, Camera& camera, float scale, vec4 unused);
 };
 
 #endif

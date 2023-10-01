@@ -145,7 +145,8 @@ void GreedyRender::setWorldTransform(vec3 position, quat rotation) {
 	this->world_rotation = rotation;
 }
 
-void GreedyRender::draw(Shader& shader, Camera& camera, float scale) {
+void GreedyRender::draw(Shader& shader, Camera& camera, float scale, vec4 unused) {
+	(void)unused;
 	vao.Bind();
 	shader.PushMatrix("camera", camera.vpMatrix);
 	shader.PushFloat("scale", scale);
