@@ -125,7 +125,6 @@ void Mesh::draw(Shader& shader, Camera& camera) {
 	shader.PushMatrix("camera", camera.vpMatrix);
 	shader.PushVec3("camera_pos", camera.position);
 	shader.PushFloat("scale", 0); // Flag not a voxel
-	shader.PushVec3("size", vec3(0, 0, 0)); // Flag not a voxagon
 
 	mat4 pos = translate(mat4(1.0f), position);
 	mat4 rot = mat4_cast(rotation);

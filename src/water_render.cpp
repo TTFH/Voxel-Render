@@ -4,6 +4,8 @@
 #include "water_render.h"
 
 static bool water_initialized = false;
+GLuint dudv_texture;
+GLuint normal_texture;
 static GLuint reflectionTexture;
 static GLuint refractionTexture;
 
@@ -61,6 +63,8 @@ WaterRender::WaterRender(vector<vec2> vertices) {
 
 	if (!water_initialized) {
 		water_initialized = true;
+		dudv_texture = LoadTexture("textures/water_dudv.png", GL_RGB);
+		normal_texture = LoadTexture("textures/water_normal.png", GL_RGB);
 		CreateFBwTexture(reflectionFrameBuffer, reflectionTexture, REFLECTION_WIDTH, REFLECTION_HEIGHT);
 		CreateDepthBuffer(reflectionDepthBuffer, REFLECTION_WIDTH, REFLECTION_HEIGHT);
 		CreateFBwTexture(refractionFrameBuffer, refractionTexture, REFRACTION_WIDTH, REFRACTION_HEIGHT);
@@ -71,9 +75,6 @@ WaterRender::WaterRender(vector<vec2> vertices) {
 		glBindTexture(GL_TEXTURE_2D, 0);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
-
-	dudv_texture = LoadTexture("textures/water_dudv.png", GL_RGB);
-	normal_texture = LoadTexture("textures/water_normal.png", GL_RGB);
 }
 
 float WaterRender::GetHeight() {

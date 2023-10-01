@@ -144,9 +144,9 @@ void RTX_Render::setWorldTransform(vec3 position, quat rotation) {
 	this->world_position = position;
 	this->world_rotation = rotation;
 }
-/*
-void RTX_Render::draw(Shader& shader, Camera& camera, vec4 clip_plane, float scale) {
-	(void)clip_plane;
+
+void RTX_Render::draw(Shader& shader, Camera& camera, float scale, vec4 texture) {
+	(void)texture;
 	vao.Bind();
 
 	shader.PushTexture("uColor", paletteBank, 0);
@@ -154,7 +154,7 @@ void RTX_Render::draw(Shader& shader, Camera& camera, vec4 clip_plane, float sca
 
 	shader.PushFloat("uNear", camera.NEAR_PLANE);
 	shader.PushFloat("uFar", camera.FAR_PLANE);
-	glUniform1ui(glGetUniformLocation(shader.id, "uMaxValue"), 255);
+	glUniform1ui(glGetUniformLocation(shader.id, "uMaxValue"), 254);
 	shader.PushInt("uPalette", paletteId);
 	shader.PushVec4("uMultColor", vec4(1, 1, 1, 1));
 	shader.PushFloat("uVolTexelSize", 0.1f * scale);
@@ -191,15 +191,13 @@ void RTX_Render::draw(Shader& shader, Camera& camera, vec4 clip_plane, float sca
 
 	glDrawElements(GL_TRIANGLES, sizeof(cube_indices) / sizeof(GLuint), GL_UNSIGNED_INT, 0);
 }
-*/
-void RTX_Render::draw(Shader& shader, Camera& camera, vec4 clip_plane, float scale) {
-	(void)clip_plane;
+/*
+void RTX_Render::draw(Shader& shader, Camera& camera, float scale, vec4 texture) {
 	vao.Bind();
 
 	shader.PushTexture("uColor", paletteBank, 0);
 	shader.PushTexture3D("uVolTex", volumeTexture, 1);
-
-	//shader.PushTexture("uMaterial", paletteBank, 2);
+	//shader.PushTexture("uMaterial", materialBank, 2);
 	shader.PushTexture("uAlbedoMap", albedoMap, 3);
 	shader.PushTexture("uBlendMap", blendMap, 4);
 	shader.PushTexture("uNormalMap", normalMap, 5);
@@ -211,7 +209,7 @@ void RTX_Render::draw(Shader& shader, Camera& camera, vec4 clip_plane, float sca
 	shader.PushVec3("uObjSize", shapeSize);
 	shader.PushVec4("uVoxelSize", vec4(shapeSize, 0.1f * scale));
 	shader.PushFloat("uEmissive", 1.0f);
-	shader.PushVec4("uTextureTile", vec4(1, 0, 0.5, 1));
+	shader.PushVec4("uTextureTile", texture);
 	shader.PushVec3("uTextureParams", vec3(0, 0, 0));
 	shader.PushFloat("uAlpha", 1.0f);
 	shader.PushFloat("uHighlight", 0.0f);
@@ -251,7 +249,7 @@ void RTX_Render::draw(Shader& shader, Camera& camera, vec4 clip_plane, float sca
 
 	glDrawElements(GL_TRIANGLES, sizeof(cube_indices) / sizeof(GLuint), GL_UNSIGNED_INT, 0);
 }
-
+*/
 RTX_Render::~RTX_Render() {
 	glDeleteTextures(1, &volumeTexture);
 }

@@ -11,7 +11,6 @@ uniform mat4 position;
 uniform mat4 rotation;
 uniform mat4 world_pos;
 uniform mat4 world_rot;
-uniform vec4 clip_plane;
 uniform mat4 lightProjection;
 
 out vec3 normal;
@@ -57,8 +56,6 @@ vec3 getHexNormal() {
 void main() {
 	vec4 pos = position * rotation * vec4(getHexPos(), 1.0f);
 	vec4 currentPos = world_pos * world_rot * vec4(pos.x, pos.z, -pos.y, 10.0f / scale);
-
-	gl_ClipDistance[0] = dot(currentPos, clip_plane);
 	gl_Position = camera * currentPos;
 
 	vec4 local_normal = rotation * vec4(getHexNormal(), 1.0f);

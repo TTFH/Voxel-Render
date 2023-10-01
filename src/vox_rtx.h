@@ -25,7 +25,7 @@ public:
 	RTX_Render(const MV_Shape& shape, GLuint paletteBank, int paletteId);
 	void setTransform(vec3 position, quat rotation);
 	void setWorldTransform(vec3 position, quat rotation);
-	void draw(Shader& shader, Camera& camera, vec4 clip_plane, float scale = 1);
+	void draw(Shader& shader, Camera& camera, float scale, vec4 texture);
 	~RTX_Render();
 };
 

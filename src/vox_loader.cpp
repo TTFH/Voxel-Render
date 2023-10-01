@@ -257,18 +257,18 @@ void VoxLoader::load(const char* filename) {
 	}
 }
 
-void VoxLoader::draw(Shader& shader, Camera& camera, vec4 clip_plane, vec3 position, quat rotation, float scale) {
+void VoxLoader::draw(Shader& shader, Camera& camera, vec3 position, quat rotation, float scale, vec4 texture) {
 	for (mv_model_iterator it = models.begin(); it != models.end(); it++) {
 		int index = it->second.shape_index;
 		const MV_Shape& shape = shapes[index];
 		vec3 pos = it->second.position - (it->second.rotation * vec3(shape.sizex / 2, shape.sizey / 2, shape.sizez / 2));
 		render[index]->setTransform(pos, it->second.rotation);
 		render[index]->setWorldTransform(position, rotation);
-		render[index]->draw(shader, camera, clip_plane, scale);
+		render[index]->draw(shader, camera, scale, texture);
 	}
 }
 
-void VoxLoader::draw(Shader& shader, Camera& camera, vec4 clip_plane, string shape_name, vec3 position, quat rotation, float scale) {
+void VoxLoader::draw(Shader& shader, Camera& camera, string shape_name, vec3 position, quat rotation, float scale, vec4 texture) {
 	pair<mv_model_iterator, mv_model_iterator> homonym_shapes = models.equal_range(shape_name);
 	for (mv_model_iterator it = homonym_shapes.first; it != homonym_shapes.second; it++) {
 		int index = it->second.shape_index;
@@ -276,7 +276,7 @@ void VoxLoader::draw(Shader& shader, Camera& camera, vec4 clip_plane, string sha
 		vec3 pos = it->second.rotation * vec3(-shape.sizex / 2, -shape.sizey / 2, 0);
 		render[index]->setTransform(pos, it->second.rotation);
 		render[index]->setWorldTransform(position, rotation);
-		render[index]->draw(shader, camera, clip_plane, scale);
+		render[index]->draw(shader, camera, scale, texture);
 	}
 }
 

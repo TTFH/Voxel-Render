@@ -57,7 +57,6 @@ typedef multimap<string, MV_Model>::iterator mv_model_iterator;
 class VoxLoader {
 private:
 	string filename;
-	//MV_PBR pbr[256];
 	MV_Diffuse palette[256];
 	vector<MV_Shape> shapes;
 	multimap<string, MV_Model> models;
@@ -72,8 +71,8 @@ public:
 	VoxLoader();
 	VoxLoader(const char* filename);
 	void load(const char* filename);
-	void draw(Shader& shader, Camera& camera, vec4 clip_plane, vec3 position = vec3(0, 0, 0), quat rotation = quat(1, 0, 0, 0), float scale = 1);
-	void draw(Shader& shader, Camera& camera, vec4 clip_plane, string shape_name, vec3 position = vec3(0, 0, 0), quat rotation = quat(1, 0, 0, 0), float scale = 1);
+	void draw(Shader& shader, Camera& camera, vec3 position, quat rotation, float scale, vec4 texture);
+	void draw(Shader& shader, Camera& camera, string shape_name, vec3 position, quat rotation, float scale, vec4 texture);
 	void draw(ShadowVolume& shadow_volume, string shape_name, vec3 position = vec3(0, 0, 0), quat rotation = quat(1, 0, 0, 0), float scale = 1);
 	~VoxLoader();
 };

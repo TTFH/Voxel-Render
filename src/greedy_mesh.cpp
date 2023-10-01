@@ -145,7 +145,7 @@ void GreedyRender::setWorldTransform(vec3 position, quat rotation) {
 	this->world_rotation = rotation;
 }
 
-void GreedyRender::draw(Shader& shader, Camera& camera, vec4 clip_plane, float scale) {
+void GreedyRender::draw(Shader& shader, Camera& camera, float scale) {
 	vao.Bind();
 	shader.PushMatrix("camera", camera.vpMatrix);
 	shader.PushFloat("scale", scale);
@@ -160,7 +160,6 @@ void GreedyRender::draw(Shader& shader, Camera& camera, vec4 clip_plane, float s
 	shader.PushMatrix("world_pos", world_pos);
 	shader.PushMatrix("world_rot", world_rot);
 
-	shader.PushVec4("clip_plane", clip_plane);
 	shader.PushTexture1D("palette", texture_id, 0);
 
 	//glLineWidth(5.0f);

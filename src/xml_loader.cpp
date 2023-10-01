@@ -40,15 +40,12 @@ void Scene::RecursiveLoad(XMLElement* element, vec3 parent_pos, quat parent_rot)
 		float x, y, z;
 		sscanf(rot, "%f %f %f", &x, &y, &z);
 		rotation = quat_cast(eulerAngleYZ(radians(y), radians(z)) * eulerAngleX(radians(x)));
-		//vec3 euler = eulerAngles(rotation);
-		//if (abs(x - degrees(euler.x)) > 1 || abs(y - degrees(euler.y)) > 1 || abs(z - degrees(euler.z)) > 1)
-		//	printf("[ERROR] Euler angles don't match: %d %d %d != %d %d %d\n", (int)x, (int)y, (int)z, (int)degrees(euler.x), (int)degrees(euler.y), (int)degrees(euler.z));
 	}
 	position = parent_rot * position + parent_pos;
 	rotation = parent_rot * rotation;
 
 	if (strcmp(element->Name(), "vox") == 0) {
-		shape_t vox = { "", "ALL_OBJECTS", position, rotation, 1.0f };
+		shape_t vox = { "", "ALL_OBJECTS", position, rotation, 1.0f, vec4(0, 0, 1, 1) };
 		const char* file = element->Attribute("file");
 		if (file == NULL) {
 			printf("[ERROR] No file specified for vox\n");
@@ -68,27 +65,22 @@ void Scene::RecursiveLoad(XMLElement* element, vec3 parent_pos, quat parent_rot)
 		if (object != NULL) vox.object = object;
 		const char* scale = element->Attribute("scale");
 		if (scale != NULL) vox.scale = atof(scale);
+
+		const char* texture = element->Attribute("texture");
+		if (texture != NULL) {
+			int tile = 0; float weight = 1;
+			sscanf(texture, "%d %f", &tile, &weight);
+			vox.texture.x = tile;
+			vox.texture.z = weight;
+		}
+		const char* blend_texture = element->Attribute("blendtexture");
+		if (blend_texture != NULL) {
+			int tile = 0; float weight = 1;
+			sscanf(blend_texture, "%d %f", &tile, &weight);
+			vox.texture.y = tile;
+			vox.texture.w = weight;
+		}
 		shapes.push_back(vox);
-		//printf("%13s\tpos=[%5.2f %5.2f %5.2f ]\n", object, vox.position.x, vox.position.y, vox.position.z);
-	} else if (strcmp(element->Name(), "voxbox") == 0) {
-		vec3 size = vec3(10, 10, 10);
-		const char* size_str = element->Attribute("size");
-		if (size_str != NULL) {
-			float x, y, z;
-			sscanf(size_str, "%f %f %f", &x, &y, &z);
-			size = vec3(x, y, z);
-		}
-		vec3 color = vec3(1, 1, 1);
-		const char* color_str = element->Attribute("color");
-		if (color_str != NULL) {
-			float r, g, b;
-			sscanf(color_str, "%f %f %f", &r, &g, &b);
-			color = vec3(r, g, b);
-		}
-		VoxboxRender* voxbox = new VoxboxRender(size, color);
-		//printf("Voxbox [%g %g %g] color=(%g %g %g)\n", size.x, size.y, size.z, color.x, color.y, color.z);
-		voxbox->setWorldTransform(position, rotation);
-		voxboxes.push_back(voxbox);
 	} else if (strcmp(element->Name(), "water") == 0) {
 		vector<vec2> water_verts;
 		for (XMLElement* e = element->FirstChildElement(); e != NULL; e = e->NextSiblingElement()) {
@@ -153,7 +145,7 @@ Scene::Scene(string path) {
 	vec3 position = vec3(0, 0, 0);
 	quat rotation = quat(1, 0, 0, 0);
 	RecursiveLoad(root, position, rotation);
-	printf("Loaded %d objects, %d voxbox, %d water, %d rope\n", (int)shapes.size(), (int)voxboxes.size(), (int)waters.size(), (int)ropes.size());
+	printf("Loaded %d objects, %d water, %d rope\n", (int)shapes.size(), (int)waters.size(), (int)ropes.size());
 }
 
 void Scene::addMesh(Mesh* mesh) {
@@ -164,19 +156,19 @@ void Scene::draw(ShadowVolume& shadow_volume) {
 	for (vector<shape_t>::iterator it = shapes.begin(); it != shapes.end(); it++) {
 		VoxLoader* model = models[it->file];
 		if (it->object == "ALL_OBJECTS")
-			printf("[Warning] Unnamed shapes not implemented for shadow volume\n");
+			printf("[Warning] All shapes not implemented for shadow volume\n");
 		else
 			model->draw(shadow_volume, it->object, it->position, it->rotation, it->scale);
 	}
 }
 
-void Scene::draw(Shader& shader, Camera& camera, vec4 clip_plane) {
+void Scene::draw(Shader& shader, Camera& camera) {
 	for (vector<shape_t>::iterator it = shapes.begin(); it != shapes.end(); it++) {
 		VoxLoader* model = models[it->file];
 		if (it->object == "ALL_OBJECTS")
-			model->draw(shader, camera, clip_plane, it->position, it->rotation, it->scale);
+			model->draw(shader, camera, it->position, it->rotation, it->scale, it->texture);
 		else
-			model->draw(shader, camera, clip_plane, it->object, it->position, it->rotation, it->scale);
+			model->draw(shader, camera, it->object, it->position, it->rotation, it->scale, it->texture);
 	}
 }
 
@@ -195,14 +187,7 @@ void Scene::drawWater(Shader& shader, Camera& camera) {
 		(*it)->draw(shader, camera);
 }
 
-void Scene::drawVoxbox(Shader& shader, Camera& camera) {
-	for (vector<VoxboxRender*>::iterator it = voxboxes.begin(); it != voxboxes.end(); it++)
-		(*it)->draw(shader, camera);
-}
-
 Scene::~Scene() {
 	for (map<string, VoxLoader*>::iterator it = models.begin(); it != models.end(); it++)
 		delete it->second;
-	for (vector<VoxboxRender*>::iterator it = voxboxes.begin(); it != voxboxes.end(); it++)
-		delete *it;
 }

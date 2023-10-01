@@ -136,7 +136,7 @@ void HexRender::setWorldTransform(vec3 position, quat rotation) {
 	this->world_rotation = rotation;
 }
 
-void HexRender::draw(Shader& shader, Camera& camera, vec4 clip_plane, float scale) {
+void HexRender::draw(Shader& shader, Camera& camera, float scale) {
 	vao.Bind();
 	shader.PushMatrix("camera", camera.vpMatrix);
 
@@ -150,7 +150,6 @@ void HexRender::draw(Shader& shader, Camera& camera, vec4 clip_plane, float scal
 	shader.PushMatrix("world_pos", world_pos);
 	shader.PushMatrix("world_rot", world_rot);
 
-	shader.PushVec4("clip_plane", clip_plane);
 	shader.PushFloat("scale", scale);
 	shader.PushTexture1D("palette", texture_id, 0);
 

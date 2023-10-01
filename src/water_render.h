@@ -28,9 +28,6 @@ private:
 	//GLuint refractionTexture;
 	GLuint refractionDepthTexture;
 
-	GLuint dudv_texture;
-	GLuint normal_texture;
-
 	const int REFLECTION_WIDTH = 640;
 	const int REFLECTION_HEIGHT = 360;
 
