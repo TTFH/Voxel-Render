@@ -66,7 +66,7 @@ Screen::Screen() {
 	ebo.Unbind();
 
 	initFrameBuffer(WINDOW_WIDTH, WINDOW_HEIGHT);
-	bluenoise = LoadTexture("textures/bluenoise.png", GL_RGB);
+	bluenoise = LoadTexture("textures/bluenoise512rgb.png", GL_RGB);
 }
 
 void Screen::start() {

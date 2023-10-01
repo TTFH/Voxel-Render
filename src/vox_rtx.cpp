@@ -31,6 +31,14 @@ static GLuint cube_indices[] = {
 	7, 6, 5,
 };
 
+bool init = false;
+GLuint albedoMap;
+GLuint blendMap;
+GLuint normalMap;
+GLuint windowAlbedo;
+GLuint windowNormal;
+GLuint bluenoise;
+
 RTX_Render::RTX_Render(const MV_Shape& shape, GLuint paletteBank, int paletteId) {
 	vao.Bind();
 	VBO vbo(cube_vertices, sizeof(cube_vertices));
@@ -115,6 +123,16 @@ RTX_Render::RTX_Render(const MV_Shape& shape, GLuint paletteBank, int paletteId)
 	this->paletteId = paletteId;
 	this->paletteBank = paletteBank;
 	shapeSize = vec3(width_mip0, height_mip0, depth_mip0);
+
+	if (!init) {
+		init = true;
+		albedoMap = LoadTexture("textures/albedo.png", GL_RGB);
+		blendMap = LoadTexture("textures/blend.png", GL_RGBA);
+		normalMap = LoadTexture("textures/normal.png", GL_RGBA);
+		windowAlbedo = LoadTexture("textures/window.png", GL_RGBA);
+		windowNormal = LoadTexture("textures/window_normal.png", GL_RGBA);
+		bluenoise = LoadTexture("textures/bluenoise512rgb.png", GL_RGBA);
+	}
 }
 
 void RTX_Render::setTransform(vec3 position, quat rotation) {
@@ -126,7 +144,7 @@ void RTX_Render::setWorldTransform(vec3 position, quat rotation) {
 	this->world_position = position;
 	this->world_rotation = rotation;
 }
-
+/*
 void RTX_Render::draw(Shader& shader, Camera& camera, vec4 clip_plane, float scale) {
 	(void)clip_plane;
 	vao.Bind();
@@ -170,6 +188,66 @@ void RTX_Render::draw(Shader& shader, Camera& camera, vec4 clip_plane, float sca
 	shader.PushMatrix("uMvpMatrix", mvpMatrix);
 	shader.PushMatrix("uVolMatrix", volMatrix);
 	shader.PushMatrix("uVolMatrixInv", volMatrixInv);
+
+	glDrawElements(GL_TRIANGLES, sizeof(cube_indices) / sizeof(GLuint), GL_UNSIGNED_INT, 0);
+}
+*/
+void RTX_Render::draw(Shader& shader, Camera& camera, vec4 clip_plane, float scale) {
+	(void)clip_plane;
+	vao.Bind();
+
+	shader.PushTexture("uColor", paletteBank, 0);
+	shader.PushTexture3D("uVolTex", volumeTexture, 1);
+
+	//shader.PushTexture("uMaterial", paletteBank, 2);
+	shader.PushTexture("uAlbedoMap", albedoMap, 3);
+	shader.PushTexture("uBlendMap", blendMap, 4);
+	shader.PushTexture("uNormalMap", normalMap, 5);
+	shader.PushTexture("uWindowAlbedo", windowAlbedo, 6);
+	shader.PushTexture("uWindowNormal", windowNormal, 7);
+	shader.PushTexture("uBlueNoise", bluenoise, 8);
+
+	shader.PushInt("uPalette", paletteId);
+	shader.PushVec3("uObjSize", shapeSize);
+	shader.PushVec4("uVoxelSize", vec4(shapeSize, 0.1f * scale));
+	shader.PushFloat("uEmissive", 1.0f);
+	shader.PushVec4("uTextureTile", vec4(1, 0, 0.5, 1));
+	shader.PushVec3("uTextureParams", vec3(0, 0, 0));
+	shader.PushFloat("uAlpha", 1.0f);
+	shader.PushFloat("uHighlight", 0.0f);
+	glUniform1ui(glGetUniformLocation(shader.id, "uEmissiveGlassCount"), 0);
+	float emissiveGlass[12] = { 0 };
+	glUniform1fv(glGetUniformLocation(shader.id, "uEmissiveGlass"), 12, emissiveGlass);
+
+	shader.PushFloat("uRndFrame", 0.0f);
+	shader.PushFloat("uNear", camera.NEAR_PLANE);
+	shader.PushFloat("uFar", camera.FAR_PLANE);
+	shader.PushVec3("uCameraPos", camera.position);
+	shader.PushVec2("uPixelSize", vec2(0.0007, 0.00123));
+
+	mat4 toWorldCoords = mat4(vec4(1, 0, 0, 0),
+							  vec4(0, 0, -1, 0),
+							  vec4(0, 1, 0, 0),
+							  vec4(0, 0, 0, 1));
+
+	// Coordinate system: x right, z up, y forward, scale 10 voxels : 1 meter
+	mat4 pos = translate(mat4(1.0f), 0.1f * position);
+	mat4 rot = mat4_cast(rotation);
+	mat4 localTr = toWorldCoords * pos * rot;
+
+	// Coordinate system: x right, y up, -z forward, scale 1:1 (in meters)
+	mat4 world_pos = translate(mat4(1.0f), world_position);
+	mat4 world_rot = mat4_cast(world_rotation);
+	mat4 worldTr = world_pos * world_rot;
+
+	mat4 vpMatrix = camera.vpMatrix;
+	mat4 volMatrix = worldTr * localTr;
+	mat4 volMatrixInv = inverse(volMatrix);
+
+	shader.PushMatrix("uVpMatrix", vpMatrix);
+	shader.PushMatrix("uVolMatrix", volMatrix);
+	shader.PushMatrix("uStableVpMatrix", vpMatrix);
+	shader.PushMatrix("uVpInvMatrix", volMatrixInv);
 
 	glDrawElements(GL_TRIANGLES, sizeof(cube_indices) / sizeof(GLuint), GL_UNSIGNED_INT, 0);
 }

@@ -35,7 +35,7 @@ int main(int argc, char* argv[]) {
 #elif RENDER_METHOD == HEXAGON
 	Shader voxel_shader("shaders/voxel_hex_vert.glsl", "shaders/voxel_frag.glsl");
 #elif RENDER_METHOD == RTX
-	Shader voxel_shader("editorvox");
+	Shader voxel_shader("gbuffervox");
 #endif
 	Shader sv_shader("debugvolume");
 	Shader screen_shader("editorlighting");
@@ -68,9 +68,9 @@ int main(int argc, char* argv[]) {
 	Scene scene(GetScenePath(argc, argv));
 	bool transparent_glass = false;
 
-	ShadowVolume shadow_volume(40, 10, 40);
+	//ShadowVolume shadow_volume(40, 10, 40);
 	//scene.draw(shadow_volume);
-	shadow_volume.updateTexture();
+	//shadow_volume.updateTexture();
 
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -177,13 +177,14 @@ int main(int argc, char* argv[]) {
 			ImGui::End();
 		}
 #if RENDER_METHOD == RTX
-		screen.start();
-		scene.draw(voxel_shader, camera);
+		//screen.start();
+		//scene.draw(voxel_shader, camera);
 		//shadow_volume.draw(sv_shader, camera);
-		screen.end();
+		//screen.end();
 		glClearColor(1, 1, 1, 1);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		screen.draw(screen_shader, camera);
+		//screen.draw(screen_shader, camera);
+		scene.draw(voxel_shader, camera);
 
 		mesh_shader.PushVec3("lightpos", light.getPosition());
 		voxbox_shader.PushVec3("lightpos", light.getPosition());

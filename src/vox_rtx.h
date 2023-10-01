@@ -13,6 +13,7 @@ private:
 	VAO vao;
 	int paletteId;
 	GLuint paletteBank;
+	//GLuint materialBank;
 	GLuint volumeTexture;
 	vec3 shapeSize;
 

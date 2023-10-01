@@ -24,7 +24,7 @@ void main() {
 	gl_Position = vec4(aPosition, 0.0, 1.0);
 	vTexCoord = aTexCoord;
 
-	vec4 aa = vec4(vTexCoord*2.0 - vec2(1.0), 1.0f, 1.0f);
+	vec4 aa = vec4(vTexCoord * 2.0 - vec2(1.0), 1.0f, 1.0f);
 	aa = uVpInvMatrix * aa;
 	vFarVec = aa.xyz / aa.w - uCameraPos;
 }
