@@ -30,21 +30,17 @@ using namespace glm;
 
 int main(int argc, char* argv[]) {
 	GLFWwindow* window = InitOpenGL("OpenGL");
-#if RENDER_METHOD == GREEDY
-	Shader voxel_shader("shaders/voxel_gm_vert.glsl", "shaders/voxel_frag.glsl");
-#elif RENDER_METHOD == HEXAGON
-	Shader voxel_shader("shaders/voxel_hex_vert.glsl", "shaders/voxel_frag.glsl");
-#elif RENDER_METHOD == RTX
-	Shader voxel_shader("editorvox");
-#endif
-	Shader sv_shader("debugvolume");
-	Shader screen_shader("editorlighting");
-	Shader voxel_glass_shader("shaders/voxel_gm_vert.glsl", "shaders/voxel_glass_frag.glsl");
 	Shader mesh_shader("shaders/mesh_vert.glsl", "shaders/mesh_frag.glsl");
 	Shader rope_shader("shaders/rope_vert.glsl", "shaders/rope_frag.glsl");
-	Shader water_shader("shaders/water_vert.glsl", "shaders/water_frag.glsl");
-	Shader skybox_shader("shaders/skybox_vert.glsl", "shaders/skybox_frag.glsl");
+	Shader screen_shader("editorlighting");
 	Shader shadowmap_shader("shaders/shadowmap_vert.glsl", "shaders/shadowmap_frag.glsl");
+	Shader skybox_shader("shaders/skybox_vert.glsl", "shaders/skybox_frag.glsl");
+	Shader sv_shader("debugvolume");
+	Shader voxel_glass_shader("shaders/voxel_gm_vert.glsl", "shaders/voxel_glass_frag.glsl");
+	Shader voxel_gm_shader("shaders/voxel_gm_vert.glsl", "shaders/voxel_frag.glsl");
+	Shader voxel_hex_shader("shaders/voxel_hex_vert.glsl", "shaders/voxel_frag.glsl");
+	Shader voxel_rtx_shader("editorvox");
+	Shader water_shader("shaders/water_vert.glsl", "shaders/water_frag.glsl");
 
 	map<const char*, Shader*> shaders = {
 		{"mesh_shader", &mesh_shader},
@@ -54,7 +50,9 @@ int main(int argc, char* argv[]) {
 		{"skybox_shader", &skybox_shader},
 		{"sv_shader", &sv_shader},
 		{"voxel_glass_shader", &voxel_glass_shader},
-		{"voxel_shader", &voxel_shader},
+		{"voxel_gm_shader", &voxel_gm_shader},
+		{"voxel_hex_shader", &voxel_hex_shader},
+		{"voxel_rtx_shader", &voxel_rtx_shader},
 		{"water_shader", &water_shader}
 	};
 
@@ -67,7 +65,7 @@ int main(int argc, char* argv[]) {
 	bool transparent_glass = false;
 
 	//ShadowVolume shadow_volume(40, 10, 40);
-	//scene.draw(shadow_volume);
+	//scene.push(shadow_volume);
 	//shadow_volume.updateTexture();
 
 	IMGUI_CHECKVERSION();
@@ -139,12 +137,9 @@ int main(int argc, char* argv[]) {
 			ImGui::PushItemWidth(80);
 			static int hex_orientation = 0;
 			ImGui::Combo("##orientation", &hex_orientation, "Cube\0Top\0Front\0Side\0");
-		#if RENDER_METHOD == GREEDY
-			voxel_shader.PushInt("transparent_glass", transparent_glass);
-		#elif RENDER_METHOD == HEXAGON
+			voxel_gm_shader.PushInt("transparent_glass", transparent_glass);
 			shadowmap_shader.PushInt("side", hex_orientation);
-			voxel_shader.PushInt("side", hex_orientation);
-		#endif
+			voxel_hex_shader.PushInt("side", hex_orientation);
 			ImGui::PopItemWidth();
 
 			if (ImGui::Button("Toggle fullscreen"))
@@ -174,68 +169,20 @@ int main(int argc, char* argv[]) {
 			ImGui::Text("Frametime: %.1f ms", 1000.0f / io.Framerate);
 			ImGui::End();
 		}
-#if RENDER_METHOD == RTX
+
 		screen.start();
-		scene.draw(voxel_shader, camera);
-		//shadow_volume.draw(sv_shader, camera);
+		scene.draw(voxel_rtx_shader, camera);
 		screen.end();
 		glClearColor(1, 1, 1, 1);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		screen.draw(screen_shader, camera);
-		//scene.draw(voxel_shader, camera);
-
-		mesh_shader.PushVec3("lightpos", light.getPosition());
-		mesh_shader.PushMatrix("lightProjection", light.getProjection());
-		shadowmap_shader.PushMatrix("lightProjection", light.getProjection());
-
-		shadow_map.BindShadowMap();
-		scene.drawMesh(shadowmap_shader, camera);
-		shadow_map.UnbindShadowMap(camera);
-
-		shadow_map.PushShadows(mesh_shader);
-		scene.drawMesh(mesh_shader, camera);
 
 		glEnable(GL_BLEND);
 		scene.drawWater(water_shader, camera);
 		glDisable(GL_BLEND);
 		scene.drawRope(rope_shader, camera);
 		skybox.draw(skybox_shader, camera);
-#else
-		voxel_shader.PushVec3("lightpos", light.getPosition());
-		voxel_glass_shader.PushVec3("lightpos", light.getPosition());
-		mesh_shader.PushVec3("lightpos", light.getPosition());
 
-		voxel_shader.PushMatrix("lightProjection", light.getProjection());
-		mesh_shader.PushMatrix("lightProjection", light.getProjection());
-		shadowmap_shader.PushMatrix("lightProjection", light.getProjection());
-
-		// Shadows
-		shadow_map.BindShadowMap();
-		scene.draw(shadowmap_shader, camera);
-		scene.drawMesh(shadowmap_shader, camera);
-		shadow_map.UnbindShadowMap(camera);
-
-		glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		shadow_map.PushShadows(mesh_shader);
-		scene.drawMesh(mesh_shader, camera);
-		shadow_map.PushShadows(voxel_shader);
-		scene.draw(voxel_shader, camera);
-
-		water_shader.PushFloat("time", glfwGetTime());
-		glEnable(GL_BLEND);
-		scene.drawWater(water_shader, camera);
-	#if RENDER_METHOD == GREEDY
-		if (transparent_glass)
-			scene.draw(voxel_glass_shader, camera);
-	#endif
-		glDisable(GL_BLEND);
-
-		scene.drawRope(rope_shader, camera);
-		light.draw(voxel_shader, camera);
-		skybox.draw(skybox_shader, camera);
-#endif
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 		glfwSwapBuffers(window);

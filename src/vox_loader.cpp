@@ -1,5 +1,9 @@
 #include <stdio.h>
+
 #include "vox_loader.h"
+#include "hex_render.h"
+#include "greedy_mesh.h"
+#include "vox_rtx.h"
 
 constexpr int ID(char a, char b, char c, char d) {
 	return a | (b << 8) | (c << 16) | (d << 24);
@@ -104,11 +108,9 @@ VoxLoader::VoxLoader(const char* filename) {
 	load(filename);
 }
 
-#if RENDER_METHOD == RTX
 static const int MAX_PALETTES = 512;
 static int paletteCount = 0;
 static GLuint paletteBank;
-#endif
 
 void VoxLoader::load(const char* filename) {
 	this->filename = filename;
@@ -222,7 +224,6 @@ void VoxLoader::load(const char* filename) {
 	fclose(file);
 	//printf("File loaded: %s\n", filename);
 
-#if RENDER_METHOD == RTX
 	if (paletteCount == 0) { // Create texture
 		glGenTextures(1, &paletteBank);
 		glBindTexture(GL_TEXTURE_2D, paletteBank);
@@ -237,51 +238,45 @@ void VoxLoader::load(const char* filename) {
 		printf("[Warning] Palette limit reached!\n");
 	paletteCount++;
 	glBindTexture(GL_TEXTURE_2D, 0);
-#elif RENDER_METHOD == GREEDY || RENDER_METHOD == HEXAGON
+
 	GLuint texture_id;
 	glGenTextures(1, &texture_id);
 	glBindTexture(GL_TEXTURE_1D, texture_id);
 	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexImage1D(GL_TEXTURE_1D, 0, GL_RGBA, 256, 0, GL_RGBA, GL_UNSIGNED_BYTE, palette);
 	glBindTexture(GL_TEXTURE_1D, 0);
-#endif
 
 	for (unsigned int i = 0; i < shapes.size(); i++) {
-	#if RENDER_METHOD == GREEDY
-		render.push_back(new GreedyRender(shapes[i], texture_id));
-	#elif RENDER_METHOD == HEXAGON
-		render.push_back(new HexRender(shapes[i], texture_id));
-	#elif RENDER_METHOD == RTX
-		render.push_back(new RTX_Render(shapes[i], paletteBank, paletteCount - 1));
-	#endif
+		renderers[GREEDY].push_back(new GreedyRender(shapes[i], texture_id));
+		renderers[HEXAGON].push_back(new HexRender(shapes[i], texture_id));
+		renderers[RTX].push_back(new RTX_Render(shapes[i], paletteBank, paletteCount - 1));
 	}
 }
 
-void VoxLoader::draw(Shader& shader, Camera& camera, vec3 position, quat rotation, float scale, vec4 texture) {
+void VoxLoader::draw(Shader& shader, Camera& camera, vec3 position, quat rotation, float scale, vec4 texture, RenderMethod method) {
 	for (mv_model_iterator it = models.begin(); it != models.end(); it++) {
 		int index = it->second.shape_index;
 		const MV_Shape& shape = shapes[index];
 		vec3 pos = it->second.position - (it->second.rotation * vec3(shape.sizex / 2, shape.sizey / 2, shape.sizez / 2));
-		render[index]->setTransform(pos, it->second.rotation);
-		render[index]->setWorldTransform(position, rotation);
-		render[index]->draw(shader, camera, scale, texture);
+		renderers[method][index]->setTransform(pos, it->second.rotation);
+		renderers[method][index]->setWorldTransform(position, rotation);
+		renderers[method][index]->draw(shader, camera, scale, texture);
 	}
 }
 
-void VoxLoader::draw(Shader& shader, Camera& camera, string shape_name, vec3 position, quat rotation, float scale, vec4 texture) {
+void VoxLoader::draw(Shader& shader, Camera& camera, string shape_name, vec3 position, quat rotation, float scale, vec4 texture, RenderMethod method) {
 	pair<mv_model_iterator, mv_model_iterator> homonym_shapes = models.equal_range(shape_name);
 	for (mv_model_iterator it = homonym_shapes.first; it != homonym_shapes.second; it++) {
 		int index = it->second.shape_index;
 		const MV_Shape& shape = shapes[index];
 		vec3 pos = it->second.rotation * vec3(-shape.sizex / 2, -shape.sizey / 2, 0);
-		render[index]->setTransform(pos, it->second.rotation);
-		render[index]->setWorldTransform(position, rotation);
-		render[index]->draw(shader, camera, scale, texture);
+		renderers[method][index]->setTransform(pos, it->second.rotation);
+		renderers[method][index]->setWorldTransform(position, rotation);
+		renderers[method][index]->draw(shader, camera, scale, texture);
 	}
 }
 
-void VoxLoader::draw(ShadowVolume& shadow_volume, string shape_name, vec3 world_position, quat world_rotation, float scale) {
-	(void)scale;
+void VoxLoader::push(ShadowVolume& shadow_volume, string shape_name, vec3 world_position, quat world_rotation) {
 	pair<mv_model_iterator, mv_model_iterator> homonym_shapes = models.equal_range(shape_name);
 	for (mv_model_iterator it = homonym_shapes.first; it != homonym_shapes.second; it++) {
 		int index = it->second.shape_index;
@@ -309,6 +304,7 @@ void VoxLoader::draw(ShadowVolume& shadow_volume, string shape_name, vec3 world_
 }
 
 VoxLoader::~VoxLoader() {
-	for (unsigned int i = 0; i < render.size(); i++)
-		delete render[i];
+	for (int i = 0; i < 3; i++)
+		for (unsigned int j = 0; j < renderers[i].size(); j++)
+			delete renderers[i][j];
 }

@@ -37,7 +37,7 @@ public:
 	Scene(string path);
 	~Scene();
 	void addMesh(Mesh* mesh);
-	void draw(ShadowVolume& shadow_volume);
+	void push(ShadowVolume& shadow_volume);
 	void draw(Shader& shader, Camera& camera);
 	void drawMesh(Shader& shader, Camera& camera);
 	void drawRope(Shader& shader, Camera& camera);

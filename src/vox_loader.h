@@ -1,25 +1,22 @@
 #ifndef VOX_LOADER_H
 #define VOX_LOADER_H
 
-#define NONE 0
-#define GREEDY 1
-#define HEXAGON 2
-#define RTX 3
-#define SHADOW 4
-#define RENDER_METHOD RTX
-
 #include <map>
 #include <string>
 #include <stdint.h>
 
 #include "camera.h"
 #include "shader.h"
-#include "vox_rtx.h"
-#include "hex_render.h"
-#include "greedy_mesh.h"
 #include "shadow_volume.h"
+#include "render_interface.h"
 
 using namespace std;
+
+enum RenderMethod {
+	GREEDY,
+	HEXAGON,
+	RTX
+};
 
 struct MV_Diffuse {
 	uint8_t r, g, b, a;
@@ -59,21 +56,15 @@ private:
 	string filename;
 	MV_Diffuse palette[256];
 	vector<MV_Shape> shapes;
+	vector<IRender*> renderers[3];
 	multimap<string, MV_Model> models;
-#if RENDER_METHOD == GREEDY
-	vector<GreedyRender*> render;
-#elif RENDER_METHOD == HEXAGON
-	vector<HexRender*> render;
-#elif RENDER_METHOD == RTX
-	vector<RTX_Render*> render;
-#endif
 public:
 	VoxLoader();
 	VoxLoader(const char* filename);
 	void load(const char* filename);
-	void draw(Shader& shader, Camera& camera, vec3 position, quat rotation, float scale, vec4 texture);
-	void draw(Shader& shader, Camera& camera, string shape_name, vec3 position, quat rotation, float scale, vec4 texture);
-	void draw(ShadowVolume& shadow_volume, string shape_name, vec3 position = vec3(0, 0, 0), quat rotation = quat(1, 0, 0, 0), float scale = 1);
+	void draw(Shader& shader, Camera& camera, vec3 position, quat rotation, float scale, vec4 texture, RenderMethod method);
+	void draw(Shader& shader, Camera& camera, string shape_name, vec3 position, quat rotation, float scale, vec4 texture, RenderMethod method);
+	void push(ShadowVolume& shadow_volume, string shape_name, vec3 position, quat rotation);
 	~VoxLoader();
 };
 

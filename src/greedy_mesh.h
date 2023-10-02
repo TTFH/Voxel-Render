@@ -8,13 +8,14 @@
 #include "vao.h"
 #include "camera.h"
 #include "shader.h"
+#include "render_interface.h"
 
 struct GreedyMesh {
 	vector<GM_Vertex> vertices;
 	vector<GLuint> indices;
 };
 
-class GreedyRender {
+class GreedyRender : public IRender {
 private:
 	VAO vao;
 	GLuint texture_id;
@@ -25,9 +26,9 @@ private:
 	quat world_rotation = quat(1, 0, 0, 0);
 public:
 	GreedyRender(const MV_Shape& shape, GLuint texture_id);
-	void setTransform(vec3 position, quat rotation);
-	void setWorldTransform(vec3 position, quat rotation);
-	void draw(Shader& shader, Camera& camera, float scale, vec4 unused);
+	void setTransform(vec3 position, quat rotation) override;
+	void setWorldTransform(vec3 position, quat rotation) override;
+	void draw(Shader& shader, Camera& camera, float scale, vec4 clip_plane) override;
 };
 
 #endif

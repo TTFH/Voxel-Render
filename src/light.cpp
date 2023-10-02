@@ -45,5 +45,5 @@ void Light::handleInputs(GLFWwindow* window) {
 }
 
 void Light::draw(Shader& shader, Camera& camera) {
-	model.draw(shader, camera, position, quat(1, 0, 0, 0), 1.0f, vec4(0, 0, 1, 1));
+	model.draw(shader, camera, position, quat(1, 0, 0, 0), 1.0f, vec4(0, 0, 1, 1), RTX);
 }

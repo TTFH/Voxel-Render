@@ -152,13 +152,13 @@ void Scene::addMesh(Mesh* mesh) {
 	meshes.push_back(mesh);
 }
 
-void Scene::draw(ShadowVolume& shadow_volume) {
+void Scene::push(ShadowVolume& shadow_volume) {
 	for (vector<shape_t>::iterator it = shapes.begin(); it != shapes.end(); it++) {
 		VoxLoader* model = models[it->file];
 		if (it->object == "ALL_OBJECTS")
 			printf("[Warning] All shapes not implemented for shadow volume\n");
 		else
-			model->draw(shadow_volume, it->object, it->position, it->rotation, it->scale);
+			model->push(shadow_volume, it->object, it->position, it->rotation);
 	}
 }
 
@@ -166,9 +166,9 @@ void Scene::draw(Shader& shader, Camera& camera) {
 	for (vector<shape_t>::iterator it = shapes.begin(); it != shapes.end(); it++) {
 		VoxLoader* model = models[it->file];
 		if (it->object == "ALL_OBJECTS")
-			model->draw(shader, camera, it->position, it->rotation, it->scale, it->texture);
+			model->draw(shader, camera, it->position, it->rotation, it->scale, it->texture, RTX);
 		else
-			model->draw(shader, camera, it->object, it->position, it->rotation, it->scale, it->texture);
+			model->draw(shader, camera, it->object, it->position, it->rotation, it->scale, it->texture, RTX);
 	}
 }
 

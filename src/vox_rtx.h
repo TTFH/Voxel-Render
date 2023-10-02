@@ -7,8 +7,9 @@
 #include "vao.h"
 #include "camera.h"
 #include "shader.h"
+#include "render_interface.h"
 
-class RTX_Render {
+class RTX_Render : public IRender {
 private:
 	VAO vao;
 	int paletteId;
@@ -23,9 +24,9 @@ private:
 	quat world_rotation = quat(1, 0, 0, 0);
 public:
 	RTX_Render(const MV_Shape& shape, GLuint paletteBank, int paletteId);
-	void setTransform(vec3 position, quat rotation);
-	void setWorldTransform(vec3 position, quat rotation);
-	void draw(Shader& shader, Camera& camera, float scale, vec4 texture);
+	void setTransform(vec3 position, quat rotation) override;
+	void setWorldTransform(vec3 position, quat rotation) override;
+	void draw(Shader& shader, Camera& camera, float scale, vec4 texture) override;
 	~RTX_Render();
 };
 
