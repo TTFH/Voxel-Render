@@ -5,9 +5,9 @@ IMGUI_DIR = imgui
 # For Ubuntu, install libglm-dev and libglfw3-dev
 
 SOURCES = main.cpp glad/glad.c lib/tinyxml2.cpp
-SOURCES += src/camera.cpp src/shader.cpp src/vao.cpp src/vbo.cpp src/ebo.cpp src/skybox.cpp src/greedy_mesh.cpp
-SOURCES += src/xml_loader.cpp src/vox_loader.cpp src/hex_render.cpp src/water_render.cpp src/rope_render.cpp
-SOURCES += src/mesh.cpp src/utils.cpp src/light.cpp src/shadowmap.cpp src/vox_rtx.cpp src/lighting_rtx.cpp src/shadow_volume.cpp
+SOURCES += src/camera.cpp src/shader.cpp src/vao.cpp src/vbo.cpp src/ebo.cpp src/skybox.cpp src/greedy_mesh.cpp src/mesh.cpp
+SOURCES += src/utils.cpp src/light.cpp src/shadowmap.cpp src/vox_rtx.cpp src/lighting_rtx.cpp src/shadow_volume.cpp
+SOURCES += src/xml_loader.cpp src/vox_loader.cpp src/hex_render.cpp src/water_render.cpp src/rope_render.cpp src/voxbox_render.cpp
 SOURCES += $(IMGUI_DIR)/imgui.cpp $(IMGUI_DIR)/imgui_draw.cpp $(IMGUI_DIR)/imgui_tables.cpp $(IMGUI_DIR)/imgui_widgets.cpp
 SOURCES += $(IMGUI_DIR)/backends/imgui_impl_glfw.cpp $(IMGUI_DIR)/backends/imgui_impl_opengl3.cpp
 

@@ -3,6 +3,7 @@ layout(location = 0) in vec3 aPos;
 layout(location = 3) in vec3 aOffset;
 
 uniform int side;
+uniform vec3 size;
 uniform mat4 position;
 uniform mat4 rotation;
 uniform mat4 world_pos;
@@ -35,6 +36,10 @@ vec3 getHexPos() {
 void main() {
 	// Mesh
 	vec4 currentPos = position * rotation * vec4(aPos, 1.0f);
+
+	// Voxbox
+	if (size.x != 0.0f)
+		currentPos = position * rotation * vec4(aPos * size, 10.0f);
 
 	// Voxel
     if (scale > 0.0f) {

@@ -9,6 +9,7 @@
 #include "vox_loader.h"
 #include "rope_render.h"
 #include "water_render.h"
+#include "voxbox_render.h"
 #include "shadow_volume.h"
 #include "../lib/tinyxml2.h"
 
@@ -21,6 +22,7 @@ struct shape_t {
 	quat rotation;
 	float scale;
 	vec4 texture;
+	RenderMethod method;
 };
 
 class Scene {
@@ -30,6 +32,7 @@ private:
 	vector<shape_t> shapes;
 	vector<Mesh*> meshes;
 	vector<RopeRender*> ropes;
+	vector<VoxboxRender*> voxboxes;
 	map<string, VoxLoader*> models;
 	void RecursiveLoad(XMLElement* element, vec3 parent_pos, quat parent_rot);
 public:
@@ -38,7 +41,8 @@ public:
 	~Scene();
 	void addMesh(Mesh* mesh);
 	void push(ShadowVolume& shadow_volume);
-	void draw(Shader& shader, Camera& camera);
+	void draw(Shader& shader, Camera& camera, RenderMethod method);
+	void drawVoxbox(Shader& shader, Camera& camera);
 	void drawMesh(Shader& shader, Camera& camera);
 	void drawRope(Shader& shader, Camera& camera);
 	void drawWater(Shader& shader, Camera& camera);

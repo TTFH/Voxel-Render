@@ -45,7 +45,7 @@ void Scene::RecursiveLoad(XMLElement* element, vec3 parent_pos, quat parent_rot)
 	rotation = parent_rot * rotation;
 
 	if (strcmp(element->Name(), "vox") == 0) {
-		shape_t vox = { "", "ALL_OBJECTS", position, rotation, 1.0f, vec4(0, 0, 1, 1) };
+		shape_t vox = { "", "ALL_OBJECTS", position, rotation, 1.0f, vec4(0, 0, 1, 1), RTX };
 		const char* file = element->Attribute("file");
 		if (file == NULL) {
 			printf("[ERROR] No file specified for vox\n");
@@ -65,6 +65,11 @@ void Scene::RecursiveLoad(XMLElement* element, vec3 parent_pos, quat parent_rot)
 		if (object != NULL) vox.object = object;
 		const char* scale = element->Attribute("scale");
 		if (scale != NULL) vox.scale = atof(scale);
+		const char* method = element->Attribute("name");
+		if (method != NULL && strcmp(method, "gm") == 0)
+			vox.method = GREEDY;
+		else if (method != NULL && strcmp(method, "hex") == 0)
+			vox.method = HEXAGON;
 
 		const char* texture = element->Attribute("texture");
 		if (texture != NULL) {
@@ -81,6 +86,24 @@ void Scene::RecursiveLoad(XMLElement* element, vec3 parent_pos, quat parent_rot)
 			vox.texture.w = weight;
 		}
 		shapes.push_back(vox);
+	} else if (strcmp(element->Name(), "voxbox") == 0) {
+		vec3 size = vec3(10, 10, 10);
+		const char* size_str = element->Attribute("size");
+		if (size_str != NULL) {
+			float x, y, z;
+			sscanf(size_str, "%f %f %f", &x, &y, &z);
+			size = vec3(x, y, z);
+		}
+		vec3 color = vec3(1, 1, 1);
+		const char* color_str = element->Attribute("color");
+		if (color_str != NULL) {
+			float r, g, b;
+			sscanf(color_str, "%f %f %f", &r, &g, &b);
+			color = vec3(r, g, b);
+		}
+		VoxboxRender* voxbox = new VoxboxRender(size, color);
+		voxbox->setWorldTransform(position, rotation);
+		voxboxes.push_back(voxbox);
 	} else if (strcmp(element->Name(), "water") == 0) {
 		vector<vec2> water_verts;
 		for (XMLElement* e = element->FirstChildElement(); e != NULL; e = e->NextSiblingElement()) {
@@ -145,7 +168,7 @@ Scene::Scene(string path) {
 	vec3 position = vec3(0, 0, 0);
 	quat rotation = quat(1, 0, 0, 0);
 	RecursiveLoad(root, position, rotation);
-	printf("Loaded %d objects, %d water, %d rope\n", (int)shapes.size(), (int)waters.size(), (int)ropes.size());
+	printf("Loaded %d objects, %d voxbox, %d water, %d rope\n", (int)shapes.size(), (int)voxboxes.size(), (int)waters.size(), (int)ropes.size());
 }
 
 void Scene::addMesh(Mesh* mesh) {
@@ -162,14 +185,20 @@ void Scene::push(ShadowVolume& shadow_volume) {
 	}
 }
 
-void Scene::draw(Shader& shader, Camera& camera) {
+void Scene::draw(Shader& shader, Camera& camera, RenderMethod method) {
 	for (vector<shape_t>::iterator it = shapes.begin(); it != shapes.end(); it++) {
+		if (method != it->method) continue;
 		VoxLoader* model = models[it->file];
 		if (it->object == "ALL_OBJECTS")
-			model->draw(shader, camera, it->position, it->rotation, it->scale, it->texture, RTX);
+			model->draw(shader, camera, it->position, it->rotation, it->scale, it->texture, method);
 		else
-			model->draw(shader, camera, it->object, it->position, it->rotation, it->scale, it->texture, RTX);
+			model->draw(shader, camera, it->object, it->position, it->rotation, it->scale, it->texture, method);
 	}
+}
+
+void Scene::drawVoxbox(Shader& shader, Camera& camera) {
+	for (vector<VoxboxRender*>::iterator it = voxboxes.begin(); it != voxboxes.end(); it++)
+		(*it)->draw(shader, camera);
 }
 
 void Scene::drawMesh(Shader& shader, Camera& camera) {

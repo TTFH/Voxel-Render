@@ -36,6 +36,7 @@ int main(int argc, char* argv[]) {
 	Shader shadowmap_shader("shaders/shadowmap_vert.glsl", "shaders/shadowmap_frag.glsl");
 	Shader skybox_shader("shaders/skybox_vert.glsl", "shaders/skybox_frag.glsl");
 	Shader sv_shader("debugvolume");
+	Shader voxbox_shader("shaders/voxbox_vert.glsl", "shaders/voxbox_frag.glsl");
 	Shader voxel_glass_shader("shaders/voxel_gm_vert.glsl", "shaders/voxel_glass_frag.glsl");
 	Shader voxel_gm_shader("shaders/voxel_gm_vert.glsl", "shaders/voxel_frag.glsl");
 	Shader voxel_hex_shader("shaders/voxel_hex_vert.glsl", "shaders/voxel_frag.glsl");
@@ -49,6 +50,7 @@ int main(int argc, char* argv[]) {
 		{"shadowmap_shader", &shadowmap_shader},
 		{"skybox_shader", &skybox_shader},
 		{"sv_shader", &sv_shader},
+		{"voxbox_shader", &voxbox_shader},
 		{"voxel_glass_shader", &voxel_glass_shader},
 		{"voxel_gm_shader", &voxel_gm_shader},
 		{"voxel_hex_shader", &voxel_hex_shader},
@@ -62,7 +64,7 @@ int main(int argc, char* argv[]) {
 	Camera camera(vec3(0, 2.5, 10));
 	Light light(vec3(-35, 130, -132));
 	Scene scene(GetScenePath(argc, argv));
-	bool transparent_glass = false;
+	bool transparent_glass = true;
 
 	//ShadowVolume shadow_volume(40, 10, 40);
 	//scene.push(shadow_volume);
@@ -135,7 +137,7 @@ int main(int argc, char* argv[]) {
 			ImGui::Text("Hex Voxel Orientation: ");
 			ImGui::SameLine();
 			ImGui::PushItemWidth(80);
-			static int hex_orientation = 0;
+			static int hex_orientation = 2;
 			ImGui::Combo("##orientation", &hex_orientation, "Cube\0Top\0Front\0Side\0");
 			voxel_gm_shader.PushInt("transparent_glass", transparent_glass);
 			shadowmap_shader.PushInt("side", hex_orientation);
@@ -170,17 +172,51 @@ int main(int argc, char* argv[]) {
 			ImGui::End();
 		}
 
+		mesh_shader.PushVec3("lightpos", light.getPosition());
+		voxbox_shader.PushVec3("lightpos", light.getPosition());
+		voxel_glass_shader.PushVec3("lightpos", light.getPosition());
+		voxel_gm_shader.PushVec3("lightpos", light.getPosition());
+		voxel_hex_shader.PushVec3("lightpos", light.getPosition());
+
+		mesh_shader.PushMatrix("lightProjection", light.getProjection());
+		shadowmap_shader.PushMatrix("lightProjection", light.getProjection());
+		voxbox_shader.PushMatrix("lightProjection", light.getProjection());
+		voxel_gm_shader.PushMatrix("lightProjection", light.getProjection());
+		voxel_hex_shader.PushMatrix("lightProjection", light.getProjection());
+
+		// Shadows
+		shadow_map.BindShadowMap();
+		scene.draw(shadowmap_shader, camera, HEXAGON);
+		shadowmap_shader.PushInt("side", 0); // Reset value
+		scene.draw(shadowmap_shader, camera, GREEDY);
+		scene.drawVoxbox(shadowmap_shader, camera);
+		scene.drawMesh(shadowmap_shader, camera);
+		shadow_map.UnbindShadowMap(camera);
+
 		screen.start();
-		scene.draw(voxel_rtx_shader, camera);
+		scene.draw(voxel_rtx_shader, camera, RTX);
 		screen.end();
 		glClearColor(1, 1, 1, 1);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		screen.draw(screen_shader, camera);
 
+		shadow_map.PushShadows(voxel_hex_shader);
+		scene.draw(voxel_hex_shader, camera, HEXAGON);
+		shadow_map.PushShadows(voxel_gm_shader);
+		scene.draw(voxel_gm_shader, camera, GREEDY);
+		shadow_map.PushShadows(voxbox_shader);
+		scene.drawVoxbox(voxbox_shader, camera);
+		shadow_map.PushShadows(mesh_shader);
+		scene.drawMesh(mesh_shader, camera);
+
 		glEnable(GL_BLEND);
 		scene.drawWater(water_shader, camera);
+		if (transparent_glass)
+			scene.draw(voxel_glass_shader, camera, GREEDY);
 		glDisable(GL_BLEND);
+
 		scene.drawRope(rope_shader, camera);
+		light.draw(voxel_rtx_shader, camera);
 		skybox.draw(skybox_shader, camera);
 
 		ImGui::Render();
