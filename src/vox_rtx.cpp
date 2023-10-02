@@ -55,11 +55,13 @@ RTX_Render::RTX_Render(const MV_Shape& shape, GLuint paletteBank, int paletteId)
 	uint8_t* voxels_mip0 = new uint8_t[volume_mip0];
 	memset(voxels_mip0, 0, volume_mip0);
 
-	for (unsigned int i = 0; i < shape.voxels.size(); i++) {
-		int x = shape.voxels[i].x;
-		int y = shape.voxels[i].y;
-		int z = shape.voxels[i].z;
-		voxels_mip0[x + width_mip0 * (y + height_mip0 * z)] = shape.voxels[i].index;
+	for (unsigned int v = 0; v < shape.voxels.size(); v++) {
+		int x = shape.voxels[v].x;
+		int y = shape.voxels[v].y;
+		int z = shape.voxels[v].z;
+		int i = shape.voxels[v].index;
+		int index = x + width_mip0 * (y + height_mip0 * z);
+		voxels_mip0[index] = i != 255 ? i : 0;
 	}
 
 	int width_mip1 = width_mip0 / 2;
@@ -144,7 +146,7 @@ void RTX_Render::setWorldTransform(vec3 position, quat rotation) {
 	this->world_position = position;
 	this->world_rotation = rotation;
 }
-
+/*
 void RTX_Render::draw(Shader& shader, Camera& camera, float scale, vec4 texture) {
 	(void)texture;
 	vao.Bind();
@@ -191,7 +193,7 @@ void RTX_Render::draw(Shader& shader, Camera& camera, float scale, vec4 texture)
 
 	glDrawElements(GL_TRIANGLES, sizeof(cube_indices) / sizeof(GLuint), GL_UNSIGNED_INT, 0);
 }
-/*
+*/
 void RTX_Render::draw(Shader& shader, Camera& camera, float scale, vec4 texture) {
 	vao.Bind();
 
@@ -249,7 +251,7 @@ void RTX_Render::draw(Shader& shader, Camera& camera, float scale, vec4 texture)
 
 	glDrawElements(GL_TRIANGLES, sizeof(cube_indices) / sizeof(GLuint), GL_UNSIGNED_INT, 0);
 }
-*/
+
 RTX_Render::~RTX_Render() {
 	glDeleteTextures(1, &volumeTexture);
 }

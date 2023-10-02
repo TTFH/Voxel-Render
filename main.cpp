@@ -40,7 +40,8 @@ int main(int argc, char* argv[]) {
 	Shader voxel_glass_shader("shaders/voxel_gm_vert.glsl", "shaders/voxel_glass_frag.glsl");
 	Shader voxel_gm_shader("shaders/voxel_gm_vert.glsl", "shaders/voxel_frag.glsl");
 	Shader voxel_hex_shader("shaders/voxel_hex_vert.glsl", "shaders/voxel_frag.glsl");
-	Shader voxel_rtx_shader("editorvox");
+	//Shader voxel_rtx_shader("editorvox");
+	Shader voxel_rtx_shader("gbuffervox");
 	Shader water_shader("shaders/water_vert.glsl", "shaders/water_frag.glsl");
 
 	map<const char*, Shader*> shaders = {
@@ -83,6 +84,11 @@ int main(int argc, char* argv[]) {
 	ImVec4 clear_color = ImVec4(0.35, 0.54, 0.8, 1);
 	ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 3.0f);
 
+	Mesh model("meshes/LTM1300.obj", "meshes/LTM1300.png", "meshes/LTM1300_specular.png");
+	Mesh glass("meshes/LTM1300_glass.obj", "meshes/glass.png");
+	scene.addMesh(&model);
+	scene.addMesh(&glass);
+
 	// FPS counter
 	double dt = 0;
 	double prev_time = 0;
@@ -119,8 +125,14 @@ int main(int argc, char* argv[]) {
 		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 			glfwSetWindowShouldClose(window, true);
 
-		light.handleInputs(window);
 		camera.handleInputs(window);
+		if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+			light.handleInputs(window);
+		else {
+			model.handleInputs(window);
+			glass.position = model.position;
+			glass.rotation = model.rotation;
+		}
 
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
@@ -193,12 +205,13 @@ int main(int argc, char* argv[]) {
 		scene.drawMesh(shadowmap_shader, camera);
 		shadow_map.UnbindShadowMap(camera);
 
-		screen.start();
-		scene.draw(voxel_rtx_shader, camera, RTX);
-		screen.end();
-		glClearColor(1, 1, 1, 1);
+		//screen.start();
+		//scene.draw(voxel_rtx_shader, camera, RTX);
+		//screen.end();
+		glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		screen.draw(screen_shader, camera);
+		//screen.draw(screen_shader, camera);
+		scene.draw(voxel_rtx_shader, camera, RTX);
 
 		shadow_map.PushShadows(voxel_hex_shader);
 		scene.draw(voxel_hex_shader, camera, HEXAGON);

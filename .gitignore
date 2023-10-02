@@ -5,6 +5,7 @@ vox_render.exe
 screenshot_*.png
 castle.vox
 
+meshes/
 ShadowTest/
 Water Test/
 caveisland_sandbox/

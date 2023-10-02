@@ -228,4 +228,3 @@ void TrimShape(uint8_t*** &voxels, int sizex, int sizey, int sizez) {
 		delete[] solid[i];
 	}
 }
-

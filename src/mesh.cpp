@@ -115,6 +115,21 @@ Mesh::Mesh(const char* path, const char* diffuse_path, const char* specular_path
 	vbo.Unbind();
 }
 
+void Mesh::handleInputs(GLFWwindow* window) {
+	if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
+		position.y += 0.025f;
+	if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS)
+		position.y -= 0.025f;
+	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+		position += vec3(rotation * vec4(0, 0, 0.1f, 0));
+	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+		position += vec3(rotation * vec4(0, 0, -0.05f, 0));
+	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+		rotation = angleAxis(radians(-0.5f), vec3(0, 1, 0)) * rotation;
+	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+		rotation = angleAxis(radians(0.5f), vec3(0, 1, 0)) * rotation;
+}
+
 void Mesh::setWorldTransform(vec3 position, float angle) {
 	this->position = position;
 	this->rotation = angleAxis(radians(angle), vec3(0, 1, 0));

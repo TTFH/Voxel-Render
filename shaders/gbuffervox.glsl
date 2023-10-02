@@ -282,6 +282,9 @@ void main() {
 		outputMotion = vec3(stablePos4.xy / (stablePos4.w * 2.0) - oldStablePos4.xy / (oldStablePos4.w * 2.0), outputColor.a < 1.0 ? 1.0 : 0.0);
 */
 		outputColor.rgb = pow(outputColor.rgb, vec3(1.0 / 2.2));
+		vec3 lightDir = vec3(0.38, -0.76, 0.53);
+		float l = max(0.0, dot(worldNormal4.xyz, -lightDir)) * 0.3 + 0.7;
+		outputColor.rgb *= l;
 
 		outputColor = clamp(outputColor, vec4(0.0), vec4(1.0));
 		outputNormal = worldNormal4.xyz;
