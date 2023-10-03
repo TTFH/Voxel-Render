@@ -4,6 +4,7 @@
 #include "../glad/glad.h"
 #include <glm/glm.hpp>
 #include <string>
+#include <map>
 
 using namespace std;
 using namespace glm;
@@ -15,12 +16,14 @@ private:
 	const char* VERSION = "#version 410 core\n";
 	const char* VERTEX = "#define VERTEX\n";
 	const char* FRAGMENT = "#define FRAGMENT\n";
+	map<const char*, GLint> uniforms;
 
 	bool unified;
 	string path1;
 	string path2;
 	void Load();
 	void Create(const char* vertexSource, const char* fragmentSource);
+	GLint GetSetLocation(const char* uniform);
 public:
 	GLuint id;
 	Shader(const char* name);

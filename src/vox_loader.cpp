@@ -247,8 +247,8 @@ void VoxLoader::load(const char* filename) {
 	glBindTexture(GL_TEXTURE_1D, 0);
 
 	for (unsigned int i = 0; i < shapes.size(); i++) {
-		renderers[GREEDY].push_back(new GreedyRender(shapes[i], texture_id));
-		renderers[HEXAGON].push_back(new HexRender(shapes[i], texture_id));
+		//renderers[GREEDY].push_back(new GreedyRender(shapes[i], texture_id));
+		//renderers[HEXAGON].push_back(new HexRender(shapes[i], texture_id));
 		renderers[RTX].push_back(new RTX_Render(shapes[i], paletteBank, paletteCount - 1));
 	}
 }

@@ -186,6 +186,7 @@ void Scene::push(ShadowVolume& shadow_volume) {
 }
 
 void Scene::draw(Shader& shader, Camera& camera, RenderMethod method) {
+	if (method != RTX) return;
 	for (vector<shape_t>::iterator it = shapes.begin(); it != shapes.end(); it++) {
 		if (method != it->method) continue;
 		VoxLoader* model = models[it->file];
