@@ -1,6 +1,7 @@
 #version 410 core
 uniform vec3 camera_pos;
 uniform vec3 lightpos;
+uniform vec3 color;
 uniform sampler2D diffuse0;
 uniform sampler2D specular0;
 uniform sampler2D shadowMap;
@@ -57,7 +58,9 @@ vec4 directLight() {
 }
 
 void main() {
-	FragColor = directLight();
+	//FragColor = directLight();
+	float l = 0.6f + 0.4f * max(0.0f, dot(normal, normalize(lightpos)));
+	FragColor = vec4(color * l, 1.0f);
 
 	// Debug normals
 	//FragColor = vec4((normal + 1.0f) / 2.0f, 1.0f);

@@ -84,12 +84,12 @@ int main(int argc, char* argv[]) {
 	ImGui_ImplOpenGL3_Init("#version 410");
 	ImVec4 clear_color = ImVec4(0.35, 0.54, 0.8, 1);
 	ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 3.0f);
-
+/*
 	Mesh model("meshes/LTM1300.obj", "meshes/LTM1300.png", "meshes/LTM1300_specular.png");
 	Mesh glass("meshes/LTM1300_glass.obj", "meshes/glass.png");
 	scene.addMesh(&model);
 	scene.addMesh(&glass);
-
+*/
 	// FPS counter
 	double dt = 0;
 	double prev_time = 0;
@@ -129,11 +129,11 @@ int main(int argc, char* argv[]) {
 		camera.handleInputs(window);
 		if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
 			light.handleInputs(window);
-		else {
+		/*else {
 			model.handleInputs(window);
 			glass.position = model.position;
 			glass.rotation = model.rotation;
-		}
+		}*/
 
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();

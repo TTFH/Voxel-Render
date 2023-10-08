@@ -148,6 +148,20 @@ void Scene::RecursiveLoad(XMLElement* element, vec3 parent_pos, quat parent_rot)
 			rope->setWorldTransform(position, rotation);
 			ropes.push_back(rope);
 		}
+	} else if (strcmp(element->Name(), "mesh") == 0) {
+		vec3 color = vec3(0.1, 0.1, 0.1);
+		const char* color_str = element->Attribute("color");
+		if (color_str != NULL) {
+			float r, g, b;
+			sscanf(color_str, "%f %f %f", &r, &g, &b);
+			color = vec3(r, g, b);
+		}
+
+		const char* file = element->Attribute("file");
+		string path = parent_folder + file;
+		Mesh* mesh = new Mesh(path.c_str(), color);
+		mesh->setWorldTransform(position, rotation);
+		meshes.push_back(mesh);
 	}
 	for (XMLElement* child = element->FirstChildElement(); child != NULL; child = child->NextSiblingElement())
 		RecursiveLoad(child, position, rotation);

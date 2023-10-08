@@ -14,9 +14,9 @@ float computeShadows() {
 	if (lightCoords.z <= 1.0f) {
 		lightCoords = (lightCoords + 1.0f) / 2.0f;
 		float currentDepth = lightCoords.z;
-		float bias = max(0.0025f * (1.0f - dot(normal, normalize(lightpos))), 0.0005f);
+		float bias = max(0.001f * (1.0f - dot(normal, normalize(lightpos))), 0.0001f);
 
-		int sampleRadius = 2;
+		int sampleRadius = 1;
 		vec2 pixelSize = 1.0 / textureSize(shadowMap, 0);
 		for(int y = -sampleRadius; y <= sampleRadius; y++) {
 			for(int x = -sampleRadius; x <= sampleRadius; x++) {
