@@ -203,7 +203,7 @@ void main() {
 		outputMaterial = texelFetch(uMaterial, ivec2(index, uPalette), 0);
 		outputMaterial.w *= (index <= uEmissiveGlassCount ? uEmissiveGlass[index - 1u] : 1.0);
 
-		outputColor.rgb = pow(outputColor.rgb, vec3(2.2));
+		//outputColor.rgb = pow(outputColor.rgb, vec3(2.2));
 		vec3 localPos = vLocalCameraPos + localDir * hitDist;
 		vec3 localNormal = vec3(0.0);
 		localNormal[n] = -sign(localDir[n]);
@@ -281,7 +281,6 @@ void main() {
 		vec4 oldStablePos4 = uOldStableVpMatrix * oldWorldPos4;
 		outputMotion = vec3(stablePos4.xy / (stablePos4.w * 2.0) - oldStablePos4.xy / (oldStablePos4.w * 2.0), outputColor.a < 1.0 ? 1.0 : 0.0);
 */
-		outputColor.rgb = pow(outputColor.rgb, vec3(1.0 / 2.2));
 		vec3 lightDir = vec3(0.38, -0.76, 0.53);
 		float l = max(0.0, dot(worldNormal4.xyz, -lightDir)) * 0.3 + 0.7;
 		outputColor.rgb *= l;

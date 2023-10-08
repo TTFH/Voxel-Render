@@ -149,7 +149,7 @@ void Scene::RecursiveLoad(XMLElement* element, vec3 parent_pos, quat parent_rot)
 			ropes.push_back(rope);
 		}
 	} else if (strcmp(element->Name(), "mesh") == 0) {
-		vec3 color = vec3(0.1, 0.1, 0.1);
+		vec3 color = vec3(0, 0, 0);
 		const char* color_str = element->Attribute("color");
 		if (color_str != NULL) {
 			float r, g, b;
