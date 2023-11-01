@@ -58,9 +58,11 @@ vec4 directLight() {
 }
 
 void main() {
-	//FragColor = directLight();
-	float l = 0.6f + 0.4f * max(0.0f, dot(normal, normalize(lightpos)));
-	FragColor = vec4(color * l, 1.0f);
+	FragColor = directLight();
+
+	// No Texture
+	//float l = 0.6f + 0.4f * max(0.0f, dot(normal, normalize(lightpos)));
+	//FragColor = vec4(color * l, 1.0f);
 
 	// Debug normals
 	//FragColor = vec4((normal + 1.0f) / 2.0f, 1.0f);

@@ -2,7 +2,6 @@
 layout(location = 0) in vec3 aPos;
 
 uniform mat4 vpMatrix;
-
 out vec3 texCoords;
 
 void main() {

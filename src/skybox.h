@@ -10,10 +10,12 @@
 class Skybox {
 private:
 	VAO vao;
-	GLuint texture;
+	GLuint texture = 0;
 public:
-	Skybox();
+	Skybox(const char* name);
+	void ReloadTexture(const char* name);
 	void draw(Shader& shader, Camera& camera);
+	~Skybox();
 };
 
 #endif

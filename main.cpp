@@ -1,4 +1,5 @@
 #include <map>
+#include <vector>
 #include <stdint.h>
 #include <string.h>
 
@@ -59,7 +60,36 @@ int main(int argc, char* argv[]) {
 		{"water_shader", &water_shader}
 	};
 
-	Skybox skybox;
+	const char* selected_skybox = "day";
+	vector<const char*> skyboxes = {
+		"cannon",
+		"cloudy",
+		"cold_clouds",
+		"cold_sunny",
+		"cold_sunset",
+		"cold_wispy",
+		"cool_day",
+		"cool_sunrise",
+		"day",
+		"jk2",
+		"moonlit",
+		"night",
+		"night_clear",
+		"overcast_day",
+		"skies61",
+		"skies66",
+		"skies67",
+		"skies86",
+		"skies219",
+		"skies274",
+		"sunflowers",
+		"sunset",
+		"sunset_industrial",
+		"sunset_quarry",
+		"tornado",
+	};
+
+	Skybox skybox(selected_skybox);
 	Screen screen;
 	ShadowMap shadow_map;
 	Camera camera(vec3(0, 2.5, 10));
@@ -84,12 +114,12 @@ int main(int argc, char* argv[]) {
 	ImGui_ImplOpenGL3_Init("#version 410");
 	ImVec4 clear_color = ImVec4(0.35, 0.54, 0.8, 1);
 	ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 3.0f);
-/*
+
 	Mesh model("meshes/LTM1300.obj", "meshes/LTM1300.png", "meshes/LTM1300_specular.png");
 	Mesh glass("meshes/LTM1300_glass.obj", "meshes/glass.png");
 	scene.addMesh(&model);
 	scene.addMesh(&glass);
-*/
+
 	// FPS counter
 	double dt = 0;
 	double prev_time = 0;
@@ -129,11 +159,11 @@ int main(int argc, char* argv[]) {
 		camera.handleInputs(window);
 		if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
 			light.handleInputs(window);
-		/*else {
+		else {
 			model.handleInputs(window);
 			glass.position = model.position;
 			glass.rotation = model.rotation;
-		}*/
+		}
 
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
@@ -173,6 +203,19 @@ int main(int argc, char* argv[]) {
 			ImGui::SameLine();
 			if (ImGui::Button("Reload") && selected_shader != NULL)
 				shaders[selected_shader]->Reload();
+
+			if (ImGui::BeginCombo("##combosk", selected_skybox)) {
+				for (vector<const char*>::iterator it = skyboxes.begin(); it != skyboxes.end(); it++) {
+					bool is_selected = strcmp(selected_skybox, *it) == 0;
+					if (ImGui::Selectable(*it, is_selected)) {
+						selected_skybox = *it;
+						skybox.ReloadTexture(selected_skybox);
+					}
+					if (is_selected)
+						ImGui::SetItemDefaultFocus();
+				}
+				ImGui::EndCombo();
+			}
 
 			ImGui::ColorEdit3("Clear color", (float*)&clear_color);
 			ImGui::Dummy(ImVec2(0, 10));
