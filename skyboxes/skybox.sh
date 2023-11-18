@@ -8,6 +8,15 @@ map["negy"]="bottom"
 map["posx"]="right"
 map["negx"]="left"
 
+for file in *.tde; do
+	./tdecrypt "$file"
+done
+
+if [ ! -e "cmft" ]; then
+	echo "Error: cmft not found."
+	exit 1
+fi
+
 for file in *.dds; do
 	echo "Extracting $file"
 	filename="${file%.dds}"
