@@ -220,7 +220,7 @@ int main(int argc, char* argv[]) {
 			if (ImGui::Button("Screenshot"))
 				Screenshot(window);
 
-			static const char* selected_shader = "voxel_shader";
+			static const char* selected_shader = "voxel_rtx_shader";
 			if (ImGui::BeginCombo("##combo", selected_shader)) {
 				for (map<const char*, Shader*>::iterator it = shaders.begin(); it != shaders.end(); it++) {
 					bool is_selected = strcmp(selected_shader, it->first) == 0;

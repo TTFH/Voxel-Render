@@ -16,7 +16,7 @@ UNAME_S := $(shell uname -s)
 
 CXX = g++
 CXXFLAGS = -Wall -Wextra -Werror -Wpedantic -Ilib -O3
-CXXFLAGS += -Wno-missing-field-initializers
+CXXFLAGS += -Wno-missing-field-initializers -Wno-strict-aliasing
 CXXFLAGS += -std=c++11 -I$(IMGUI_DIR) -I$(IMGUI_DIR)/backend
 
 ##---------------------------------------------------------------------
@@ -25,14 +25,13 @@ CXXFLAGS += -std=c++11 -I$(IMGUI_DIR) -I$(IMGUI_DIR)/backend
 
 ifeq ($(UNAME_S), Linux)
 	ECHO_MESSAGE = "Linux"
-	CXXFLAGS += -Wno-unused-result
+	#CXXFLAGS += -Wno-unused-result
 	CXXFLAGS += `pkg-config --cflags glfw3`
 	LIBS = -lglfw `pkg-config --static --libs glfw3`
 endif
 
 ifeq ($(OS), Windows_NT)
 	ECHO_MESSAGE = "MinGW"
-	CXXFLAGS += -Wno-array-bounds
 	CXXFLAGS += `pkg-config --cflags glfw3`
 	CXXFLAGS += -IC:/msys64/mingw64/include
 	LIBS = -lglfw3 -lgdi32 -lopengl32 -limm32 -static dont_td.res
@@ -40,7 +39,7 @@ endif
 
 ifeq ($(UNAME_S), Darwin)
 	ECHO_MESSAGE = "MacOS"
-	CXXFLAGS += -Wno-unused-const-variable -Wno-deprecated-volatile -Wno-deprecated-declarations -Wno-deprecated -Wno-dangling-gsl
+	#CXXFLAGS += -Wno-unused-const-variable -Wno-deprecated-volatile -Wno-deprecated-declarations -Wno-deprecated -Wno-dangling-gsl
 	CXXFLAGS += `pkg-config --cflags glfw3 glm`
 	LIBS = -lglfw `pkg-config --static --libs glfw3`
 endif
