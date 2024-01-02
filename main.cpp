@@ -98,6 +98,7 @@ int main(int argc, char* argv[]) {
 		"night",
 		"night_clear",
 		"overcast_day",
+		"sky_vr_001",
 		"sky",
 		"sunflowers_2k",
 		"sunset",
@@ -144,6 +145,7 @@ int main(int argc, char* argv[]) {
 	ImVec4 clear_color = ImVec4(0.35, 0.54, 0.8, 1);
 	ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 3.0f);
 
+	//GLuint texture_test = LoadTexture("skyboxes/day/right.png", GL_RGBA, false);
 	Mesh model("meshes/LTM1300.obj", "meshes/LTM1300.png", "meshes/LTM1300_specular.png");
 	Mesh glass("meshes/LTM1300_glass.obj", "meshes/glass.png");
 	scene.addMesh(&model);
@@ -245,6 +247,7 @@ int main(int argc, char* argv[]) {
 				}
 				ImGui::EndCombo();
 			}
+			//ImGui::Image((void*)(intptr_t)texture_test, ImVec2(256, 256));
 
 			ImGui::ColorEdit3("Clear color", (float*)&clear_color);
 			ImGui::Dummy(ImVec2(0, 10));

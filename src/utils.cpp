@@ -128,10 +128,10 @@ string GetScenePath(int argc, char* argv[]) {
 	normal		- GL_RGB
 	diffuse		- GL_RGBA
 */
-GLuint LoadTexture(const char* path, GLenum format) {
+GLuint LoadTexture(const char* path, GLenum format, bool flip) {
 	GLuint texture_id;
 	int width, height, channels;
-	stbi_set_flip_vertically_on_load(true);
+	stbi_set_flip_vertically_on_load(flip);
 	uint8_t* data = stbi_load(path, &width, &height, &channels, STBI_default);
 	printf("Loading texture %s with %d channels\n", path, channels);
 
