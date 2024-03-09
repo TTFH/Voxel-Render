@@ -58,6 +58,10 @@ void Camera::handleInputs(GLFWwindow* window) {
 
 		double mouseX, mouseY;
 		glfwGetCursorPos(window, &mouseX, &mouseY);
+
+		mouseX += double(screen_width % 2) / 2.0;
+		mouseY += double(screen_height % 2) / 2.0;
+		
 		float rotX = sensitivity * (float)(mouseY - (screen_height / 2)) / screen_height;
 		float rotY = sensitivity * (float)(mouseX - (screen_width / 2)) / screen_width;
 
