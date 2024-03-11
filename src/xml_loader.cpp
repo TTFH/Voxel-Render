@@ -3,6 +3,7 @@
 #include <string.h>
 #include <algorithm>
 
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/euler_angles.hpp>
 
 #include "xml_loader.h"

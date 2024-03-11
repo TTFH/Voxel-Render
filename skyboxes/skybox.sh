@@ -32,7 +32,7 @@ for file in *.dds; do
 
 		if [ -e "$skybox_side" ]; then
 			echo "Converting $filename - $direction"
-			convert "$skybox_side" "$filename"/"${map[$direction]}".png
+			convert "$skybox_side" "$filename"/"$orientation".png
 		else
 			echo "[ERROR] $skybox_side not found."
 		fi
