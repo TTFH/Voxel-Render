@@ -59,8 +59,12 @@ void Camera::handleInputs(GLFWwindow* window) {
 
 		double mouseX, mouseY;
 		glfwGetCursorPos(window, &mouseX, &mouseY);
-		float rotX = sensitivity * (float)(mouseY - (screen_height / 2)) / screen_height;
-		float rotY = sensitivity * (float)(mouseX - (screen_width / 2)) / screen_width;
+
+		mouseX += double(screen_width % 2) / 2.0;
+		mouseY += double(screen_height % 2) / 2.0;
+		
+		float rotX = sensitivity * (float(mouseY) - (float(screen_height) / 2.0f)) / screen_height;
+		float rotY = sensitivity * (float(mouseX) - (float(screen_width) / 2.0f)) / screen_width;
 
 		vec3 new_orientation = rotate(direction, radians(-rotX), normalize(cross(direction, up)));
 		if (abs(angle(new_orientation, up) - radians(90.0f)) <= radians(85.0f))
