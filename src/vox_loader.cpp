@@ -4,6 +4,7 @@
 #include "hex_render.h"
 #include "greedy_mesh.h"
 #include "vox_rtx.h"
+#include "utils.h"
 
 constexpr int ID(char a, char b, char c, char d) {
 	return a | (b << 8) | (c << 16) | (d << 24);
@@ -112,6 +113,12 @@ static const int MAX_PALETTES = 512;
 static int paletteCount = 0;
 static GLuint paletteBank;
 
+static string RemoveExtension(const string& path) {
+	size_t last_dot = path.find_last_of(".");
+	if (last_dot == string::npos) return path;
+	return path.substr(0, last_dot);
+}
+
 void VoxLoader::load(const char* filename) {
 	this->filename = filename;
 	vector<MV_Voxel> voxels;
@@ -144,7 +151,8 @@ void VoxLoader::load(const char* filename) {
 					fread(voxels.data(), sizeof(MV_Voxel), numVoxels, file);
 				} else
 					voxels.clear();
-				MV_Shape shape = { sizex, sizey, sizez, voxels };
+				string id = RemoveExtension(filename) + "_" + to_string(shapes.size());
+				MV_Shape shape = { id, sizex, sizey, sizez, voxels };
 				shapes.push_back(shape);
 				//printf("XYZI shape[%d]: %5d voxels, size = [%3d %3d %3d]\n", (int)shapes.size() - 1, numVoxels, sizex, sizey, sizez);
 			}
@@ -238,19 +246,20 @@ void VoxLoader::load(const char* filename) {
 		printf("[Warning] Palette limit reached!\n");
 	paletteCount++;
 	glBindTexture(GL_TEXTURE_2D, 0);
-
+/*
 	GLuint texture_id;
 	glGenTextures(1, &texture_id);
 	glBindTexture(GL_TEXTURE_1D, texture_id);
 	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexImage1D(GL_TEXTURE_1D, 0, GL_RGBA, 256, 0, GL_RGBA, GL_UNSIGNED_BYTE, palette);
 	glBindTexture(GL_TEXTURE_1D, 0);
-
+*/
 	for (unsigned int i = 0; i < shapes.size(); i++) {
-		//renderers[GREEDY].push_back(new GreedyRender(shapes[i], texture_id));
+		renderers[GREEDY].push_back(new GreedyRender(shapes[i], paletteBank, paletteCount - 1));
 		//renderers[HEXAGON].push_back(new HexRender(shapes[i], texture_id));
-		renderers[RTX].push_back(new RTX_Render(shapes[i], paletteBank, paletteCount - 1));
+		//renderers[RTX].push_back(new RTX_Render(shapes[i], paletteBank, paletteCount - 1));
 	}
+	SaveTexture("palette.png", paletteBank);
 }
 
 void VoxLoader::draw(Shader& shader, Camera& camera, vec3 position, quat rotation, float scale, vec4 texture, RenderMethod method) {
@@ -293,7 +302,7 @@ void VoxLoader::push(ShadowVolume& shadow_volume, string shape_name, vec3 world_
 		mat4 rot = mat4_cast(it->second.rotation);
 		mat4 localTr = toWorldCoords * pos * rot;
 
-		// Coordinate system: x right, y up, -z forward, scale 0.1 meters : 1 voxel
+		// Coordinate system: x right, y up, -z forward, scale 1 meter : 10 voxels
 		mat4 world_pos = translate(mat4(1.0f), 10.0f * world_position);
 		mat4 world_rot = mat4_cast(world_rotation);
 		mat4 worldTr = world_pos * world_rot;

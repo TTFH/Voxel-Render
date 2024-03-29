@@ -9,6 +9,53 @@ struct Triangle {
 	int tex_index[3];
 };
 
+void Mesh::LoadSimpleOBJ(const char* path) {
+	vector<vec3> positions;
+	vector<vec3> normals;
+	vector<Triangle> mesh;
+
+	FILE* file = fopen(path, "r");
+	positions.push_back({0, 0, 0});
+	normals.push_back({0, 0, 0});
+	do {
+		char line[128];
+		fscanf(file, "%s", line);
+		if (strcmp(line, "v") == 0) {
+			vec3 vertex;
+			fscanf(file, "%f %f %f\n", &vertex.x, &vertex.y, &vertex.z);
+			positions.push_back(vertex);
+		} else if (strcmp(line, "vn") == 0) {
+			vec3 normal;
+			fscanf(file, "%f %f %f\n", &normal.x, &normal.y, &normal.z);
+			normals.push_back(normal);
+		} else if (strcmp(line, "f") == 0) {
+			Triangle triangle;
+			fscanf(file, "%d//%d %d//%d %d//%d\n",
+				&triangle.vertex_index[0], &triangle.normal_index[0],
+				&triangle.vertex_index[1], &triangle.normal_index[1],
+				&triangle.vertex_index[2], &triangle.normal_index[2]);
+			mesh.push_back(triangle);
+		} else {
+			char buffer[256];
+			fscanf(file, "%[^\n]\n", buffer);
+		}
+	} while (!feof(file));
+	fclose(file);
+
+	for (unsigned int t = 0; t < mesh.size(); t++) {
+		for (int v = 0; v < 3; v++) {
+			vec3 vert = positions[mesh[t].vertex_index[v]];
+			vec3 norm = normals[mesh[t].normal_index[v]];
+			MeshVertex vertex = {
+				vec3(vert.x, vert.y, vert.z),
+				vec3(norm.x, norm.y, norm.z),
+				vec2(0, 0),
+			};
+			vertices.push_back(vertex);
+		}
+	}
+}
+
 void Mesh::LoadOBJ(const char* path) {
 	vector<vec3> positions;
 	vector<vec3> normals;
@@ -113,53 +160,6 @@ Mesh::Mesh(const char* path, const char* diffuse_path, const char* specular_path
 	vao.LinkAttrib(vbo, 2, 2, GL_FLOAT, sizeof(MeshVertex), (GLvoid*)(6 * sizeof(GLfloat))); // TexCoord
 	vao.Unbind();
 	vbo.Unbind();
-}
-
-void Mesh::LoadSimpleOBJ(const char* path) {
-	vector<vec3> positions;
-	vector<vec3> normals;
-	vector<Triangle> mesh;
-
-	FILE* file = fopen(path, "r");
-	positions.push_back({0, 0, 0});
-	normals.push_back({0, 0, 0});
-	do {
-		char line[128];
-		fscanf(file, "%s", line);
-		if (strcmp(line, "v") == 0) {
-			vec3 vertex;
-			fscanf(file, "%f %f %f\n", &vertex.x, &vertex.y, &vertex.z);
-			positions.push_back(vertex);
-		} else if (strcmp(line, "vn") == 0) {
-			vec3 normal;
-			fscanf(file, "%f %f %f\n", &normal.x, &normal.y, &normal.z);
-			normals.push_back(normal);
-		} else if (strcmp(line, "f") == 0) {
-			Triangle triangle;
-			fscanf(file, "%d//%d %d//%d %d//%d\n",
-				&triangle.vertex_index[0], &triangle.normal_index[0],
-				&triangle.vertex_index[1], &triangle.normal_index[1],
-				&triangle.vertex_index[2], &triangle.normal_index[2]);
-			mesh.push_back(triangle);
-		} else {
-			char buffer[256];
-			fscanf(file, "%[^\n]\n", buffer);
-		}
-	} while (!feof(file));
-	fclose(file);
-
-	for (unsigned int t = 0; t < mesh.size(); t++) {
-		for (int v = 0; v < 3; v++) {
-			vec3 vert = positions[mesh[t].vertex_index[v]];
-			vec3 norm = normals[mesh[t].normal_index[v]];
-			MeshVertex vertex = {
-				vec3(vert.x, vert.y, vert.z),
-				vec3(norm.x, norm.y, norm.z),
-				vec2(0, 0),
-			};
-			vertices.push_back(vertex);
-		}
-	}
 }
 
 Mesh::Mesh(const char* path, vec3 color) {

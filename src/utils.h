@@ -23,6 +23,7 @@ void ToggleFullscreen(GLFWwindow* window);
 void key_press_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
 string GetScenePath(int argc, char* argv[]);
+void SaveTexture(const char* path, GLuint texture);
 GLuint LoadTexture(const char* path, GLenum format = GL_RGBA, bool flip = true);
 
 int RoundTo_nth_Power(int value, int n);

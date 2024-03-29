@@ -1,5 +1,6 @@
 #version 410 core
-uniform sampler1D palette;
+uniform int uPalette;
+uniform sampler2D uColor;
 uniform sampler2D shadowMap;
 uniform vec3 lightpos;
 uniform bool transparent_glass;
@@ -34,9 +35,10 @@ float computeShadows() {
 }
 
 void main() {
-	float shadow = computeShadows();
+	float shadow = 0; //computeShadows(); // TODO: FIX SHADOWS!
 	float l = 0.6f + 0.4f * max(0.0f, dot(normal, normalize(lightpos)));
-	vec4 color = texture(palette, tex_coord / 255.0f);
+	//vec4 color = texture(palette, tex_coord / 255.0f);
+	vec4 color = texelFetch(uColor, ivec2(tex_coord + 0.5, uPalette), 0);
 
 	if (transparent_glass && color.a < 1.0f) discard;
 	FragColor = vec4(color.rgb * l * (1.0f - shadow), 1.0f);

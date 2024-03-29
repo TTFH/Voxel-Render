@@ -2,6 +2,7 @@
 #define VBO_H
 
 #include <stdint.h>
+#include <string>
 #include <vector>
 #include <glm/glm.hpp>
 #include "../glad/glad.h"
@@ -14,6 +15,7 @@ struct MV_Voxel {
 };
 
 struct MV_Shape {
+	string id;
 	int sizex, sizey, sizez;
 	vector<MV_Voxel> voxels;
 };

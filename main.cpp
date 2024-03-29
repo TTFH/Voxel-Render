@@ -125,12 +125,12 @@ int main(int argc, char* argv[]) {
 	Camera camera(vec3(0, 2.5, 10));
 	Light light(vec3(-35, 130, -132));
 	Scene scene(GetScenePath(argc, argv));
-	bool transparent_glass = true;
+	bool transparent_glass = false;
 	int hex_orientation = 2;
 
-	//ShadowVolume shadow_volume(40, 10, 40);
-	//scene.push(shadow_volume);
-	//shadow_volume.updateTexture();
+	ShadowVolume shadow_volume(40, 10, 40);
+	scene.push(shadow_volume);
+	shadow_volume.updateTexture();
 
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -146,10 +146,10 @@ int main(int argc, char* argv[]) {
 	ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 3.0f);
 
 	//GLuint texture_test = LoadTexture("skyboxes/day/right.png", GL_RGBA, false);
-	Mesh model("meshes/LTM1300.obj", "meshes/LTM1300.png", "meshes/LTM1300_specular.png");
+	/*Mesh model("meshes/LTM1300.obj", "meshes/LTM1300.png", "meshes/LTM1300_specular.png");
 	Mesh glass("meshes/LTM1300_glass.obj", "meshes/glass.png");
 	scene.addMesh(&model);
-	scene.addMesh(&glass);
+	scene.addMesh(&glass);*/
 
 	// FPS counter
 	double dt = 0;
@@ -191,9 +191,9 @@ int main(int argc, char* argv[]) {
 		if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
 			light.handleInputs(window);
 		else {
-			model.handleInputs(window);
+			/*model.handleInputs(window);
 			glass.position = model.position;
-			glass.rotation = model.rotation;
+			glass.rotation = model.rotation;*/
 		}
 
 		ImGui_ImplOpenGL3_NewFrame();
@@ -277,7 +277,7 @@ int main(int argc, char* argv[]) {
 
 		voxel_rtx_shader.Use();
 		light.draw(voxel_rtx_shader, camera); // TODO: param
-		scene.draw(voxel_rtx_shader, camera, RTX);
+		scene.draw(voxel_rtx_shader, camera, GREEDY);
 
 		voxel_hex_shader.Use();
 		voxel_hex_shader.PushInt("side", hex_orientation);

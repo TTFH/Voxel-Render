@@ -2,7 +2,7 @@ EXE = vox_render
 ODIR = obj
 IMGUI_DIR = imgui
 
-# For Ubuntu, install libglm-dev and libglfw3-dev
+# On Linux install: libglm-dev and libglfw3-dev
 
 SOURCES = main.cpp glad/glad.c lib/tinyxml2.cpp
 SOURCES += src/camera.cpp src/shader.cpp src/vao.cpp src/vbo.cpp src/ebo.cpp src/skybox.cpp src/greedy_mesh.cpp src/mesh.cpp
@@ -15,7 +15,7 @@ OBJS = $(addprefix obj/, $(addsuffix .o, $(basename $(notdir $(SOURCES)))))
 UNAME_S := $(shell uname -s)
 
 CXX = g++
-CXXFLAGS = -Wall -Wextra -Werror -Wpedantic -Ilib -O3
+CXXFLAGS = -Wall -Wextra -Werror -Wpedantic -Ilib -O3 -g
 CXXFLAGS += -Wno-missing-field-initializers -Wno-strict-aliasing
 CXXFLAGS += -std=c++11 -I$(IMGUI_DIR) -I$(IMGUI_DIR)/backend
 

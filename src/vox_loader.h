@@ -33,22 +33,24 @@ struct MV_Material { // Unused
 	float metalness;
 	float emissive;
 }
+
+struct MV_Voxel { // Defined in vbo.h
+	uint8_t x, y, z, index;
+};
+
+struct MV_Shape { // Defined in vbo.h
+	string id;
+	int sizex, sizey, sizez;
+	vector<MV_Voxel> voxels;
+};
 */
+
 struct MV_Model {
 	int shape_index;
 	vec3 position;
 	quat rotation;
 };
-/*
-struct MV_Voxel { // Defined in vbo.h
-	uint8_t x, y, z, index;
-};
 
-struct MV_Shape { // Defined in greedy_mesh.h
-	int sizex, sizey, sizez;
-	vector<MV_Voxel> voxels;
-};
-*/
 typedef multimap<string, MV_Model>::iterator mv_model_iterator;
 
 class VoxLoader {
