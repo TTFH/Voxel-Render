@@ -5,7 +5,10 @@ vox_render.exe
 screenshot_*.png
 castle.vox
 skyboxes/
+
 *.obj
+scene.xml
+palette.png
 
 meshes/
 ShadowTest/

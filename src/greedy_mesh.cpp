@@ -130,6 +130,7 @@ void SaveOBJ(string path, const GreedyMesh& mesh, int palette_id) {
 		fprintf(output, "f %d/%d/%d %d/%d/%d %d/%d/%d\n", i + 3, i + 3, i + 3, i + 2, i + 2, i + 2, i + 1, i + 1, i + 1);
 	}
 	fclose(output);
+	printf("Saved shape to %s\n", path.c_str());
 }
 
 GreedyRender::GreedyRender(const MV_Shape& shape, GLuint paletteBank, int paletteId) {
