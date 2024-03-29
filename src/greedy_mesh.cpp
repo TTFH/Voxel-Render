@@ -82,6 +82,7 @@ GreedyMesh generateGreedyMesh(const MV_Shape& shape) {
 						vec3 p2 = vec3(x[0] + dv[0],		 x[1] + dv[1],		   x[2] + dv[2]);
 						vec3 p3 = vec3(x[0] + du[0] + dv[0], x[1] + du[1] + dv[1], x[2] + du[2] + dv[2]);
 						vec3 normal = -cross(p1 - p0, p2 - p0);
+						normal = normalize(normal);
 						uint8_t index = c > 0 ? c : -c;
 
 						// Generate the indices first
@@ -120,9 +121,9 @@ GreedyMesh generateGreedyMesh(const MV_Shape& shape) {
 void SaveOBJ(string path, const GreedyMesh& mesh, int palette_id) {
 	FILE* output = fopen(path.c_str(), "w");
 	for (unsigned int i = 0; i < mesh.vertices.size(); i++)
-		fprintf(output, "v %f %f %f\n", mesh.vertices[i].position.x, mesh.vertices[i].position.y, mesh.vertices[i].position.z);
+		fprintf(output, "v %d %d %d\n", (int)mesh.vertices[i].position.x, (int)mesh.vertices[i].position.y, (int)mesh.vertices[i].position.z);
 	for (unsigned int i = 0; i < mesh.vertices.size(); i++)
-		fprintf(output, "vn %f %f %f\n", mesh.vertices[i].normal.x, mesh.vertices[i].normal.y, mesh.vertices[i].normal.z);
+		fprintf(output, "vn %d %d %d\n", (int)mesh.vertices[i].normal.x, (int)mesh.vertices[i].normal.y, (int)mesh.vertices[i].normal.z);
 	for (unsigned int i = 0; i < mesh.vertices.size(); i++)
 		fprintf(output, "vt %f %f\n", (mesh.vertices[i].index + 0.5) / 256.0, 1.0 - (palette_id + 0.5) / 512.0);
 	for (unsigned int i = 0; i < mesh.vertices.size(); i += 4) {
