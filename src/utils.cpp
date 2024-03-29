@@ -77,6 +77,18 @@ void Screenshot(GLFWwindow* window) {
 	delete[] pixels;
 }
 
+void SaveTexture(const char* path, GLuint texture) {
+	int width, height;
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &width);
+    glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &height);
+	uint8_t* pixels = new uint8_t[width * height * 4];
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+	stbi_write_png(path, width, height, 4, pixels, width * 4);
+	delete[] pixels;
+}
+
 static bool g_fullscreen = false;
 
 void ToggleFullscreen(GLFWwindow* window) {

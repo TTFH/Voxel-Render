@@ -117,10 +117,27 @@ GreedyMesh generateGreedyMesh(const MV_Shape& shape) {
 	return mesh;
 }
 
-GreedyRender::GreedyRender(const MV_Shape& shape, GLuint texture_id) {
+void SaveOBJ(string path, const GreedyMesh& mesh, int palette_id) {
+	FILE* output = fopen(path.c_str(), "w");
+	for (unsigned int i = 0; i < mesh.vertices.size(); i++)
+		fprintf(output, "v %f %f %f\n", mesh.vertices[i].position.x, mesh.vertices[i].position.y, mesh.vertices[i].position.z);
+	for (unsigned int i = 0; i < mesh.vertices.size(); i++)
+		fprintf(output, "vn %f %f %f\n", mesh.vertices[i].normal.x, mesh.vertices[i].normal.y, mesh.vertices[i].normal.z);
+	for (unsigned int i = 0; i < mesh.vertices.size(); i++)
+		fprintf(output, "vt %f %f\n", (mesh.vertices[i].index + 0.5) / 256.0, 1.0 - (palette_id + 0.5) / 512.0);
+	for (unsigned int i = 0; i < mesh.vertices.size(); i += 4) {
+		fprintf(output, "f %d/%d/%d %d/%d/%d %d/%d/%d\n", i + 2, i + 2, i + 2, i + 3, i + 3, i + 3, i + 4, i + 4, i + 4);
+		fprintf(output, "f %d/%d/%d %d/%d/%d %d/%d/%d\n", i + 3, i + 3, i + 3, i + 2, i + 2, i + 2, i + 1, i + 1, i + 1);
+	}
+	fclose(output);
+}
+
+GreedyRender::GreedyRender(const MV_Shape& shape, GLuint paletteBank, int paletteId) {
 	GreedyMesh mesh = generateGreedyMesh(shape);
-	this->texture_id = texture_id;
+	this->paletteBank = paletteBank;
+	this->paletteId = paletteId;
 	index_count = mesh.indices.size();
+	SaveOBJ(shape.id + ".obj", mesh, paletteId);
 
 	vao.Bind();
 	VBO vbo(mesh.vertices);
@@ -161,7 +178,9 @@ void GreedyRender::draw(Shader& shader, Camera& camera, float scale, vec4 unused
 	shader.PushMatrix("world_pos", world_pos);
 	shader.PushMatrix("world_rot", world_rot);
 
-	shader.PushTexture1D("palette", texture_id, 0);
+	//shader.PushTexture1D("palette", texture_id, 0);
+	shader.PushTexture("uColor", paletteBank, 1);
+	shader.PushInt("uPalette", paletteId);
 
 	//glLineWidth(5.0f);
 	glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_INT, 0);
