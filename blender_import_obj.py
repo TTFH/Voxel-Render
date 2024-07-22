@@ -25,8 +25,15 @@ xml_file = FOLDER + "scene.xml"
 tree = ET.parse(xml_file)
 root = tree.getroot()
 
+i = 0
+n = 0 # Change by 100 for next batch
+
 # Loop through the <mesh> elements in the XML
 for mesh in root.findall('mesh'):
+    i = i + 1
+    if i <= n:
+        continue
+
     file_path = FOLDER + mesh.get('file')
     position = mesh.get('pos')
     rotation = mesh.get('rot')
@@ -34,6 +41,8 @@ for mesh in root.findall('mesh'):
     
     # Import the OBJ file and set properties
     import_obj(file_path, position, rotation)
+    if i % 100 == 0:
+        break
 
 # To rotate the scene press:
 # 'A' 'R' 'X' '9' '0' 'Enter'
