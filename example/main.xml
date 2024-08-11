@@ -20,8 +20,8 @@
 		<vox pos="1.94108 0.98682 1.95529" rot="-10 45 0" file="MOD/vox/chopper.vox" object="body"/>
 	</group>
 	<group name="truck" pos="-3.5 0.0 -0.1">
-		<vox pos="-0.05 0.3 -4.6" file="MOD/vox/semitruck-us.vox" object="body"/>
-		<vox pos="-0.05 0.3 2.4" file="MOD/vox/semi_baggage.vox" object="trailer"/>
+		<vox pos="-0.05 0.3 -4.6" name="hex" file="MOD/vox/semitruck-us.vox" object="body"/>
+		<vox pos="-0.05 0.3 2.4" name="hex" file="MOD/vox/semi_baggage.vox" object="trailer"/>
 		<vox pos="0.75 0.0 4.1" file="MOD/vox/semitruck-us.vox" object="wheel_br"/>
 		<vox pos="0.65 0.0 -3.0" file="MOD/vox/semitruck-us.vox" object="wheel_br"/>
 		<vox pos="0.65 0.0 -1.6" file="MOD/vox/semitruck-us.vox" object="wheel_br"/>
@@ -36,11 +36,11 @@
 		<vox pos="0.75 0.0 5.3" file="MOD/vox/semitruck-us.vox" object="wheel_br"/>
 	</group>
 	<group name="monster truck" pos="-0.9 4.1 0.0" rot="0 0 -20">
-		<vox pos="-0.65977 1.37183 0.0" rot="0 90 0" file="MOD/vox/monster_truck2.vox" object="body"/>
-		<vox pos="-2.85977 0.67183 -1.1" rot="0 90 0" file="MOD/vox/monster_truck2.vox" object="wheel_fr"/>
-		<vox pos="-2.85977 0.67183 1.1" rot="0 90 0" file="MOD/vox/monster_truck2.vox" object="wheel_fl"/>
-		<vox pos="0.84023 0.67183 -1.1" rot="0 90 0" file="MOD/vox/monster_truck2.vox" object="wheel_br"/>
-		<vox pos="0.82023 0.67183 1.1" rot="0 90 0" file="MOD/vox/monster_truck2.vox" object="wheel_bl"/>
+		<vox pos="-0.65977 1.37183 0.0" rot="0 90 0" name="gm" file="MOD/vox/monster_truck2.vox" object="body"/>
+		<vox pos="-2.85977 0.67183 -1.1" rot="0 90 0" name="gm" file="MOD/vox/monster_truck2.vox" object="wheel_fr"/>
+		<vox pos="-2.85977 0.67183 1.1" rot="0 90 0" name="gm" file="MOD/vox/monster_truck2.vox" object="wheel_fl"/>
+		<vox pos="0.84023 0.67183 -1.1" rot="0 90 0" name="gm" file="MOD/vox/monster_truck2.vox" object="wheel_br"/>
+		<vox pos="0.82023 0.67183 1.1" rot="0 90 0" name="gm" file="MOD/vox/monster_truck2.vox" object="wheel_bl"/>
 	</group>
 	<group name="police" pos="9.0 0.0 -6.0">
 		<vox pos="0.06 0.2 0.0" rot="0 120 0" density="1.5" strength="2" file="MOD/vox/police_car.vox" object="body"/>
@@ -105,7 +105,7 @@
 			<location/>
 		</rope>
 	</group>
-	<group pos="3.5 -0.1 0.0">
+	<group name="ramp" pos="3.5 -0.1 0.0">
 		<voxbox pos="-2.9 0.1 0.8" size="2 39 2" color="0.7 0.7 0.7"/>
 		<vox pos="2.9 0.1 0.0" rot="60 -90 0" file="MOD/vox/flatbed.vox" object="ramp"/>
 		<vox pos="-0.2 1.9 0.0" rot="50 -90 0" file="MOD/vox/flatbed.vox" object="ramp"/>

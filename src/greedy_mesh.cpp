@@ -139,7 +139,7 @@ GreedyRender::GreedyRender(const MV_Shape& shape, GLuint paletteBank, int palett
 	this->paletteBank = paletteBank;
 	this->paletteId = paletteId;
 	index_count = mesh.indices.size();
-	SaveOBJ(shape.id + ".obj", mesh, paletteId);
+	//SaveOBJ(shape.id + ".obj", mesh, paletteId);
 
 	vao.Bind();
 	VBO vbo(mesh.vertices);
@@ -154,18 +154,7 @@ GreedyRender::GreedyRender(const MV_Shape& shape, GLuint paletteBank, int palett
 	ebo.Unbind();
 }
 
-void GreedyRender::setTransform(vec3 position, quat rotation) {
-	this->position = position;
-	this->rotation = rotation;
-}
-
-void GreedyRender::setWorldTransform(vec3 position, quat rotation) {
-	this->world_position = position;
-	this->world_rotation = rotation;
-}
-
-void GreedyRender::draw(Shader& shader, Camera& camera, float scale, vec4 unused) {
-	(void)unused;
+void GreedyRender::draw(Shader& shader, Camera& camera) {
 	vao.Bind();
 	shader.PushMatrix("camera", camera.vpMatrix);
 	shader.PushFloat("scale", scale);
@@ -180,11 +169,10 @@ void GreedyRender::draw(Shader& shader, Camera& camera, float scale, vec4 unused
 	shader.PushMatrix("world_pos", world_pos);
 	shader.PushMatrix("world_rot", world_rot);
 
-	//shader.PushTexture1D("palette", texture_id, 0);
 	shader.PushTexture("uColor", paletteBank, 1);
 	shader.PushInt("uPalette", paletteId);
 
-	//glLineWidth(5.0f);
+	//glLineWidth(5.0f); // GL_LINES
 	glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_INT, 0);
 	vao.Unbind();
 }

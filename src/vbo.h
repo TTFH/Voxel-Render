@@ -39,9 +39,9 @@ public:
 	VBO(vector<vec2>& vertices); // Used for water rendering
 	VBO(vector<vec3>& vertices); // Used for ropes rendering
 	VBO(vector<GM_Vertex>& vertices); // Used for greedy voxel rendering
-	VBO(vector<MV_Voxel>& vertices); // Used for slow voxel rendering
+	VBO(vector<MV_Voxel>& vertices); // Used for hex voxel rendering
 	VBO(vector<MeshVertex>& vertices); // Used for mesh rendering
-	VBO(const GLfloat* vertices, GLsizeiptr size); // Used for cube rendering
+	VBO(const GLfloat* vertices, GLsizeiptr size); // Used for voxbox rendering
 	~VBO();
 	void Bind();
 	void Unbind();

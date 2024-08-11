@@ -44,7 +44,6 @@ struct MV_Shape { // Defined in vbo.h
 	vector<MV_Voxel> voxels;
 };
 */
-
 struct MV_Model {
 	int shape_index;
 	vec3 position;

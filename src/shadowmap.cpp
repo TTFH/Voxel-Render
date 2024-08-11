@@ -35,8 +35,8 @@ void ShadowMap::UnbindShadowMap(Camera& camera) {
 	glViewport(0, 0, camera.screen_width, camera.screen_height);
 }
 
-void ShadowMap::PushShadows(Shader& shader) {
-	shader.PushTexture("shadowMap", shadowMap, 1);
+GLuint ShadowMap::GetTexture() {
+	return shadowMap;
 }
 
 ShadowMap::~ShadowMap() {

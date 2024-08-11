@@ -77,7 +77,7 @@ string GetDictValue(DICT& dict, string key) {
 	return "";
 }
 
-int ReadHeader( FILE* file) {
+int ReadHeader(FILE* file) {
 	int magic = ReadInt(file);
 	if (magic != VOX) {
 		printf("[ERROR] Invalid .vox file format.\n");
@@ -246,34 +246,39 @@ void VoxLoader::load(const char* filename) {
 		printf("[Warning] Palette limit reached!\n");
 	paletteCount++;
 	glBindTexture(GL_TEXTURE_2D, 0);
-/*
-	GLuint texture_id;
+
+	/*GLuint texture_id;
 	glGenTextures(1, &texture_id);
 	glBindTexture(GL_TEXTURE_1D, texture_id);
 	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexImage1D(GL_TEXTURE_1D, 0, GL_RGBA, 256, 0, GL_RGBA, GL_UNSIGNED_BYTE, palette);
-	glBindTexture(GL_TEXTURE_1D, 0);
-*/
+	glBindTexture(GL_TEXTURE_1D, 0);*/
+
 	for (unsigned int i = 0; i < shapes.size(); i++) {
 		renderers[GREEDY].push_back(new GreedyRender(shapes[i], paletteBank, paletteCount - 1));
-		//renderers[HEXAGON].push_back(new HexRender(shapes[i], texture_id));
-		//renderers[RTX].push_back(new RTX_Render(shapes[i], paletteBank, paletteCount - 1));
+		renderers[HEXAGON].push_back(new HexRender(shapes[i], paletteBank, paletteCount - 1));
+		renderers[RTX].push_back(new RTX_Render(shapes[i], paletteBank, paletteCount - 1));
 	}
-	SaveTexture("palette.png", paletteBank);
+	//SaveTexture("palette.png", paletteBank);
 }
 
 void VoxLoader::draw(Shader& shader, Camera& camera, vec3 position, quat rotation, float scale, vec4 texture, RenderMethod method) {
+	(void)texture;
+	//if (method != RTX) return;
 	for (mv_model_iterator it = models.begin(); it != models.end(); it++) {
 		int index = it->second.shape_index;
 		const MV_Shape& shape = shapes[index];
 		vec3 pos = it->second.position - (it->second.rotation * vec3(shape.sizex / 2, shape.sizey / 2, shape.sizez / 2));
 		renderers[method][index]->setTransform(pos, it->second.rotation);
 		renderers[method][index]->setWorldTransform(position, rotation);
-		renderers[method][index]->draw(shader, camera, scale, texture);
+		renderers[method][index]->setScale(scale);
+		renderers[method][index]->draw(shader, camera);
 	}
 }
 
 void VoxLoader::draw(Shader& shader, Camera& camera, string shape_name, vec3 position, quat rotation, float scale, vec4 texture, RenderMethod method) {
+	(void)texture;
+	//if (method != RTX) return;
 	pair<mv_model_iterator, mv_model_iterator> homonym_shapes = models.equal_range(shape_name);
 	for (mv_model_iterator it = homonym_shapes.first; it != homonym_shapes.second; it++) {
 		int index = it->second.shape_index;
@@ -281,7 +286,8 @@ void VoxLoader::draw(Shader& shader, Camera& camera, string shape_name, vec3 pos
 		vec3 pos = it->second.rotation * vec3(-shape.sizex / 2, -shape.sizey / 2, 0);
 		renderers[method][index]->setTransform(pos, it->second.rotation);
 		renderers[method][index]->setWorldTransform(position, rotation);
-		renderers[method][index]->draw(shader, camera, scale, texture);
+		renderers[method][index]->setScale(scale);
+		renderers[method][index]->draw(shader, camera);
 	}
 }
 

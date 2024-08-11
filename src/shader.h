@@ -9,8 +9,6 @@
 using namespace std;
 using namespace glm;
 
-string ReadFile(const char* filename);
-
 class Shader {
 private:
 	const char* VERSION = "#version 410 core\n";

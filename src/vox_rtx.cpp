@@ -37,7 +37,7 @@ GLuint blendMap;
 GLuint normalMap;
 GLuint windowAlbedo;
 GLuint windowNormal;
-GLuint bluenoise;
+GLuint blueNoise;
 
 RTX_Render::RTX_Render(const MV_Shape& shape, GLuint paletteBank, int paletteId) {
 	vao.Bind();
@@ -133,22 +133,12 @@ RTX_Render::RTX_Render(const MV_Shape& shape, GLuint paletteBank, int paletteId)
 		normalMap = LoadTexture("textures/normal.png", GL_RGBA);
 		windowAlbedo = LoadTexture("textures/window.png", GL_RGBA);
 		windowNormal = LoadTexture("textures/window_normal.png", GL_RGBA);
-		bluenoise = LoadTexture("textures/bluenoise512rgb.png", GL_RGBA);
+		blueNoise = LoadTexture("textures/bluenoise512rgb.png", GL_RGBA);
 	}
 }
 
-void RTX_Render::setTransform(vec3 position, quat rotation) {
-	this->position = position;
-	this->rotation = rotation;
-}
-
-void RTX_Render::setWorldTransform(vec3 position, quat rotation) {
-	this->world_position = position;
-	this->world_rotation = rotation;
-}
-/*
-void RTX_Render::draw(Shader& shader, Camera& camera, float scale, vec4 texture) {
-	(void)texture;
+// Simple shader, from Teardown editor.
+void RTX_Render::DrawSimple(Shader& shader, Camera& camera) {
 	vao.Bind();
 
 	shader.PushTexture("uColor", paletteBank, 0);
@@ -193,8 +183,9 @@ void RTX_Render::draw(Shader& shader, Camera& camera, float scale, vec4 texture)
 
 	glDrawElements(GL_TRIANGLES, sizeof(cube_indices) / sizeof(GLuint), GL_UNSIGNED_INT, 0);
 }
-*/
-void RTX_Render::draw(Shader& shader, Camera& camera, float scale, vec4 texture) {
+
+void RTX_Render::DrawAdvanced(Shader& shader, Camera& camera) {
+	vec4 texture = vec4(0, 0, 1, 1); // TODO: load texture
 	vao.Bind();
 
 	shader.PushTexture3D("uVolTex", volumeTexture, 0);
@@ -205,7 +196,7 @@ void RTX_Render::draw(Shader& shader, Camera& camera, float scale, vec4 texture)
 	shader.PushTexture("uNormalMap", normalMap, 5);
 	shader.PushTexture("uWindowAlbedo", windowAlbedo, 6);
 	shader.PushTexture("uWindowNormal", windowNormal, 7);
-	shader.PushTexture("uBlueNoise", bluenoise, 8);
+	shader.PushTexture("uBlueNoise", blueNoise, 8);
 
 	shader.PushInt("uPalette", paletteId);
 	shader.PushVec3("uObjSize", shapeSize);
@@ -250,6 +241,10 @@ void RTX_Render::draw(Shader& shader, Camera& camera, float scale, vec4 texture)
 	shader.PushMatrix("uVpInvMatrix", volMatrixInv);
 
 	glDrawElements(GL_TRIANGLES, sizeof(cube_indices) / sizeof(GLuint), GL_UNSIGNED_INT, 0);
+}
+
+void RTX_Render::draw(Shader& shader, Camera& camera) {
+	DrawAdvanced(shader, camera);
 }
 
 RTX_Render::~RTX_Render() {

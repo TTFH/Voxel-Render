@@ -21,7 +21,7 @@ public:
 	vec3 getPosition();
 	mat4 getProjection();
 	void handleInputs(GLFWwindow* window);
-	void draw(Shader& shader, Camera& camera);
+	void draw(Shader& shader, Camera& camera, RenderMethod method);
 };
 
 #endif

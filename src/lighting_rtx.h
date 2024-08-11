@@ -13,7 +13,7 @@ private:
 	GLuint colorTexture;
 	GLuint normalTexture;
 	GLuint depthTexture;
-	void initFrameBuffer(int width, int height);
+	void InitFrameBuffer(int width, int height);
 public:
 	Screen();
 	void start();

@@ -89,7 +89,7 @@ static GLuint hex_prism_indices[] = {
 	32, 34, 35,
 };
 
-HexRender::HexRender(const MV_Shape& shape, GLuint texture_id) {
+HexRender::HexRender(const MV_Shape& shape, GLuint paletteBank, int paletteId) {
 	uint8_t*** voxels = MatrixInit(shape);
 	TrimShape(voxels, shape.sizex, shape.sizey, shape.sizez);
 
@@ -104,7 +104,8 @@ HexRender::HexRender(const MV_Shape& shape, GLuint texture_id) {
 				}
 	MatrixDelete(voxels, shape);
 
-	this->texture_id = texture_id;
+	this->paletteBank = paletteBank;
+	this->paletteId = paletteId;
 	this->voxel_count = trimed_voxels.size();
 	vao.Bind();
 	VBO vbo(hex_prism_vertices, sizeof(hex_prism_vertices));
@@ -114,7 +115,6 @@ HexRender::HexRender(const MV_Shape& shape, GLuint texture_id) {
 	vao.LinkAttrib(vbo, 1, 3, GL_FLOAT, 6 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat))); // Normal
 
 	VBO instaceVBO(trimed_voxels);
-	instaceVBO.Bind();
 	vao.LinkAttrib(instaceVBO, 2, 1, GL_UNSIGNED_BYTE, sizeof(MV_Voxel), (GLvoid*)(3 * sizeof(uint8_t))); // Texture coord
 	vao.LinkAttrib(instaceVBO, 3, 3, GL_UNSIGNED_BYTE, sizeof(MV_Voxel), (GLvoid*)0);					  // Relative position
 	glVertexAttribDivisor(2, 1);
@@ -126,18 +126,7 @@ HexRender::HexRender(const MV_Shape& shape, GLuint texture_id) {
 	ebo.Unbind();
 }
 
-void HexRender::setTransform(vec3 position, quat rotation) {
-	this->position = position;
-	this->rotation = rotation;
-}
-
-void HexRender::setWorldTransform(vec3 position, quat rotation) {
-	this->world_position = position;
-	this->world_rotation = rotation;
-}
-
-void HexRender::draw(Shader& shader, Camera& camera, float scale, vec4 unused) {
-	(void)unused;
+void HexRender::draw(Shader& shader, Camera& camera) {
 	vao.Bind();
 	shader.PushMatrix("camera", camera.vpMatrix);
 
@@ -152,7 +141,8 @@ void HexRender::draw(Shader& shader, Camera& camera, float scale, vec4 unused) {
 	shader.PushMatrix("world_rot", world_rot);
 
 	shader.PushFloat("scale", scale);
-	shader.PushTexture1D("palette", texture_id, 0);
+	shader.PushTexture("uColor", paletteBank, 1);
+	shader.PushInt("uPalette", paletteId);
 
 	// Use GL_LINES for wireframe
 	glDrawElementsInstanced(GL_TRIANGLES, sizeof(hex_prism_indices) / sizeof(GLuint), GL_UNSIGNED_INT, 0, voxel_count);

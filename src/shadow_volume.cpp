@@ -56,13 +56,14 @@ ShadowVolume::ShadowVolume(float width_m, float height_m, float depth_m) {
 
 	glBindTexture(GL_TEXTURE_3D, 0);
 
-	scene_root = scene_xml.NewElement("scene");
-	scene_xml.InsertFirstChild(scene_root);
+	//scene_root = scene_xml.NewElement("scene");
+	//scene_xml.InsertFirstChild(scene_root);
 }
 
 // Receives the global transform of a shape
 void ShadowVolume::addShape(const MV_Shape& shape, mat4 model_matrix) {
-    vec3 position(model_matrix[3]);
+	// Export scene to Blender
+    /*vec3 position(model_matrix[3]);
 	mat3 rot_matrix(model_matrix);
     quat quat = quat_cast(rot_matrix);
     vec3 rotation = degrees(eulerAngles(quat));
@@ -74,9 +75,9 @@ void ShadowVolume::addShape(const MV_Shape& shape, mat4 model_matrix) {
 	mesh_element->SetAttribute("file", path.c_str());
 	mesh_element->SetAttribute("pos", pos.c_str());
 	mesh_element->SetAttribute("rot", rot.c_str());
-	scene_root->InsertEndChild(mesh_element);
+	scene_root->InsertEndChild(mesh_element);*/
 
-	/*for (unsigned int i = 0; i < shape.voxels.size(); i++) {
+	for (unsigned int i = 0; i < shape.voxels.size(); i++) {
 		float xv = shape.voxels[i].x;
 		float yv = shape.voxels[i].y;
 		float zv = shape.voxels[i].z;
@@ -91,13 +92,13 @@ void ShadowVolume::addShape(const MV_Shape& shape, mat4 model_matrix) {
 		// Up to 8 voxels share the same index
 		int index = (x / 2) + width * ((y / 2) + height * (z / 2));
 		shadowVolume[index] += 1 << ((x % 2) + 2 * (y % 2) + 4 * (z % 2));
-	}*/
+	}
 }
 
 void ShadowVolume::updateTexture() {
-	scene_xml.SaveFile("scene.xml");
+	//scene_xml.SaveFile("scene.xml");
 
-	/*int width_mip1 = width / 2;
+	int width_mip1 = width / 2;
 	int height_mip1 = height / 2;
 	int depth_mip1 = depth / 2;
 	int volume_mip1 = width_mip1 * height_mip1 * depth_mip1;
@@ -141,7 +142,7 @@ void ShadowVolume::updateTexture() {
 	glBindTexture(GL_TEXTURE_3D, 0);
 
 	delete[] shadowVolume_mip1;
-	delete[] shadowVolume_mip2;*/
+	delete[] shadowVolume_mip2;
 }
 
 void ShadowVolume::draw(Shader& shader, Camera& camera) {

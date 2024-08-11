@@ -6,20 +6,24 @@ screenshot_*.png
 castle.vox
 skyboxes/
 
+# Blender export
 *.obj
 scene.xml
 palette.png
 
-meshes/
-ShadowTest/
-Water Test/
+block/
+lib/json.hpp
+
 caveisland_sandbox/
 csgo_de_train/
 heistexample/
-hub34/
 hub_carib_sandbox/
-quicksave/
+hub34/
 lee_sandbox/
 marina_sandbox/
+meshes/
 minecraft/
+quicksave/
+SV_Test/
 vehicles/
+Water Test/

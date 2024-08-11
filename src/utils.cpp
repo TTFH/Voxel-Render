@@ -3,8 +3,12 @@
 #include <string.h>
 #include <string>
 
+#include "vao.h"
 #include "ebo.h"
 #include "utils.h"
+#include "camera.h"
+
+#include <glm/glm.hpp>
 
 #include "../lib/stb_image.h"
 #include "../lib/stb_image_write.h"

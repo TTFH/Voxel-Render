@@ -15,7 +15,7 @@ static GLuint screen_indices[] = {
 	1, 3, 2,
 };
 
-void Screen::initFrameBuffer(int width, int height) {
+void Screen::InitFrameBuffer(int width, int height) {
 	glGenFramebuffers(1, &framebuffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
 
@@ -65,7 +65,7 @@ Screen::Screen() {
 	vbo.Unbind();
 	ebo.Unbind();
 
-	initFrameBuffer(WINDOW_WIDTH, WINDOW_HEIGHT);
+	InitFrameBuffer(WINDOW_WIDTH, WINDOW_HEIGHT);
 	bluenoise = LoadTexture("textures/bluenoise512rgb.png", GL_RGB);
 }
 

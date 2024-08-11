@@ -44,6 +44,6 @@ void Light::handleInputs(GLFWwindow* window) {
 	updateProjection();
 }
 
-void Light::draw(Shader& shader, Camera& camera) {
-	model.draw(shader, camera, position, quat(1, 0, 0, 0), 1.0f, vec4(0, 0, 1, 1), GREEDY);
+void Light::draw(Shader& shader, Camera& camera, RenderMethod method) {
+	model.draw(shader, camera, position, quat(1, 0, 0, 0), 1.0f, vec4(0, 0, 1, 1), method);
 }

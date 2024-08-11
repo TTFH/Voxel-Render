@@ -5,7 +5,7 @@
 
 #include <glm/gtc/type_ptr.hpp>
 
-string ReadFile(const char* filename) {
+static string ReadFile(const char* filename) {
 	ifstream in(filename, ifstream::binary);
 	if (!in) {
 		printf("Error: Could not open file %s\n", filename);
