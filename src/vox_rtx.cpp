@@ -182,6 +182,7 @@ void RTX_Render::DrawSimple(Shader& shader, Camera& camera) {
 	shader.PushMatrix("uVolMatrixInv", volMatrixInv);
 
 	glDrawElements(GL_TRIANGLES, sizeof(cube_indices) / sizeof(GLuint), GL_UNSIGNED_INT, 0);
+	vao.Unbind();
 }
 
 void RTX_Render::DrawAdvanced(Shader& shader, Camera& camera) {
@@ -241,6 +242,7 @@ void RTX_Render::DrawAdvanced(Shader& shader, Camera& camera) {
 	shader.PushMatrix("uVpInvMatrix", volMatrixInv);
 
 	glDrawElements(GL_TRIANGLES, sizeof(cube_indices) / sizeof(GLuint), GL_UNSIGNED_INT, 0);
+	vao.Unbind();
 }
 
 void RTX_Render::draw(Shader& shader, Camera& camera) {

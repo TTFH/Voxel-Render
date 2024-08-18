@@ -53,7 +53,7 @@ void debug(const char* message) {
 	do {
 		error = glGetError();
 		if (error != GL_NO_ERROR)
-			printf("ERROR %d %s\n", error, message);
+			printf("[ERROR] %d %s\n", error, message);
 	} while (error != GL_NO_ERROR);
 }
 
@@ -149,6 +149,10 @@ GLuint LoadTexture(const char* path, GLenum format, bool flip) {
 	int width, height, channels;
 	stbi_set_flip_vertically_on_load(flip);
 	uint8_t* data = stbi_load(path, &width, &height, &channels, STBI_default);
+	if (data == NULL) {
+		printf("[Warning] Failed to load texture %s\n", path);
+		return 0;
+	}
 	printf("Loading texture %s with %d channels\n", path, channels);
 
 	glGenTextures(1, &texture_id);

@@ -96,4 +96,5 @@ void Screen::draw(Shader& shader, Camera& camera) {
 	shader.PushTexture("uBlueNoise", bluenoise, 3);
 
 	glDrawElements(GL_TRIANGLES, sizeof(screen_indices) / sizeof(GLuint), GL_UNSIGNED_INT, 0);
+	vao.Unbind();
 }

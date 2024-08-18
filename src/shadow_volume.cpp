@@ -160,6 +160,7 @@ void ShadowVolume::draw(Shader& shader, Camera& camera) {
 	shader.PushMatrix("uVpMatrix", camera.vpMatrix);
 
 	glDrawElements(GL_TRIANGLES, sizeof(screen_indices) / sizeof(GLuint), GL_UNSIGNED_INT, 0);
+	vao.Unbind();
 }
 
 ShadowVolume::~ShadowVolume() {

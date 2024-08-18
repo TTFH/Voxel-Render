@@ -8,7 +8,7 @@
 static string ReadFile(const char* filename) {
 	ifstream in(filename, ifstream::binary);
 	if (!in) {
-		printf("Error: Could not open file %s\n", filename);
+		printf("[ERROR] Could not open file %s\n", filename);
 		exit(EXIT_FAILURE);
 	}
 	string content;
@@ -91,8 +91,12 @@ void Shader::Load() {
 }
 
 GLint Shader::GetSetLocation(const char* uniform) {
-	if (uniforms.find(uniform) == uniforms.end())
-		uniforms[uniform] = glGetUniformLocation(id, uniform);
+	if (uniforms.find(uniform) == uniforms.end()) {
+		GLint location = glGetUniformLocation(id, uniform);
+		if (location == -1)
+			printf("[Warning] Uniform %s not found for shader %s\n", uniform, path1.c_str());
+		uniforms[uniform] = location;
+	}
 	return uniforms[uniform];
 }
 

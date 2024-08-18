@@ -2,7 +2,7 @@ EXE = vox_render
 ODIR = obj
 IMGUI_DIR = imgui
 
-# On Linux install: libglm-dev and libglfw3-dev
+# supo apt install libglm-dev libglfw3-dev
 
 SOURCES = main.cpp glad/glad.c lib/tinyxml2.cpp
 SOURCES += src/camera.cpp src/shader.cpp src/vao.cpp src/vbo.cpp src/ebo.cpp src/skybox.cpp src/greedy_mesh.cpp src/mesh.cpp
