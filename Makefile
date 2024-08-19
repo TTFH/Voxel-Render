@@ -1,77 +1,68 @@
-EXE = vox_render
-ODIR = obj
-IMGUI_DIR = imgui
-
-# supo apt install libglm-dev libglfw3-dev
-
-SOURCES = main_mc.cpp glad/glad.c lib/tinyxml2.cpp
-SOURCES += src/camera.cpp src/shader.cpp src/vao.cpp src/vbo.cpp src/ebo.cpp src/skybox.cpp src/greedy_mesh.cpp src/mesh.cpp
-SOURCES += src/utils.cpp src/light.cpp src/shadowmap.cpp src/vox_rtx.cpp src/lighting_rtx.cpp src/shadow_volume.cpp
-SOURCES += src/xml_loader.cpp src/vox_loader.cpp src/hex_render.cpp src/water_render.cpp src/rope_render.cpp src/voxbox_render.cpp
-SOURCES += $(IMGUI_DIR)/imgui.cpp $(IMGUI_DIR)/imgui_draw.cpp $(IMGUI_DIR)/imgui_tables.cpp $(IMGUI_DIR)/imgui_widgets.cpp
-SOURCES += $(IMGUI_DIR)/backends/imgui_impl_glfw.cpp $(IMGUI_DIR)/backends/imgui_impl_opengl3.cpp
-
-OBJS = $(addprefix obj/, $(addsuffix .o, $(basename $(notdir $(SOURCES)))))
-UNAME_S := $(shell uname -s)
+TARGET = vox_render
 
 CXX = g++
-CXXFLAGS = -Wall -Wextra -Werror -Wpedantic -Ilib -O3 -g
-CXXFLAGS += -Wno-missing-field-initializers -Wno-strict-aliasing
-CXXFLAGS += -std=c++11 -I$(IMGUI_DIR) -I$(IMGUI_DIR)/backend
+CXXFLAGS = -Wall -Wextra -Werror -Wpedantic -O3 -g
+CXXFLAGS += -Iimgui
+CXXFLAGS += -Wno-missing-field-initializers
+CXXFLAGS += `pkg-config --cflags glfw3`
+LIBS = `pkg-config --libs glfw3 --static`
 
-##---------------------------------------------------------------------
-## BUILD FLAGS PER PLATFORM
-##---------------------------------------------------------------------
+SOURCES = main_mc.cpp glad/glad.c lib/tinyxml2.cpp
+SOURCES += src/camera.cpp src/ebo.cpp src/greedy_mesh.cpp src/hex_render.cpp src/light.cpp
+SOURCES += src/lighting_rtx.cpp src/mesh.cpp src/rope_render.cpp src/shader.cpp 
+SOURCES += src/shadow_volume.cpp src/shadowmap.cpp src/skybox.cpp src/utils.cpp src/vao.cpp
+SOURCES += src/vbo.cpp src/vox_loader.cpp src/vox_rtx.cpp src/voxbox_render.cpp 
+SOURCES += src/water_render.cpp src/xml_loader.cpp
+SOURCES += imgui/imgui.cpp imgui/imgui_draw.cpp imgui/imgui_tables.cpp imgui/imgui_widgets.cpp
+SOURCES += imgui/backends/imgui_impl_glfw.cpp imgui/backends/imgui_impl_opengl3.cpp
+
+OBJDIR = obj
+OBJS = $(SOURCES:.cpp=.o)
+OBJS := $(OBJS:.c=.o)
+OBJS := $(addprefix $(OBJDIR)/, $(notdir $(OBJS)))
+
+UNAME_S := $(shell uname -s)
 
 ifeq ($(UNAME_S), Linux)
 	ECHO_MESSAGE = "Linux"
-	#CXXFLAGS += -Wno-unused-result
-	CXXFLAGS += `pkg-config --cflags glfw3`
-	LIBS = -lglfw `pkg-config --static --libs glfw3`
 endif
 
 ifeq ($(OS), Windows_NT)
 	ECHO_MESSAGE = "MinGW"
-	CXXFLAGS += `pkg-config --cflags glfw3`
-	CXXFLAGS += -IC:/msys64/mingw64/include
-	LIBS = -lglfw3 -lgdi32 -lopengl32 -limm32 -static dont_td.res
+	LIBS += -lopengl32 -limm32 -static dont_td.res
 endif
 
 ifeq ($(UNAME_S), Darwin)
 	ECHO_MESSAGE = "MacOS"
-	#CXXFLAGS += -Wno-unused-const-variable -Wno-deprecated-volatile -Wno-deprecated-declarations -Wno-deprecated -Wno-dangling-gsl
-	CXXFLAGS += `pkg-config --cflags glfw3 glm`
-	LIBS = -lglfw `pkg-config --static --libs glfw3`
 endif
 
-##---------------------------------------------------------------------
-## BUILD RULES
-##---------------------------------------------------------------------
-.PHONY: all clean
+.PHONY: all clean rebuild
 
-$(ODIR)/%.o: %.cpp
-	$(CXX) $(CXXFLAGS) -c $< -o $@
-
-$(ODIR)/%.o: src/%.cpp src/%.h
-	$(CXX) $(CXXFLAGS) -c $< -o $@
-
-$(ODIR)/%.o: lib/%.cpp lib/%.h
-	$(CXX) $(CXXFLAGS) -c $< -o $@
-
-$(ODIR)/%.o: glad/%.c glad/%.h
-	$(CXX) $(CXXFLAGS) -c $< -o $@
-
-$(ODIR)/%.o: $(IMGUI_DIR)/%.cpp
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
-
-$(ODIR)/%.o: $(IMGUI_DIR)/backend/%.cpp $(IMGUI_DIR)/backend/%.h
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
-
-all: $(EXE)
+all: $(TARGET)
 	@echo Build complete for $(ECHO_MESSAGE)
 
-$(EXE): $(OBJS)
+$(TARGET): $(OBJS)
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LIBS)
 
+$(OBJDIR)/%.o: %.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+$(OBJDIR)/%.o: src/%.cpp src/%.h
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+$(OBJDIR)/%.o: lib/%.cpp lib/%.h
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+$(OBJDIR)/%.o: glad/%.c glad/%.h
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+$(OBJDIR)/%.o: imgui/%.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+$(OBJDIR)/%.o: imgui/backend/%.cpp imgui/backend/%.h
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+rebuild: clean all
+
 clean:
-	rm -f $(EXE) $(OBJS)
+	rm -f $(TARGET) $(OBJDIR)/*.o
