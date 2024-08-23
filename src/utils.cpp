@@ -18,22 +18,19 @@ using namespace std;
 GLFWwindow* InitOpenGL(const char* window_title) {
 	int major = 4;
 	int minor = 6;
-#ifdef __APPLE__
-	major = 4;
-	minor = 1;
-#elif __linux__
+#ifdef __linux__
 	major = 4;
 	minor = 2;
+#elif __APPLE__
+	major = 4;
+	minor = 1;
 #endif
 
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, major);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, minor);
-	glfwWindowHint(GLFW_SAMPLES, 1); // MSAA
+	glfwWindowHint(GLFW_SAMPLES, 2); // MSAA
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-#ifdef __APPLE__
-	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-#endif
 
 	GLFWwindow* window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, window_title, NULL, NULL);
 	if (window == NULL) {
@@ -153,7 +150,7 @@ GLuint LoadTexture(const char* path, GLenum format, bool flip) {
 		printf("[Warning] Failed to load texture %s\n", path);
 		return 0;
 	}
-	printf("Loading texture %s with %d channels\n", path, channels);
+	//printf("Loading texture %s with %d channels\n", path, channels);
 
 	glGenTextures(1, &texture_id);
 	glBindTexture(GL_TEXTURE_2D, texture_id);

@@ -213,7 +213,7 @@ void Mesh::draw(Shader& shader, Camera& camera) {
 
 	shader.PushTexture("diffuse0", diffuse_texture, 0);
 	shader.PushTexture("specular0", specular_texture, 1);
-	shader.PushVec3("color", color);
+	shader.PushVec3("color", color); // No texture
 
 	glDrawArrays(GL_TRIANGLES, 0, vertices.size());
 	vao.Unbind();

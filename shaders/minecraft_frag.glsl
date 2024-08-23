@@ -20,6 +20,6 @@ void main() {
 
 	uv = uv_min + (uv_max - uv_min) * uv;
 	vec4 color = texture(diffuse, uv) * vec4(tint_color, 1.0f);
-	if (color.a < 1.0f) discard;
+	//if (color.a < 0.1f) discard;
 	FragColor = color;
 }

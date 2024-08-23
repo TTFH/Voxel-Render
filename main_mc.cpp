@@ -8,6 +8,8 @@
 
 #include "src/vao.h"
 #include "src/ebo.h"
+#include "src/mesh.h"
+#include "src/light.h"
 #include "src/utils.h"
 #include "src/camera.h"
 #include "src/shader.h"
@@ -75,8 +77,10 @@ public:
 		position = pos;
 		rotation = rot;
 	}
-	void setWorldTransform(vec3 pos, quat rot) {
+	void setWorldPosition(vec3 pos) {
 		world_position = pos;
+	}
+	void setWorldRotation(quat rot) {
 		world_rotation = rot;
 	}
 	void setUV(vec2 min, vec2 max, int rot) {
@@ -101,7 +105,7 @@ public:
 		mat4 rot = mat4_cast(rotation);
 		mat4 w_pos = translate(mat4(1.0f), world_position);
 		mat4 w_rot = mat4_cast(world_rotation);
-		shader.PushMatrix("position", pos);
+		shader.PushMatrix("position", pos); // TODO: push param as vector / quat and convert to matrix
 		shader.PushMatrix("rotation", rot);
 		shader.PushMatrix("world_pos", w_pos);
 		shader.PushMatrix("world_rot", w_rot);
@@ -114,53 +118,53 @@ class Cuboid {
 private:
 	vec3 size;
 	vec3 offset;
+	vec3 from, to;
 	vector<Quad*> quads;
-	vec3 from;
-	vec3 to;
+	quat rotation = quat(1, 0, 0, 0);
 public:
-	Cuboid(vec3 from, vec3 to, vec3 world_pos = vec3(0, 0, 0)) {
+	Cuboid(vec3 from, vec3 to) {
 		this->from = from;
 		this->to = to;
 		this->size = to - from;
-		this->offset = (from + to) / 2.0f + world_pos;
+		this->offset = (from + to) / 2.0f;
 	}
 	void addFace(string orientation, bool tinted, vec4 uv, int tex_rot, GLuint texture) {
 		Quad* quad = new Quad(texture);
 		vec2 face_size = vec2(16, 16);
-		vec3 position = offset;
+		vec3 position = vec3(0, 0, 0);
 		quat rotation = quat(1, 0, 0, 0);
 		if (orientation == "up") {
 			face_size = vec2(size.x, size.z);
-			position += vec3(0, size.y / 2.0f, 0);
+			position = vec3(0, size.y / 2.0f, 0);
 			rotation = angleAxis(radians(-90.0f), vec3(1, 0, 0));
 			if (tex_rot == -1)
 				uv = vec4(from.x, 16.0f - to.z, to.x, 16.0f - from.z);
 		} else if (orientation == "down") {
 			face_size = vec2(size.x, size.z);
-			position += vec3(0, -size.y / 2.0f, 0);
+			position = vec3(0, -size.y / 2.0f, 0);
 			rotation = angleAxis(radians(90.0f), vec3(1, 0, 0));
 			if (tex_rot == -1)
 				uv = vec4(from.x, from.z, to.x, to.z);
 		} else if (orientation == "north") {
 			face_size = vec2(size.x, size.y);
-			position += vec3(0, 0, -size.z / 2.0f);
+			position = vec3(0, 0, -size.z / 2.0f);
 			rotation = angleAxis(radians(180.0f), vec3(0, 1, 0));
 			if (tex_rot == -1)
 				uv = vec4(from.x, from.y, to.x, to.y);
 		} else if (orientation == "south") {
 			face_size = vec2(size.x, size.y);
-			position += vec3(0, 0, size.z / 2.0f);
+			position = vec3(0, 0, size.z / 2.0f);
 			if (tex_rot == -1)
 				uv = vec4(from.x, from.y, to.x, to.y);
 		} else if (orientation == "east") {
 			face_size = vec2(size.z, size.y);
-			position += vec3(size.x / 2.0f, 0, 0);
+			position = vec3(size.x / 2.0f, 0, 0);
 			rotation = angleAxis(radians(90.0f), vec3(0, 1, 0));
 			if (tex_rot == -1)
 				uv = vec4(from.z, from.y, to.z, to.y);
 		} else if (orientation == "west") {
 			face_size = vec2(size.z, size.y);
-			position += vec3(-size.x / 2.0f, 0, 0);
+			position = vec3(-size.x / 2.0f, 0, 0);
 			rotation = angleAxis(radians(-90.0f), vec3(0, 1, 0));
 			if (tex_rot == -1)
 				uv = vec4(from.z, from.y, to.z, to.y);
@@ -173,21 +177,25 @@ public:
 			uv.w = 16.0f - temp;
 		}
 
-		quad->setSize(face_size);
-		quad->setTransform(position, rotation);
+		quad->setSize(face_size / 16.0f);
+		quad->setTransform(position / 16.0f, rotation);
+		quad->setWorldPosition(offset / 16.0f);
 		quad->setUV(vec2(uv.x, uv.y) / 16.0f, vec2(uv.z, uv.w) / 16.0f, tex_rot);
 		if (tinted) quad->setTint(vec3(0.57, 0.74, 0.35));
 		quads.push_back(quad);
 	}
-	void setRotation(float angle, string axis_str, vec3 origin) {
-		if (axis_str == "x") {
-			vec3 axis = vec3(1, 0, 0);
-			vec3 world_pos = vec3(0, -origin.z / 4, origin.y / 2);
-			quat world_rot = angleAxis(radians(angle), axis);
-			for (vector<Quad*>::iterator it = quads.begin(); it != quads.end(); it++)
-				(*it)->setWorldTransform(world_pos, world_rot);
-		} else
-			printf("[Warning] Unsupported rotation axis %s\n", axis_str.c_str());
+	void setTransform(vec3 world_pos, quat world_rot) {
+		(void)world_rot;
+		vec3 offset = (from + to) / 2.0f;
+		for (vector<Quad*>::iterator it = quads.begin(); it != quads.end(); it++) {
+			(*it)->setWorldPosition(offset / 16.0f + world_pos);
+			(*it)->setWorldRotation(rotation);
+		}
+	}
+	void setRotation(quat rot) {
+		rotation = rot;
+		for (vector<Quad*>::iterator it = quads.begin(); it != quads.end(); it++)
+			(*it)->setWorldRotation(rot);
 	}
 	void draw(Shader& shader, Camera& camera) {
 		for (vector<Quad*>::iterator it = quads.begin(); it != quads.end(); it++)
@@ -203,14 +211,13 @@ map<string, GLuint> texture_cache;
 
 class MC_Block {
 private:
-	vec3 world_pos = vec3(0, 0, 0);
 	vector<Cuboid*> cuboids;
 	map<string, GLuint> textures;
 
-	void loadFile(const char* path) {
+	void loadFile(string path) {
 		ifstream file(path);
 		if (!file.is_open()) {
-			printf("[ERROR] File %s not found\n", path);
+			printf("[ERROR] File %s not found\n", path.c_str());
 			return;
 		}
 		json block_js = json::parse(file);
@@ -224,23 +231,24 @@ private:
 					texture_path = texture_path.substr(MC_PREFIX.size());
 				if (texture_path.find("#") == 0) {
 					texture_path = texture_path.substr(1);
-					if (textures.find(texture_path) == textures.end()) {
+					if (textures.find(texture_path) == textures.end())
 						printf("[Warning] Texture %s not found\n", texture_path.c_str());
-						break;
-					}
 					textures[it.key()] = textures[texture_path];
 				} else {
 					texture_path += ".png";
 					if (texture_cache.find(texture_path) == texture_cache.end())
 						texture_cache[texture_path] = LoadTexture(texture_path.c_str(), GL_RGBA);
-					textures[it.key()] = texture_cache[texture_path];
+					if (textures.find(it.key()) == textures.end())
+						textures[it.key()] = texture_cache[texture_path];
+					else
+						printf("[Warning] Texture for face %s already defined\n", it.key().c_str());
 				}
 			}
 		}
 
 		json elements_js = block_js["elements"];
 		if (cuboids.size() > 0 && elements_js.size() > 0) {
-			printf("[Warning] Skipping %s, elements already defined.\n", path);
+			printf("[Warning] Skipping %s, elements already defined.\n", path.c_str());
 			return;
 		}
 		for (json::iterator it = elements_js.begin(); it != elements_js.end(); it++) {
@@ -249,7 +257,7 @@ private:
 			json to_js = element_js["to"];
 			vec3 from = vec3(from_js[0], from_js[1], from_js[2]);
 			vec3 to = vec3(to_js[0], to_js[1], to_js[2]);
-			Cuboid* cuboid = new Cuboid(from, to, world_pos);
+			Cuboid* cuboid = new Cuboid(from, to);
 			json faces_js = element_js["faces"];
 			for (json::iterator it = faces_js.begin(); it != faces_js.end(); it++) {
 				json face_js = *it;
@@ -278,10 +286,17 @@ private:
 			if (element_js.find("rotation") != element_js.end()) {
 				json rotation_js = element_js["rotation"];
 				float angle = rotation_js["angle"];
-				json origin_js = rotation_js["origin"];
-				vec3 origin = vec3(origin_js[0], origin_js[1], origin_js[2]);
-				string axis = rotation_js["axis"];
-				cuboid->setRotation(angle, axis, origin);
+				string axis_str = rotation_js["axis"];
+				if (axis_str == "x") {
+					vec3 axis = vec3(1, 0, 0);
+					quat rotation = angleAxis(radians(angle), axis);
+					cuboid->setRotation(rotation);
+				} else if (axis_str == "y") {
+					vec3 axis = vec3(0, 1, 0);
+					quat rotation = angleAxis(radians(angle), axis);
+					cuboid->setRotation(rotation);
+				} else
+					printf("[Warning] Unsupported rotation axis %s\n", axis_str.c_str());
 			}
 			cuboids.push_back(cuboid);
 		}
@@ -292,15 +307,18 @@ private:
 				parent_path = parent_path.substr(MC_PREFIX.size());
 			if (parent_path != "block/block") {
 				parent_path += ".json";
-				loadFile(parent_path.c_str());
+				loadFile(parent_path);
 			}
 		}
 	}
 public:
-	MC_Block(const char* path, vec3 world_pos = vec3(0, 0, 0)) {
-		this->world_pos = world_pos;
-		// TODO: build path from block name
+	MC_Block(const char* block_id) {
+		string path = "block/" + string(block_id) + ".json";
 		loadFile(path);	
+	}
+	void setTransform(vec3 pos, quat rot = quat(1, 0, 0, 0)) {
+		for (vector<Cuboid*>::iterator it = cuboids.begin(); it != cuboids.end(); it++)
+			(*it)->setTransform(pos, rot);
 	}
 	void draw(Shader& shader, Camera& camera) {
 		for (vector<Cuboid*>::iterator it = cuboids.begin(); it != cuboids.end(); it++)
@@ -311,23 +329,63 @@ public:
 			delete *it;
 	}
 };
+/*
+map<string, MC_Block*> blocks_cache;
+class BlockVariant {
+private:
+public:
+	BlockVariant(const char* block_id) {
+		string path = "block/states_" + string(block_id) + ".json";
 
+	}
+	void draw(Shader& shader, Camera& camera) {
+		
+	}
+};
+*/
 int main(/*int argc, char* argv[]*/) {
 	GLFWwindow* window = InitOpenGL("Minecraft Renderer");
 	Shader mc_shader("shaders/minecraft_vert.glsl", "shaders/minecraft_frag.glsl");
-	Camera camera(vec3(0, 2.5, 10));
 
+	vector<const char*> blocks_names = {
+		"anvil",
+		"bricks",
+		"campfire",
+		"cauldron",
+		"comparator",
+		"crafting_table",
+		"glass",
+		"grass_block",
+		"hopper",
+		"lectern",
+		"magenta_glazed_terracotta",
+		"oak_stairs",
+		"observer_on",
+		"observer",
+		"piston",
+		"powered_rail_on",
+		"powered_rail",
+		"slime_block",
+		"torch",
+	};
+
+	int i = 0;
 	vector<MC_Block*> blocks;
-	blocks.push_back(new MC_Block("block/anvil.json"));
-	blocks.push_back(new MC_Block("block/bricks.json", vec3(32, 0, 0)));
-	blocks.push_back(new MC_Block("block/cauldron.json", vec3(64, 0, 0)));
-	blocks.push_back(new MC_Block("block/crafting_table.json", vec3(96, 0, 0)));
-	blocks.push_back(new MC_Block("block/grass_block.json", vec3(128, 0, 0)));
-	blocks.push_back(new MC_Block("block/lectern.json", vec3(160, 0, 0)));
-	blocks.push_back(new MC_Block("block/oak_stairs.json", vec3(192, 0, 0)));
-	blocks.push_back(new MC_Block("block/glass.json", vec3(224, 0, 0)));
-	blocks.push_back(new MC_Block("block/magenta_glazed_terracotta.json", vec3(256, 0, 0)));
+	for (vector<const char*>::iterator it = blocks_names.begin(); it != blocks_names.end(); it++) {
+		MC_Block* block = new MC_Block(*it);
+		vec3 axis = vec3(0, 1, 0);
+		quat rotation = angleAxis(radians(-90.0f), axis);
+		block->setTransform(vec3(2 * (i % 8), 0, -2 * (i / 8)), rotation);
+		blocks.push_back(block);
+		i++;
+	}
 
+	Light light(vec3(-35, 130, -132));
+	Mesh cow("meshes/cow.obj", "meshes/cow.png");
+	cow.position = vec3(-2, 0, 0);
+	Shader mesh_shader("shaders/mesh_vert.glsl", "shaders/mesh_frag.glsl");
+
+	Camera camera(vec3(0, 2.5, 10));
 	glfwSetWindowUserPointer(window, &camera);
 	glfwSetKeyCallback(window, key_press_callback);
 
@@ -343,13 +401,22 @@ int main(/*int argc, char* argv[]*/) {
 		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 			glfwSetWindowShouldClose(window, true);
 		camera.handleInputs(window);
+		if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+			light.handleInputs(window);
 
 		glClearColor(0.35, 0.54, 0.8, 1);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		glEnable(GL_BLEND);
 		mc_shader.Use();
 		for (vector<MC_Block*>::iterator it = blocks.begin(); it != blocks.end(); it++)
 			(*it)->draw(mc_shader, camera);
+		glDisable(GL_BLEND);
+
+		mesh_shader.Use();
+		mesh_shader.PushVec3("lightpos", light.getPosition());
+		mesh_shader.PushMatrix("lightProjection", light.getProjection());
+		cow.draw(mesh_shader, camera);
 
 		glfwSwapBuffers(window);
 	}
