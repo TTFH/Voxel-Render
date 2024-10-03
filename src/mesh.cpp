@@ -15,6 +15,10 @@ void Mesh::LoadSimpleOBJ(const char* path) {
 	vector<Triangle> mesh;
 
 	FILE* file = fopen(path, "r");
+	if (file == NULL) {
+		perror(path)
+		return 1;
+	}
 	positions.push_back({0, 0, 0});
 	normals.push_back({0, 0, 0});
 	do {
@@ -63,6 +67,10 @@ void Mesh::LoadOBJ(const char* path) {
 	vector<Triangle> mesh;
 
 	FILE* file = fopen(path, "r");
+	if (file == NULL) {
+		perror(path)
+		return 1;
+	}
 	// OBJ indices start at 1
 	positions.push_back({0, 0, 0});
 	normals.push_back({0, 0, 0});
@@ -128,6 +136,10 @@ void Mesh::LoadOBJ(const char* path) {
 
 void Mesh::SaveOBJ(const char* path) {
 	FILE* output = fopen(path, "w");
+	if (file == NULL) {
+		perror(path)
+		return 1;
+	}
 	for (unsigned int i = 0; i < vertices.size(); i++)
 		fprintf(output, "v %f %f %f\n", vertices[i].position.x, vertices[i].position.y, vertices[i].position.z);
 	for (unsigned int i = 0; i < vertices.size(); i++)
