@@ -2,28 +2,16 @@
 obj/*.o
 vox_render
 vox_render.exe
-screenshot_*.png
-castle.vox
-skyboxes/
 
-# Blender export
 *.obj
 scene.xml
 palette.png
 
 block/
-lib/json.hpp
-
-caveisland_sandbox/
-csgo_de_train/
-heistexample/
-hub_carib_sandbox/
-hub34/
-lee_sandbox/
-marina_sandbox/
 meshes/
-minecraft/
-quicksave/
+skyboxes/
+castle.vox
+
 SV_Test/
-vehicles/
 Water Test/
+screenshot_*.png

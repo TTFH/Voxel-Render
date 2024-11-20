@@ -128,6 +128,12 @@ int main(int argc, char* argv[]) {
 	bool transparent_glass = true;
 	int hex_orientation = 2;
 
+#ifdef _BLENDER
+	ShadowVolume shadow_volume(40, 10, 40);
+	scene.push(shadow_volume);
+	shadow_volume.updateTexture();
+#endif
+
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO();
@@ -141,7 +147,6 @@ int main(int argc, char* argv[]) {
 	ImVec4 clear_color = ImVec4(0.35, 0.54, 0.8, 1);
 	ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 3.0f);
 
-	//GLuint texture_test = LoadTexture("skyboxes/day/right.png", GL_RGBA, false);
 	Mesh model("meshes/LTM1300.obj", "meshes/LTM1300.png", "meshes/LTM1300_specular.png");
 	Mesh glass("meshes/LTM1300_glass.obj", "meshes/glass.png");
 	scene.addMesh(&model);

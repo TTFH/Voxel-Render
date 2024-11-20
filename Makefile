@@ -1,13 +1,13 @@
 TARGET = vox_render
 
 CXX = g++
-CXXFLAGS = -Wall -Wextra -Werror -Wpedantic -O3 -g
+CXXFLAGS = -Wall -Wextra -Werror -Wpedantic -O3 #-g -D_BLENDER
 CXXFLAGS += -Iimgui
 CXXFLAGS += -Wno-missing-field-initializers
 CXXFLAGS += `pkg-config --cflags glfw3`
 LIBS = `pkg-config --libs glfw3 --static`
 
-SOURCES = main_mc.cpp glad/glad.c lib/tinyxml2.cpp
+SOURCES = main.cpp glad/glad.c lib/tinyxml2.cpp
 SOURCES += src/camera.cpp src/ebo.cpp src/greedy_mesh.cpp src/hex_render.cpp src/light.cpp
 SOURCES += src/lighting_rtx.cpp src/mesh.cpp src/rope_render.cpp src/shader.cpp 
 SOURCES += src/shadow_volume.cpp src/shadowmap.cpp src/skybox.cpp src/utils.cpp src/vao.cpp
@@ -25,6 +25,7 @@ UNAME_S := $(shell uname -s)
 
 ifeq ($(UNAME_S), Linux)
 	ECHO_MESSAGE = "Linux"
+	CXXFLAGS += -Wno-unused-result
 endif
 
 ifeq ($(OS), Windows_NT)

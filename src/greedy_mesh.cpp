@@ -139,7 +139,10 @@ GreedyRender::GreedyRender(const MV_Shape& shape, GLuint paletteBank, int palett
 	this->paletteBank = paletteBank;
 	this->paletteId = paletteId;
 	index_count = mesh.indices.size();
-	//SaveOBJ(shape.id + ".obj", mesh, paletteId);
+
+#ifdef _BLENDER
+	SaveOBJ(shape.id + ".obj", mesh, paletteId);
+#endif
 
 	vao.Bind();
 	VBO vbo(mesh.vertices);
