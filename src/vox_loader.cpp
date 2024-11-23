@@ -259,7 +259,9 @@ void VoxLoader::load(const char* filename) {
 		renderers[HEXAGON].push_back(new HexRender(shapes[i], paletteBank, paletteCount - 1));
 		renderers[RTX].push_back(new RTX_Render(shapes[i], paletteBank, paletteCount - 1));
 	}
-	//SaveTexture("palette.png", paletteBank);
+#ifdef _BLENDER
+	SaveTexture("palette.png", paletteBank);
+#endif
 }
 
 void VoxLoader::draw(Shader& shader, Camera& camera, vec3 position, quat rotation, float scale, vec4 texture, RenderMethod method) {

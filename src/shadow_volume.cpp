@@ -100,7 +100,9 @@ void ShadowVolume::addShape(const MV_Shape& shape, mat4 model_matrix) {
 }
 
 void ShadowVolume::updateTexture() {
-	//scene_xml.SaveFile("scene.xml");
+#ifdef _BLENDER
+	scene_xml.SaveFile("scene.xml");
+#endif
 
 	int width_mip1 = width / 2;
 	int height_mip1 = height / 2;
