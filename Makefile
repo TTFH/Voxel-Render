@@ -7,7 +7,7 @@ CXXFLAGS += -Wno-missing-field-initializers
 CXXFLAGS += `pkg-config --cflags glfw3`
 LIBS = `pkg-config --libs glfw3 --static`
 
-SOURCES = main.cpp glad/glad.c lib/tinyxml2.cpp
+SOURCES = main_mc.cpp glad/glad.c lib/tinyxml2.cpp
 SOURCES += src/camera.cpp src/ebo.cpp src/greedy_mesh.cpp src/hex_render.cpp src/light.cpp
 SOURCES += src/lighting_rtx.cpp src/mesh.cpp src/rope_render.cpp src/shader.cpp 
 SOURCES += src/shadow_volume.cpp src/shadowmap.cpp src/skybox.cpp src/utils.cpp src/vao.cpp

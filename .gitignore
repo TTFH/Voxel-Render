@@ -6,6 +6,7 @@ vox_render.exe
 *.obj
 scene.xml
 palette.png
+village.schem
 
 block/
 meshes/
