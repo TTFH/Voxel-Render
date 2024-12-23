@@ -145,7 +145,8 @@ GLuint LoadTexture(const char* path, GLenum format, bool flip) {
 	GLuint texture_id;
 	int width, height, channels;
 	stbi_set_flip_vertically_on_load(flip);
-	uint8_t* data = stbi_load(path, &width, &height, &channels, STBI_default);
+	uint8_t* data = stbi_load(path, &width, &height, &channels, STBI_rgb);
+	channels = 3;
 	if (data == NULL) {
 		printf("[Warning] Failed to load texture %s\n", path);
 		return 0;

@@ -180,13 +180,13 @@ public:
 		quad->setSize(face_size / 16.0f);
 		quad->setTransform(position / 16.0f, rotation);
 		quad->setUV(vec2(uv.x, uv.y) / 16.0f, vec2(uv.z, uv.w) / 16.0f, tex_rot);
-		if (tinted) quad->setTint(vec4(0.57, 0.74, 0.35, 1.0));
+		if (tinted) quad->setTint(vec4(0.57f, 0.74f, 0.35f, 1.0f));
 		quads.push_back(quad);
 	}
 	void setTransform(vec3 world_pos, quat world_rot) {
 		vec3 offset = (from + to) / 32.0f;
 		for (vector<Quad*>::iterator it = quads.begin(); it != quads.end(); it++) {
-			(*it)->setWorldPosition(world_pos + offset);
+			(*it)->setWorldPosition(world_pos + world_rot * offset - world_rot * vec3(0.5, 0.5, 0.5));
 			(*it)->setWorldRotation(world_rot * parent_rot);
 		}
 	}
@@ -257,12 +257,11 @@ private:
 				json rotation_js = element_js["rotation"];
 				float angle = rotation_js["angle"];
 				string axis_str = rotation_js["axis"];
+				//json origin_js = rotation_js["origin"];
+				//vec3 origin = vec3(origin_js[0], origin_js[1], origin_js[2]);
 				if (axis_str == "x") {
 					vec3 axis = vec3(1, 0, 0);
 					rotation = angleAxis(radians(angle), axis);
-				} else if (axis_str == "y") {
-					vec3 axis = vec3(0, 1, 0);
-					rotation = angleAxis(radians(angle), axis);;
 				}
 			}
 
@@ -375,7 +374,7 @@ private:
 			info.model = block_id;
 			info.rotation = rotation;
 			variants.push_back(info);
-			printf("Loaded %s[%s]\n", block_id.c_str(), variant_name.c_str());
+			//printf("Loaded %s[%s]\n", block_id.c_str(), variant_name.c_str());
 		}
 	}
 public:
@@ -402,8 +401,8 @@ int main(/*int argc, char* argv[]*/) {
 	GLFWwindow* window = InitOpenGL("Minecraft Renderer");
 	Shader mc_shader("shaders/minecraft_vert.glsl", "shaders/minecraft_frag.glsl");
 
-	BlockVariant* block1 = new BlockVariant("lectern");
-	BlockVariant* block2 = new BlockVariant("oak_trapdoor");
+	BlockVariant* block1 = new BlockVariant("repeater");
+	BlockVariant* block2 = new BlockVariant("lectern");
 
 	Camera camera(vec3(0, 2.5, 10));
 	glfwSetWindowUserPointer(window, &camera);
@@ -429,11 +428,11 @@ int main(/*int argc, char* argv[]*/) {
 		mc_shader.Use();
 		unsigned int i = 0;
 		for (unsigned int j = 0; j < block1->getVariantCount(); j++) {
-			block1->draw(mc_shader, camera, j, vec3(2.0 * (i % 8), 0, -2.0 * (i / 8)));
+			block1->draw(mc_shader, camera, j, vec3(2.0f * (i % 8), 0.0f, -2.0f * (i / 8)));
 			i++;
 		}
 		for (unsigned int j = 0; j < block2->getVariantCount(); j++) {
-			block2->draw(mc_shader, camera, j, vec3(2.0 * (i % 8), 0, -2.0 * (i / 8)));
+			block2->draw(mc_shader, camera, j, vec3(2.0f * (i % 8), 0.0f, -2.0f * (i / 8)));
 			i++;
 		}
 		glDisable(GL_BLEND);
