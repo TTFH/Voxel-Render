@@ -83,7 +83,7 @@ void ShadowVolume::addShape(const MV_Shape& shape, mat4 model_matrix) {
 
 	for (unsigned int i = 0; i < shape.voxels.size(); i++) {
 		float xv = shape.voxels[i].x;
-		float yv = shape.voxels[i].y;
+		float yv = shape.voxels[i].y + 1.0f;
 		float zv = shape.voxels[i].z;
 		vec4 voxel_pos = model_matrix * vec4(xv, yv, zv, 1.0f);
 		int x = (int)voxel_pos.x + width / 2;

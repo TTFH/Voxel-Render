@@ -83,7 +83,7 @@ void Screen::draw(Shader& shader, Camera& camera) {
 
 	shader.PushFloat("uNear", camera.NEAR_PLANE);
 	shader.PushFloat("uFar", camera.FAR_PLANE);
-	shader.PushVec2("uPixelSize", vec2(0.0007, 0.00123));
+	shader.PushVec2("uPixelSize", vec2(1 / camera.screen_width, 1 / camera.screen_height));
 	shader.PushVec3("uLightDir", vec3(0.38, -0.76, 0.53));
 	shader.PushVec3("uCameraPos", camera.position);
 

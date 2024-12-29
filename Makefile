@@ -7,7 +7,7 @@ CXXFLAGS += -Wno-missing-field-initializers
 CXXFLAGS += `pkg-config --cflags glfw3`
 LIBS = `pkg-config --libs glfw3 --static`
 
-SOURCES = main_mc.cpp glad/glad.c lib/tinyxml2.cpp
+SOURCES = main_sv.cpp glad/glad.c lib/tinyxml2.cpp
 SOURCES += src/camera.cpp src/ebo.cpp src/greedy_mesh.cpp src/hex_render.cpp src/light.cpp
 SOURCES += src/lighting_rtx.cpp src/mesh.cpp src/rope_render.cpp src/shader.cpp 
 SOURCES += src/shadow_volume.cpp src/shadowmap.cpp src/skybox.cpp src/utils.cpp src/vao.cpp
@@ -30,7 +30,7 @@ endif
 
 ifeq ($(OS), Windows_NT)
 	ECHO_MESSAGE = "MinGW"
-	LIBS += -lopengl32 -limm32 -static dont_td.res
+	LIBS += -lopengl32 -limm32 -static not_td.res
 endif
 
 ifeq ($(UNAME_S), Darwin)

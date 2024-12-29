@@ -233,15 +233,13 @@ private:
 						texture_cache[texture_path] = LoadTexture(texture_path.c_str(), GL_RGBA);
 					if (textures.find(it.key()) == textures.end())
 						textures[it.key()] = texture_cache[texture_path];
-					else
-						printf("[Warning] Texture for face %s already defined for %s\n", it.key().c_str(), path.c_str());
 				}
 			}
 		}
 
 		json elements_js = block_js["elements"];
 		if (cuboids.size() > 0 && elements_js.size() > 0) {
-			printf("[Warning] Skipping %s, elements already defined.\n", path.c_str());
+			//printf("[Warning] Skipping %s, elements already defined.\n", path.c_str());
 			return;
 		}
 		for (json::iterator it = elements_js.begin(); it != elements_js.end(); it++) {
@@ -261,6 +259,12 @@ private:
 				//vec3 origin = vec3(origin_js[0], origin_js[1], origin_js[2]);
 				if (axis_str == "x") {
 					vec3 axis = vec3(1, 0, 0);
+					rotation = angleAxis(radians(angle), axis);
+				} else if (axis_str == "y") {
+					vec3 axis = vec3(0, 1, 0);
+					rotation = angleAxis(radians(angle), axis);
+				} else if (axis_str == "z") {
+					vec3 axis = vec3(0, 0, 1);
 					rotation = angleAxis(radians(angle), axis);
 				}
 			}
@@ -323,20 +327,52 @@ public:
 
 struct VariantInfo {
 	string model;
-	string facing;
-	unordered_set<string> props;
+	//string facing;
+	//unordered_set<string> props;
 	quat rotation;
 };
-
+/*
 bool operator==(const VariantInfo& lhs, const VariantInfo& rhs) {
 	return lhs.model == rhs.model && lhs.facing == rhs.facing && lhs.props == rhs.props;
 }
-
+*/
 map<string, MC_Block*> blocks_cache;
 
 class BlockVariant {
 private:
 	vector<VariantInfo> variants;
+	vector<VariantInfo> multipart;
+
+	VariantInfo readVariant(json variant_js) {
+		const string MC_PREFIX = "minecraft:";
+		string block_id = variant_js["model"];
+		if (block_id.find(MC_PREFIX) == 0)
+			block_id = block_id.substr(MC_PREFIX.size());
+		if (blocks_cache.find(block_id) == blocks_cache.end())
+			blocks_cache[block_id] = new MC_Block(block_id.c_str());
+
+		quat rotation = quat(1, 0, 0, 0);
+		if (variant_js.find("x") != variant_js.end()) {
+			float angle = variant_js["x"];
+			vec3 axis = vec3(1, 0, 0);
+			rotation = angleAxis(radians(angle), axis);
+		}
+		if (variant_js.find("y") != variant_js.end()) {
+			float angle = variant_js["y"];
+			vec3 axis = vec3(0, 1, 0);
+			rotation = rotation * angleAxis(radians(angle), axis);
+		}
+		if (variant_js.find("z") != variant_js.end()) {
+			float angle = variant_js["z"];
+			vec3 axis = vec3(0, 0, 1);
+			rotation = rotation * angleAxis(radians(angle), axis);
+		}
+
+		VariantInfo info;
+		info.model = block_id;
+		info.rotation = rotation;
+		return info;
+	}
 
 	void loadFile(string path) {
 		ifstream file(path);
@@ -345,36 +381,34 @@ private:
 			return;
 		}
 		json block_js = json::parse(file);
-		const string MC_PREFIX = "minecraft:";
 
 		json variants_js = block_js["variants"];
 		for (json::iterator it = variants_js.begin(); it != variants_js.end(); it++) {
-			string variant_name = it.key();
-
 			json variant_js = it.value();
-			string block_id = variant_js["model"];
-			if (block_id.find(MC_PREFIX) == 0)
-				block_id = block_id.substr(MC_PREFIX.size());
-			if (blocks_cache.find(block_id) == blocks_cache.end())
-				blocks_cache[block_id] = new MC_Block(block_id.c_str());
-
-			quat rotation = quat(1, 0, 0, 0);
-			if (variant_js.find("x") != variant_js.end()) {
-				float angle = variant_js["x"];
-				vec3 axis = vec3(1, 0, 0);
-				rotation = angleAxis(radians(angle), axis);
+			if (variant_js.is_object()) {
+				VariantInfo info = readVariant(variant_js);
+				variants.push_back(info);	
+			} else if (variant_js.is_array()) {
+				for (json::iterator it = variant_js.begin(); it != variant_js.end(); it++) {
+					VariantInfo info = readVariant(*it);
+					variants.push_back(info);
+				}
 			}
-			if (variant_js.find("y") != variant_js.end()) {
-				float angle = variant_js["y"];
-				vec3 axis = vec3(0, 1, 0);
-				rotation = angleAxis(radians(angle), axis);
-			}
+		}
 
-			VariantInfo info;
-			info.model = block_id;
-			info.rotation = rotation;
-			variants.push_back(info);
-			//printf("Loaded %s[%s]\n", block_id.c_str(), variant_name.c_str());
+		json multipart_js = block_js["multipart"];
+		for (json::iterator it = multipart_js.begin(); it != multipart_js.end(); it++) {
+			json part_js = it.value();
+			json variant_js = part_js["apply"];
+			if (variant_js.is_object()) {
+				VariantInfo info = readVariant(variant_js);
+				multipart.push_back(info);	
+			} else if (variant_js.is_array()) {
+				for (json::iterator it = variant_js.begin(); it != variant_js.end(); it++) {
+					VariantInfo info = readVariant(*it);
+					multipart.push_back(info);
+				}
+			}
 		}
 	}
 public:
@@ -383,17 +417,23 @@ public:
 		loadFile(path);
 	}
 	unsigned int getVariantCount() {
-		return variants.size();
+		bool is_multipart = multipart.size() > 0;
+		return variants.size() + (is_multipart ? 1 : 0);
 	}
 	void draw(Shader& shader, Camera& camera, unsigned int index, vec3 pos) {
-		if (index >= variants.size()) {
-			printf("[Warning] Variant index %d out of bounds\n", index);
-			return;
+		if (index < variants.size()) {
+			VariantInfo	info = variants[index];
+			MC_Block* block = blocks_cache[info.model];
+			block->setTransform(pos, info.rotation);
+			block->draw(shader, camera);
+		} else {
+			for (vector<VariantInfo>::iterator it = multipart.begin(); it != multipart.end(); it++) {
+				VariantInfo	info = *it;
+				MC_Block* block = blocks_cache[info.model];
+				block->setTransform(pos, info.rotation);
+				block->draw(shader, camera);
+			}
 		}
-		VariantInfo info = variants[index];
-		MC_Block* block = blocks_cache[info.model];
-		block->setTransform(pos, info.rotation);
-		block->draw(shader, camera);
 	}
 };
 
@@ -401,8 +441,33 @@ int main(/*int argc, char* argv[]*/) {
 	GLFWwindow* window = InitOpenGL("Minecraft Renderer");
 	Shader mc_shader("shaders/minecraft_vert.glsl", "shaders/minecraft_frag.glsl");
 
-	BlockVariant* block1 = new BlockVariant("repeater");
-	BlockVariant* block2 = new BlockVariant("lectern");
+	vector<string> blocks = {
+		"anvil",
+		"bamboo",
+		"beacon",
+		"bricks",
+		"cauldron",
+		"dropper",
+		"creeper_head",
+		"detector_rail",
+		"dragon_egg",
+		"end_portal_frame",
+		"glass",
+		"jukebox",
+		"lectern",
+		"magenta_glazed_terracotta",
+		"note_block",
+		"oak_fence",
+		"observer",
+		"redstone_ore",
+		"short_grass",
+		"tall_grass",
+		"blue_banner",
+	};
+
+	vector<BlockVariant*> block_variants;
+	for (vector<string>::iterator it = blocks.begin(); it != blocks.end(); it++)
+		block_variants.push_back(new BlockVariant(it->c_str()));
 
 	Camera camera(vec3(0, 2.5, 10));
 	glfwSetWindowUserPointer(window, &camera);
@@ -427,13 +492,12 @@ int main(/*int argc, char* argv[]*/) {
 		glEnable(GL_BLEND);
 		mc_shader.Use();
 		unsigned int i = 0;
-		for (unsigned int j = 0; j < block1->getVariantCount(); j++) {
-			block1->draw(mc_shader, camera, j, vec3(2.0f * (i % 8), 0.0f, -2.0f * (i / 8)));
-			i++;
-		}
-		for (unsigned int j = 0; j < block2->getVariantCount(); j++) {
-			block2->draw(mc_shader, camera, j, vec3(2.0f * (i % 8), 0.0f, -2.0f * (i / 8)));
-			i++;
+		const int WIDTH = 8;
+		for (vector<BlockVariant*>::iterator it = block_variants.begin(); it != block_variants.end(); it++) {
+			for (unsigned int j = 0; j < (*it)->getVariantCount(); j++) {
+				(*it)->draw(mc_shader, camera, j, vec3(2.0f * (i % WIDTH), 0.0f, -2.0f * (i / WIDTH)));
+				i++;
+			}
 		}
 		glDisable(GL_BLEND);
 

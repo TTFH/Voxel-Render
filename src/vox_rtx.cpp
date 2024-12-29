@@ -215,7 +215,7 @@ void RTX_Render::DrawAdvanced(Shader& shader, Camera& camera) {
 	shader.PushFloat("uNear", camera.NEAR_PLANE);
 	shader.PushFloat("uFar", camera.FAR_PLANE);
 	shader.PushVec3("uCameraPos", camera.position);
-	shader.PushVec2("uPixelSize", vec2(0.0007, 0.00123));
+	shader.PushVec2("uPixelSize", vec2(1 / camera.screen_width, 1 / camera.screen_height));
 
 	mat4 toWorldCoords = mat4(vec4(1, 0, 0, 0),
 							  vec4(0, 0, -1, 0),
@@ -246,7 +246,7 @@ void RTX_Render::DrawAdvanced(Shader& shader, Camera& camera) {
 }
 
 void RTX_Render::draw(Shader& shader, Camera& camera) {
-	DrawAdvanced(shader, camera);
+	DrawSimple(shader, camera);
 }
 
 RTX_Render::~RTX_Render() {
