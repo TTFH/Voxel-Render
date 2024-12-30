@@ -7,7 +7,7 @@
 #include "vao.h"
 #include "camera.h"
 #include "shader.h"
-#include "render_interface.h"
+#include "render_vox_interface.h"
 
 class RTX_Render : public IRender {
 private:

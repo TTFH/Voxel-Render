@@ -5,11 +5,11 @@
 #include <string>
 #include <vector>
 
-#include "mesh.h"
+#include "render_mesh.h"
 #include "vox_loader.h"
-#include "rope_render.h"
-#include "water_render.h"
-#include "voxbox_render.h"
+#include "render_rope.h"
+#include "render_water.h"
+#include "render_voxbox.h"
 #include "shadow_volume.h"
 #include "../lib/tinyxml2.h"
 

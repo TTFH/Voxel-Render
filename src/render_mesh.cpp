@@ -1,6 +1,6 @@
 #include <string.h>
 
-#include "mesh.h"
+#include "render_mesh.h"
 #include "utils.h"
 
 struct Triangle {
@@ -154,18 +154,9 @@ void Mesh::SaveOBJ(const char* path) {
 }
 
 Mesh::Mesh(const char* path, const char* diffuse_path, const char* specular_path) {
-	string extension = path;
-	extension = extension.substr(extension.find_last_of("."));
-	if (extension == ".obj")
-		LoadOBJ(path);
-	else {
-		printf("[Warning] Unsupported mesh format: %s\n", extension.c_str());
-		return;
-	}
-
+	LoadOBJ(path);
 	diffuse_texture = LoadTexture2D(diffuse_path);
-	if (specular_path != NULL)
-		specular_texture = LoadTexture2D(specular_path);
+	specular_texture = LoadTexture2D(specular_path);
 
 	vao.Bind();
 	VBO vbo(vertices);
@@ -179,6 +170,7 @@ Mesh::Mesh(const char* path, const char* diffuse_path, const char* specular_path
 Mesh::Mesh(const char* path, vec3 color) {
 	this->color = color;
 	LoadSimpleOBJ(path);
+
 	vao.Bind();
 	VBO vbo(vertices);
 	vao.LinkAttrib(vbo, 0, 3, GL_FLOAT, sizeof(MeshVertex), (GLvoid*)0);					 // Position
@@ -225,8 +217,8 @@ void Mesh::draw(Shader& shader, Camera& camera) {
 	shader.PushMatrix("position", pos);
 	shader.PushMatrix("rotation", rot);
 
-	shader.PushTexture("diffuse0", diffuse_texture, 0);
-	shader.PushTexture("specular0", specular_texture, 1);
+	shader.PushTexture2D("diffuse0", diffuse_texture, 0);
+	shader.PushTexture2D("specular0", specular_texture, 1);
 	shader.PushVec3("color", color); // No texture
 
 	glDrawArrays(GL_TRIANGLES, 0, vertices.size());

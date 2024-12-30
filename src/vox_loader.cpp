@@ -1,9 +1,9 @@
 #include <stdio.h>
 
 #include "vox_loader.h"
-#include "hex_render.h"
-#include "greedy_mesh.h"
-#include "vox_rtx.h"
+#include "render_vox_hex.h"
+#include "render_vox_greedy.h"
+#include "render_vox_rtx.h"
 #include "utils.h"
 
 constexpr int ID(char a, char b, char c, char d) {
@@ -120,12 +120,11 @@ static string RemoveExtension(const string& path) {
 }
 
 void VoxLoader::load(const char* filename) {
-	this->filename = filename;
-	vector<MV_Voxel> voxels;
 	int sizex = 0;
 	int sizey = 0;
 	int sizez = 0;
 	int ref_model_id = -1;
+	this->filename = filename;
 	mv_model_iterator last_inserted = models.end();
 
 	FILE* file = fopen(filename, "rb");
@@ -145,16 +144,16 @@ void VoxLoader::load(const char* filename) {
 			sizez = ReadInt(file);
 			break;
 		case XYZI: {
-				int numVoxels = ReadInt(file);
-				if (numVoxels > 0) {
-					voxels.resize(numVoxels);
-					fread(voxels.data(), sizeof(MV_Voxel), numVoxels, file);
-				} else
-					voxels.clear();
-				string id = RemoveExtension(filename) + "_" + to_string(shapes.size());
-				MV_Shape shape = { id, sizex, sizey, sizez, voxels };
-				shapes.push_back(shape);
-				//printf("XYZI shape[%d]: %5d voxels, size = [%3d %3d %3d]\n", (int)shapes.size() - 1, numVoxels, sizex, sizey, sizez);
+				int voxels_count = ReadInt(file);
+				if (voxels_count > 0) {
+					vector<MV_Voxel> voxels;
+					voxels.resize(voxels_count);
+					fread(voxels.data(), sizeof(MV_Voxel), voxels_count, file);
+					string id = RemoveExtension(filename) + "_" + to_string(shapes.size());
+					MV_Shape shape = { id, sizex, sizey, sizez, voxels };
+					shapes.push_back(shape);
+				}
+				//printf("XYZI shape[%d]: %5d voxels, size = [%3d %3d %3d]\n", (int)shapes.size() - 1, voxels_count, sizex, sizey, sizez);
 			}
 			break;
 		case RGBA:
@@ -230,7 +229,6 @@ void VoxLoader::load(const char* filename) {
 		fseek(file, sub.end, SEEK_SET);
 	}
 	fclose(file);
-	//printf("File loaded: %s\n", filename);
 
 	if (paletteCount == 0) { // Create texture
 		glGenTextures(1, &paletteBank);
@@ -306,14 +304,14 @@ void VoxLoader::push(ShadowVolume& shadow_volume, string shape_name, vec3 world_
 		// Coordinate system: x right, z up, y forward, scale 1:1 (in voxels)
 		mat4 pos = translate(mat4(1.0f), position);
 		mat4 rot = mat4_cast(it->second.rotation);
-		mat4 localTr = toWorldCoords * pos * rot;
+		mat4 local_tr = toWorldCoords * pos * rot;
 
 		// Coordinate system: x right, y up, -z forward, scale 1 meter : 10 voxels
 		mat4 world_pos = translate(mat4(1.0f), 10.0f * world_position);
 		mat4 world_rot = mat4_cast(world_rotation);
-		mat4 worldTr = world_pos * world_rot;
+		mat4 world_tr = world_pos * world_rot;
 
-		mat4 modelMatrix = worldTr * localTr;
+		mat4 modelMatrix = world_tr * local_tr;
 		shadow_volume.addShape(shape, modelMatrix);
 	}
 }

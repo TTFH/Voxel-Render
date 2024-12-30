@@ -1,10 +1,11 @@
 #ifndef LIGHT_H
 #define LIGHT_H
 
+#include <glm/glm.hpp>
+
 #include "camera.h"
 #include "shader.h"
 #include "vox_loader.h"
-#include <glm/glm.hpp>
 
 class Light {
 private:

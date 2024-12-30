@@ -3,7 +3,7 @@
 
 #include "ebo.h"
 #include "utils.h"
-#include "vox_rtx.h"
+#include "render_vox_rtx.h"
 
 static GLfloat cube_vertices[] = {
 	0, 0, 0,
@@ -141,7 +141,7 @@ RTX_Render::RTX_Render(const MV_Shape& shape, GLuint paletteBank, int paletteId)
 void RTX_Render::DrawSimple(Shader& shader, Camera& camera) {
 	vao.Bind();
 
-	shader.PushTexture("uColor", paletteBank, 0);
+	shader.PushTexture2D("uColor", paletteBank, 0);
 	shader.PushTexture3D("uVolTex", volumeTexture, 1);
 
 	shader.PushFloat("uNear", camera.NEAR_PLANE);
@@ -189,14 +189,14 @@ void RTX_Render::DrawAdvanced(Shader& shader, Camera& camera) {
 	vao.Bind();
 
 	shader.PushTexture3D("uVolTex", volumeTexture, 0);
-	shader.PushTexture("uColor", paletteBank, 1);
-	//shader.PushTexture("uMaterial", materialBank, 2);
-	shader.PushTexture("uAlbedoMap", albedoMap, 3);
-	shader.PushTexture("uBlendMap", blendMap, 4);
-	shader.PushTexture("uNormalMap", normalMap, 5);
-	shader.PushTexture("uWindowAlbedo", windowAlbedo, 6);
-	shader.PushTexture("uWindowNormal", windowNormal, 7);
-	shader.PushTexture("uBlueNoise", blueNoise, 8);
+	shader.PushTexture2D("uColor", paletteBank, 1);
+	//shader.PushTexture2D("uMaterial", materialBank, 2);
+	shader.PushTexture2D("uAlbedoMap", albedoMap, 3);
+	shader.PushTexture2D("uBlendMap", blendMap, 4);
+	shader.PushTexture2D("uNormalMap", normalMap, 5);
+	shader.PushTexture2D("uWindowAlbedo", windowAlbedo, 6);
+	shader.PushTexture2D("uWindowNormal", windowNormal, 7);
+	shader.PushTexture2D("uBlueNoise", blueNoise, 8);
 
 	shader.PushInt("uPalette", paletteId);
 	shader.PushVec3("uObjSize", shapeSize);
@@ -245,7 +245,7 @@ void RTX_Render::DrawAdvanced(Shader& shader, Camera& camera) {
 }
 
 void RTX_Render::draw(Shader& shader, Camera& camera) {
-	DrawSimple(shader, camera);
+	DrawAdvanced(shader, camera);
 }
 
 RTX_Render::~RTX_Render() {

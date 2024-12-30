@@ -135,6 +135,7 @@ string GetScenePath(int argc, char* argv[]) {
 }
 
 GLuint LoadTexture2D(const char* path) {
+	if (path == NULL) return 0;
 	GLuint texture_id;
 	int width, height, channels;
 	stbi_set_flip_vertically_on_load(true);

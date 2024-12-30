@@ -20,6 +20,7 @@ void Camera::updateScreenSize(int width, int height) {
 }
 
 void Camera::updateMatrix() {
+	const float FOV = 45;
 	mat4 view = lookAt(position, position + direction, up);
 	mat4 projection = perspective(radians(FOV), (float)screen_width / screen_height, NEAR_PLANE, FAR_PLANE);
 	vpMatrix = projection * view;
@@ -52,24 +53,25 @@ void Camera::handleInputs(GLFWwindow* window) {
 	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
 		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
-		if (firstClick) {
+		if (first_click) {
 			glfwSetCursorPos(window, screen_width / 2, screen_height / 2);
-			firstClick = false;
+			first_click = false;
 		}
 
-		double mouseX, mouseY;
-		glfwGetCursorPos(window, &mouseX, &mouseY);
-		float rotX = sensitivity * (float)(mouseY - (screen_height / 2)) / screen_height;
-		float rotY = sensitivity * (float)(mouseX - (screen_width / 2)) / screen_width;
+		double mouse_x, mouse_y;
+		glfwGetCursorPos(window, &mouse_x, &mouse_y);
+		const float sensitivity = 100.0;
+		float rotX = sensitivity * (mouse_y - (screen_height / 2.0)) / screen_height;
+		float rotY = sensitivity * (mouse_x - (screen_width / 2.0)) / screen_width;
 
 		vec3 new_orientation = rotate(direction, radians(-rotX), normalize(cross(direction, up)));
 		if (abs(angle(new_orientation, up) - radians(90.0f)) <= radians(85.0f))
 			direction = new_orientation;
 		direction = rotate(direction, radians(-rotY), up);
-		glfwSetCursorPos(window, screen_width / 2, screen_height / 2);
+		glfwSetCursorPos(window, screen_width / 2.0, screen_height / 2.0);
 	} else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_RELEASE) {
 		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-		firstClick = true;
+		first_click = true;
 	}
 	updateMatrix();
 }

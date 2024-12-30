@@ -7,14 +7,14 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 
-#include "src/mesh.h"
+#include "src/render_mesh.h"
 #include "src/light.h"
 #include "src/utils.h"
 #include "src/shader.h"
 #include "src/skybox.h"
-#include "src/shadowmap.h"
-#include "src/xml_loader.h"
-#include "src/lighting_rtx.h"
+#include "src/shadow_map.h"
+#include "src/scene_loader.h"
+#include "src/postprocessing.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "lib/stb_image.h"
@@ -280,26 +280,26 @@ int main(int argc, char* argv[]) {
 		voxel_hex_shader.PushInt("side", hex_orientation);
 		voxel_hex_shader.PushVec3("lightpos", light.getPosition());
 		voxel_hex_shader.PushMatrix("lightProjection", light.getProjection());
-		voxel_hex_shader.PushTexture("shadowMap", shadow_map.GetTexture(), 0);
+		voxel_hex_shader.PushTexture2D("shadowMap", shadow_map.GetTexture(), 0);
 		scene.draw(voxel_hex_shader, camera, HEXAGON);
 
 		voxel_gm_shader.Use();
 		voxel_gm_shader.PushVec3("lightpos", light.getPosition());
 		voxel_gm_shader.PushMatrix("lightProjection", light.getProjection());
 		voxel_gm_shader.PushInt("transparent_glass", transparent_glass);
-		voxel_gm_shader.PushTexture("shadowMap", shadow_map.GetTexture(), 0);
+		voxel_gm_shader.PushTexture2D("shadowMap", shadow_map.GetTexture(), 0);
 		scene.draw(voxel_gm_shader, camera, GREEDY);
 
 		voxbox_shader.Use();
 		voxbox_shader.PushVec3("lightpos", light.getPosition());
 		voxbox_shader.PushMatrix("lightProjection", light.getProjection());
-		voxbox_shader.PushTexture("shadowMap", shadow_map.GetTexture(), 0);
+		voxbox_shader.PushTexture2D("shadowMap", shadow_map.GetTexture(), 0);
 		scene.drawVoxbox(voxbox_shader, camera);
 
 		mesh_shader.Use();
 		mesh_shader.PushVec3("lightpos", light.getPosition());
 		mesh_shader.PushMatrix("lightProjection", light.getProjection());
-		mesh_shader.PushTexture("shadowMap", shadow_map.GetTexture(), 0);
+		mesh_shader.PushTexture2D("shadowMap", shadow_map.GetTexture(), 0);
 		scene.drawMesh(mesh_shader, camera);
 
 		glEnable(GL_BLEND);

@@ -7,6 +7,7 @@
 #include "shader.h"
 #include "camera.h"
 
+#include "../glad/glad.h"
 #include <GLFW/glfw3.h>
 #include <glm/gtc/quaternion.hpp>
 

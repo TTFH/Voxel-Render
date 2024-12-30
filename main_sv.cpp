@@ -7,14 +7,14 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 
-#include "src/mesh.h"
+#include "src/render_mesh.h"
 #include "src/light.h"
 #include "src/utils.h"
 #include "src/shader.h"
 #include "src/skybox.h"
-#include "src/shadowmap.h"
-#include "src/xml_loader.h"
-#include "src/lighting_rtx.h"
+#include "src/shadow_map.h"
+#include "src/scene_loader.h"
+#include "src/postprocessing.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "lib/stb_image.h"
@@ -59,9 +59,6 @@ int main(int argc, char* argv[]) {
 		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 			glfwSetWindowShouldClose(window, true);
 		camera.handleInputs(window);
-
-		glClearColor(0.35, 0.54, 0.8, 1);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		screen.start();
 		voxel_rtx_shader.Use();

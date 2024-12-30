@@ -1,5 +1,5 @@
 #include "ebo.h"
-#include "voxbox_render.h"
+#include "render_voxbox.h"
 
 //   6--------7
 //  /|       /|

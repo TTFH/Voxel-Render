@@ -9,7 +9,7 @@
 
 #include "src/vao.h"
 #include "src/ebo.h"
-#include "src/mesh.h"
+#include "src/render_mesh.h"
 #include "src/light.h"
 #include "src/utils.h"
 #include "src/camera.h"
@@ -95,7 +95,7 @@ public:
 	void draw(Shader& shader, Camera& camera) {
 		vao.Bind();
 		shader.PushMatrix("camera", camera.vpMatrix);
-		shader.PushTexture("diffuse", texture, 0);
+		shader.PushTexture2D("diffuse", texture, 0);
 		shader.PushVec2("size", size);
 		shader.PushVec4("tint_color", tint_color);
 		shader.PushVec2("uv_min", uv_min);
@@ -238,10 +238,7 @@ private:
 		}
 
 		json elements_js = block_js["elements"];
-		if (cuboids.size() > 0 && elements_js.size() > 0) {
-			//printf("[Warning] Skipping %s, elements already defined.\n", path.c_str());
-			return;
-		}
+		if (cuboids.size() > 0 && elements_js.size() > 0) return; // Already loaded
 		for (json::iterator it = elements_js.begin(); it != elements_js.end(); it++) {
 			json element_js = *it;
 			json from_js = element_js["from"];

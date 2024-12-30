@@ -20,12 +20,12 @@ private:
 	string path1;
 	string path2;
 	void Load();
-	void Create(const char* vertexSource, const char* fragmentSource);
-	GLint GetSetLocation(const char* uniform);
+	void Create(const char* vertex_source, const char* fragment_source);
+	GLint GetLocation(const char* uniform);
 public:
 	GLuint id;
 	Shader(const char* name);
-	Shader(const char* vertexPath, const char* fragmentPath);
+	Shader(const char* vertex_path, const char* fragment_path);
 	void PushInt(const char* uniform, int value);
 	void PushFloat(const char* uniform, float value);
 	void PushVec2(const char* uniform, vec2 value);
@@ -33,7 +33,7 @@ public:
 	void PushVec4(const char* uniform, vec4 value);
 	void PushMatrix(const char* uniform, mat4 value);
 	void PushTexture1D(const char* uniform, GLuint texture_id, GLuint unit);
-	void PushTexture(const char* uniform, GLuint texture_id, GLuint unit);
+	void PushTexture2D(const char* uniform, GLuint texture_id, GLuint unit);
 	void PushTexture3D(const char* uniform, GLuint texture_id, GLuint unit);
 	void PushTextureCubeMap(const char* uniform, GLuint texture_id, GLuint unit);
 	void Use();

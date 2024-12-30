@@ -56,7 +56,6 @@ void Skybox::ReloadTexture(const char* name) {
 	for (unsigned int i = 0; i < 6; i++) {
 		int width, height, channels;
 		uint8_t* data = stbi_load(facesCubemap[i].c_str(), &width, &height, &channels, STBI_rgb);
-		//printf("Loading texture %s with %d channels\n", facesCubemap[i].c_str(), channels);
 		if (data != NULL) {
 			stbi_set_flip_vertically_on_load(false);
 			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);

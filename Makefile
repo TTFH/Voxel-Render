@@ -7,12 +7,12 @@ CXXFLAGS += -Wno-missing-field-initializers
 CXXFLAGS += `pkg-config --cflags glfw3`
 LIBS = `pkg-config --libs glfw3 --static`
 
-SOURCES = main_sv.cpp glad/glad.c lib/tinyxml2.cpp
-SOURCES += src/camera.cpp src/ebo.cpp src/greedy_mesh.cpp src/hex_render.cpp src/light.cpp
-SOURCES += src/lighting_rtx.cpp src/mesh.cpp src/rope_render.cpp src/shader.cpp 
-SOURCES += src/shadow_volume.cpp src/shadowmap.cpp src/skybox.cpp src/utils.cpp src/vao.cpp
-SOURCES += src/vbo.cpp src/vox_loader.cpp src/vox_rtx.cpp src/voxbox_render.cpp 
-SOURCES += src/water_render.cpp src/xml_loader.cpp
+SOURCES = main.cpp glad/glad.c lib/tinyxml2.cpp
+SOURCES += src/camera.cpp src/ebo.cpp src/render_vox_greedy.cpp src/render_vox_hex.cpp src/light.cpp
+SOURCES += src/postprocessing.cpp src/render_mesh.cpp src/render_rope.cpp src/shader.cpp 
+SOURCES += src/shadow_volume.cpp src/shadow_map.cpp src/skybox.cpp src/utils.cpp src/vao.cpp
+SOURCES += src/vbo.cpp src/vox_loader.cpp src/render_vox_rtx.cpp src/render_voxbox.cpp 
+SOURCES += src/render_water.cpp src/scene_loader.cpp
 SOURCES += imgui/imgui.cpp imgui/imgui_draw.cpp imgui/imgui_tables.cpp imgui/imgui_widgets.cpp
 SOURCES += imgui/backends/imgui_impl_glfw.cpp imgui/backends/imgui_impl_opengl3.cpp
 

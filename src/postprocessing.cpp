@@ -1,6 +1,6 @@
 #include "ebo.h"
 #include "utils.h"
-#include "lighting_rtx.h"
+#include "postprocessing.h"
 
 static GLfloat screen_vertices[] = {
 	// pos  uv
@@ -90,10 +90,10 @@ void Screen::draw(Shader& shader, Camera& camera) {
 	shader.PushMatrix("uVpMatrix", camera.vpMatrix);
 	shader.PushMatrix("uVpInvMatrix", inverse(camera.vpMatrix));
 
-	shader.PushTexture("uTexture", colorTexture, 0);
-	shader.PushTexture("uNormal", normalTexture, 1);
-	shader.PushTexture("uDepth", depthTexture, 2);
-	shader.PushTexture("uBlueNoise", bluenoise, 3);
+	shader.PushTexture2D("uTexture", colorTexture, 0);
+	shader.PushTexture2D("uNormal", normalTexture, 1);
+	shader.PushTexture2D("uDepth", depthTexture, 2);
+	shader.PushTexture2D("uBlueNoise", bluenoise, 3);
 
 	glDrawElements(GL_TRIANGLES, sizeof(screen_indices) / sizeof(GLuint), GL_UNSIGNED_INT, 0);
 	vao.Unbind();

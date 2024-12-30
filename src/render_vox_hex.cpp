@@ -1,6 +1,6 @@
 #include "ebo.h"
 #include "utils.h"
-#include "hex_render.h"
+#include "render_vox_hex.h"
 
 //   4 _ _ _ _ 3
 //   /         \.
@@ -89,7 +89,7 @@ static GLuint hex_prism_indices[] = {
 	32, 34, 35,
 };
 
-HexRender::HexRender(const MV_Shape& shape, GLuint paletteBank, int paletteId) {
+HexRender::HexRender(const MV_Shape& shape, GLuint palette_bank, int palette_id) {
 	uint8_t*** voxels = MatrixInit(shape);
 	TrimShape(voxels, shape.sizex, shape.sizey, shape.sizez);
 
@@ -104,9 +104,10 @@ HexRender::HexRender(const MV_Shape& shape, GLuint paletteBank, int paletteId) {
 				}
 	MatrixDelete(voxels, shape);
 
-	this->paletteBank = paletteBank;
-	this->paletteId = paletteId;
+	this->palette_bank = palette_bank;
+	this->palette_id = palette_id;
 	this->voxel_count = trimed_voxels.size();
+
 	vao.Bind();
 	VBO vbo(hex_prism_vertices, sizeof(hex_prism_vertices));
 	EBO ebo(hex_prism_indices, sizeof(hex_prism_indices));
@@ -141,8 +142,8 @@ void HexRender::draw(Shader& shader, Camera& camera) {
 	shader.PushMatrix("world_rot", world_rot);
 
 	shader.PushFloat("scale", scale);
-	shader.PushTexture("uColor", paletteBank, 1);
-	shader.PushInt("uPalette", paletteId);
+	shader.PushTexture2D("uColor", palette_bank, 1);
+	shader.PushInt("uPalette", palette_id);
 
 	// Use GL_LINES for wireframe
 	glDrawElementsInstanced(GL_TRIANGLES, sizeof(hex_prism_indices) / sizeof(GLuint), GL_UNSIGNED_INT, 0, voxel_count);

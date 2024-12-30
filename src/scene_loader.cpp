@@ -6,7 +6,7 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/euler_angles.hpp>
 
-#include "xml_loader.h"
+#include "scene_loader.h"
 
 // Example of how to use tinyxml2
 void iterate_xml(XMLElement* root, int depth) {

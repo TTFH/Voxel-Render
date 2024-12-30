@@ -14,9 +14,9 @@ using namespace tinyxml2;
 class ShadowVolume {
 private:
 	VAO vao;
-	int width, height, depth, volume;
-	GLuint volumeTexture;
-	uint8_t* shadowVolume;
+	int width, height, depth;
+	GLuint volume_texture;
+	uint8_t* shadowVolume_mip0;
 
 	XMLDocument scene_xml;
 	XMLElement* scene_root = NULL;

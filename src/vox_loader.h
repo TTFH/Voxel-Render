@@ -8,7 +8,7 @@
 #include "camera.h"
 #include "shader.h"
 #include "shadow_volume.h"
-#include "render_interface.h"
+#include "render_vox_interface.h"
 
 using namespace std;
 

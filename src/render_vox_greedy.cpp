@@ -1,6 +1,6 @@
 #include "ebo.h"
 #include "utils.h"
-#include "greedy_mesh.h"
+#include "render_vox_greedy.h"
 
 // Based on: https://0fps.net/2012/07/07/meshing-minecraft-part-2/
 GreedyMesh generateGreedyMesh(const MV_Shape& shape) {
@@ -134,14 +134,14 @@ void SaveOBJ(string path, const GreedyMesh& mesh, int palette_id) {
 	printf("Saved shape to %s\n", path.c_str());
 }
 
-GreedyRender::GreedyRender(const MV_Shape& shape, GLuint paletteBank, int paletteId) {
+GreedyRender::GreedyRender(const MV_Shape& shape, GLuint palette_bank, int palette_id) {
 	GreedyMesh mesh = generateGreedyMesh(shape);
-	this->paletteBank = paletteBank;
-	this->paletteId = paletteId;
+	this->palette_bank = palette_bank;
+	this->palette_id = palette_id;
 	index_count = mesh.indices.size();
 
 #ifdef _BLENDER
-	SaveOBJ(shape.id + ".obj", mesh, paletteId);
+	SaveOBJ(shape.id + ".obj", mesh, palette_id);
 #endif
 
 	vao.Bind();
@@ -172,8 +172,8 @@ void GreedyRender::draw(Shader& shader, Camera& camera) {
 	shader.PushMatrix("world_pos", world_pos);
 	shader.PushMatrix("world_rot", world_rot);
 
-	shader.PushTexture("uColor", paletteBank, 1);
-	shader.PushInt("uPalette", paletteId);
+	shader.PushTexture2D("uColor", palette_bank, 1);
+	shader.PushInt("uPalette", palette_id);
 
 	//glLineWidth(5.0f); // GL_LINES
 	glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_INT, 0);

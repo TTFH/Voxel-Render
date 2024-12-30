@@ -2,6 +2,7 @@
 #include <string.h>
 #include <fstream>
 #include <iostream>
+
 #include "shader.h"
 
 #include <glm/gtc/type_ptr.hpp>
@@ -87,7 +88,7 @@ void Shader::Load() {
 	}
 }
 
-GLint Shader::GetSetLocation(const char* uniform) {
+GLint Shader::GetLocation(const char* uniform) {
 	if (uniforms.find(uniform) == uniforms.end()) {
 		GLint location = glGetUniformLocation(id, uniform);
 		if (location == -1)
@@ -98,49 +99,49 @@ GLint Shader::GetSetLocation(const char* uniform) {
 }
 
 void Shader::PushInt(const char* uniform, int value) {
-	glUniform1i(GetSetLocation(uniform), value);
+	glUniform1i(GetLocation(uniform), value);
 }
 
 void Shader::PushFloat(const char* uniform, float value) {
-	glUniform1f(GetSetLocation(uniform), value);
+	glUniform1f(GetLocation(uniform), value);
 }
 
 void Shader::PushVec2(const char* uniform, vec2 value) {
-	glUniform2fv(GetSetLocation(uniform), 1, value_ptr(value));
+	glUniform2fv(GetLocation(uniform), 1, value_ptr(value));
 }
 
 void Shader::PushVec3(const char* uniform, vec3 value) {
-	glUniform3fv(GetSetLocation(uniform), 1, value_ptr(value));
+	glUniform3fv(GetLocation(uniform), 1, value_ptr(value));
 }
 
 void Shader::PushVec4(const char* uniform, vec4 value) {
-	glUniform4fv(GetSetLocation(uniform), 1, value_ptr(value));
+	glUniform4fv(GetLocation(uniform), 1, value_ptr(value));
 }
 
 void Shader::PushMatrix(const char* uniform, mat4 value) {
-	glUniformMatrix4fv(GetSetLocation(uniform), 1, GL_FALSE, value_ptr(value));
+	glUniformMatrix4fv(GetLocation(uniform), 1, GL_FALSE, value_ptr(value));
 }
 
 void Shader::PushTexture1D(const char* uniform, GLuint texture_id, GLuint unit) {
-	glUniform1i(GetSetLocation(uniform), unit);
+	glUniform1i(GetLocation(uniform), unit);
 	glActiveTexture(GL_TEXTURE0 + unit);
 	glBindTexture(GL_TEXTURE_1D, texture_id);
 }
 
-void Shader::PushTexture(const char* uniform, GLuint texture_id, GLuint unit) {
-	glUniform1i(GetSetLocation(uniform), unit);
+void Shader::PushTexture2D(const char* uniform, GLuint texture_id, GLuint unit) {
+	glUniform1i(GetLocation(uniform), unit);
 	glActiveTexture(GL_TEXTURE0 + unit);
 	glBindTexture(GL_TEXTURE_2D, texture_id);
 }
 
 void Shader::PushTexture3D(const char* uniform, GLuint texture_id, GLuint unit) {
-	glUniform1i(GetSetLocation(uniform), unit);
+	glUniform1i(GetLocation(uniform), unit);
 	glActiveTexture(GL_TEXTURE0 + unit);
 	glBindTexture(GL_TEXTURE_3D, texture_id);
 }
 
 void Shader::PushTextureCubeMap(const char* uniform, GLuint texture_id, GLuint unit) {
-	glUniform1i(GetSetLocation(uniform), unit);
+	glUniform1i(GetLocation(uniform), unit);
 	glActiveTexture(GL_TEXTURE0 + unit);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, texture_id);
 }

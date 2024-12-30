@@ -1,8 +1,10 @@
 #include <stdio.h>
 
 #include "utils.h"
-#include "water_render.h"
+#include "render_water.h"
 
+#include <glm/gtc/quaternion.hpp>
+/*
 static bool water_initialized = false;
 GLuint dudv_texture;
 GLuint normal_texture;
@@ -37,7 +39,7 @@ static void CreateDepthTexture(GLuint &depthTexture, int width, int height) {
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
 	glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthTexture, 0);
 }
-
+*/
 WaterRender::WaterRender(vector<vec2> vertices) {
 	vertex_count = vertices.size();
 	vao.Bind();
@@ -45,7 +47,7 @@ WaterRender::WaterRender(vector<vec2> vertices) {
 	vao.LinkAttrib(vbo, 0, 2, GL_FLOAT, sizeof(vec2), (GLvoid*)0); // Vertex position
 	vao.Unbind();
 	vbo.Unbind();
-
+/*
 	vec2 min = vertices[0];
 	vec2 max = vertices[0];
 	for (size_t i = 1; i < vertices.size(); i++) {
@@ -74,9 +76,9 @@ WaterRender::WaterRender(vector<vec2> vertices) {
 			printf("[ERROR] Water framebuffer failed with status %d\n", fboStatus);
 		glBindTexture(GL_TEXTURE_2D, 0);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	}
+	}*/
 }
-
+/*
 float WaterRender::GetHeight() {
 	return position.y;
 }
@@ -97,7 +99,7 @@ void WaterRender::UnbindFB(Camera& camera) {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glViewport(0, 0, camera.screen_width, camera.screen_height);
 }
-
+*/
 void WaterRender::setWorldTransform(vec3 position) {
 	this->position = position;
 }
@@ -106,18 +108,18 @@ void WaterRender::draw(Shader& shader, Camera& camera) {
 	vao.Bind();
 	shader.PushMatrix("camera", camera.vpMatrix);
 	shader.PushVec3("camera_pos", camera.position);
-	shader.PushVec2("min", bounding_box.min);
-	shader.PushVec2("max", bounding_box.max);
+	//shader.PushVec2("min", bounding_box.min);
+	//shader.PushVec2("max", bounding_box.max);
 
 	mat4 pos = translate(mat4(1.0f), position);
 	shader.PushMatrix("position", pos);
-
-	shader.PushTexture("reflectionTexture", reflectionTexture, 0);
-	shader.PushTexture("refractionTexture", refractionTexture, 1);
-	shader.PushTexture("dudvMap", dudv_texture, 2);
-	shader.PushTexture("normalMap", normal_texture, 3);
-	shader.PushTexture("depthMap", refractionDepthTexture, 4);
-
+/*
+	shader.PushTexture2D("reflectionTexture", reflectionTexture, 0);
+	shader.PushTexture2D("refractionTexture", refractionTexture, 1);
+	shader.PushTexture2D("dudvMap", dudv_texture, 2);
+	shader.PushTexture2D("normalMap", normal_texture, 3);
+	shader.PushTexture2D("depthMap", refractionDepthTexture, 4);
+*/
 	glDrawArrays(GL_TRIANGLE_FAN, 0, vertex_count);
 	vao.Unbind();
 }

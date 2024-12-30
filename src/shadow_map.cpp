@@ -1,8 +1,8 @@
-#include "shadowmap.h"
+#include "shadow_map.h"
 
 ShadowMap::ShadowMap() {
-	glGenTextures(1, &shadowMap);
-	glBindTexture(GL_TEXTURE_2D, shadowMap);
+	glGenTextures(1, &shadow_map_texture);
+	glBindTexture(GL_TEXTURE_2D, shadow_map_texture);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -10,11 +10,11 @@ ShadowMap::ShadowMap() {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 	float clampColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, clampColor);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, shadowMapWidth, shadowMapHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, WIDTH, HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
 
-	glGenFramebuffers(1, &shadowMapFBO);
-	glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFBO);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, shadowMap, 0);
+	glGenFramebuffers(1, &shadow_map_fbo);
+	glBindFramebuffer(GL_FRAMEBUFFER, shadow_map_fbo);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, shadow_map_texture, 0);
 	glDrawBuffer(GL_NONE);
 	glReadBuffer(GL_NONE);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -25,8 +25,8 @@ ShadowMap::ShadowMap() {
 }
 
 void ShadowMap::BindShadowMap() {
-	glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFBO);
-	glViewport(0, 0, shadowMapWidth, shadowMapHeight);
+	glBindFramebuffer(GL_FRAMEBUFFER, shadow_map_fbo);
+	glViewport(0, 0, WIDTH, HEIGHT);
 	glClear(GL_DEPTH_BUFFER_BIT);
 }
 
@@ -36,10 +36,10 @@ void ShadowMap::UnbindShadowMap(Camera& camera) {
 }
 
 GLuint ShadowMap::GetTexture() {
-	return shadowMap;
+	return shadow_map_texture;
 }
 
 ShadowMap::~ShadowMap() {
-	glDeleteTextures(1, &shadowMap);
-	glDeleteFramebuffers(1, &shadowMapFBO);
+	glDeleteTextures(1, &shadow_map_texture);
+	glDeleteFramebuffers(1, &shadow_map_fbo);
 }
