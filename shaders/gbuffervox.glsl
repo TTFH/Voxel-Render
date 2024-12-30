@@ -209,7 +209,7 @@ void main() {
 		localNormal[n] = -sign(localDir[n]);
 
 		outputMaterial.w *= 32.0 * uEmissive;
-		vec4 tt = (index == 254u ? vec4(12.0, 0.0, 1.0, 0.0) : uTextureTile);	
+		vec4 tt = (index == 254u ? vec4(12.0, 0.0, 1.0, 0.0) : uTextureTile);
 
 		if (outputColor.a < 1.0) { // Glass
 			vec3 noiseNormal;
@@ -241,15 +241,14 @@ void main() {
 			tc = floor(tc) / 256.0;
 
 			if (tt.x != 0) { // Albedo texture
+				tt.z = 0.25;
 				vec2 tcTile = getTile(tc, tt.x, vec2(4.0, 8.0));
-
 				//if (outputMaterial.w == 0.0f) { // Non emissive
 					vec4 albedoTex = texture(uAlbedoMap, tcTile);
 					albedoTex = mix(vec4(1.0), albedoTex, tt.z);
 					outputColor *= albedoTex;
 					outputMaterial.y *= clamp((albedoTex.r - 0.5) * 2.0, 0.0, 1.0);
 				//}
-
 				vec2 normalTex = mix(vec2(0.5), texture(uNormalMap, tcTile).xy, tt.z);
 				normalTex = (normalTex.xy * 2.0 - vec2(1.0)) * 0.2;
 

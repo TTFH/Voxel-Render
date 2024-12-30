@@ -109,7 +109,7 @@ VoxLoader::VoxLoader(const char* filename) {
 	load(filename);
 }
 
-static const int MAX_PALETTES = 512;
+static const int MAX_PALETTES = 1024;
 static int paletteCount = 0;
 static GLuint paletteBank;
 
@@ -265,8 +265,6 @@ void VoxLoader::load(const char* filename) {
 }
 
 void VoxLoader::draw(Shader& shader, Camera& camera, vec3 position, quat rotation, float scale, vec4 texture, RenderMethod method) {
-	(void)texture;
-	//if (method != RTX) return;
 	for (mv_model_iterator it = models.begin(); it != models.end(); it++) {
 		int index = it->second.shape_index;
 		const MV_Shape& shape = shapes[index];
@@ -274,13 +272,12 @@ void VoxLoader::draw(Shader& shader, Camera& camera, vec3 position, quat rotatio
 		renderers[method][index]->setTransform(pos, it->second.rotation);
 		renderers[method][index]->setWorldTransform(position, rotation);
 		renderers[method][index]->setScale(scale);
+		renderers[method][index]->setTexture(texture);
 		renderers[method][index]->draw(shader, camera);
 	}
 }
 
 void VoxLoader::draw(Shader& shader, Camera& camera, string shape_name, vec3 position, quat rotation, float scale, vec4 texture, RenderMethod method) {
-	(void)texture;
-	//if (method != RTX) return;
 	pair<mv_model_iterator, mv_model_iterator> homonym_shapes = models.equal_range(shape_name);
 	for (mv_model_iterator it = homonym_shapes.first; it != homonym_shapes.second; it++) {
 		int index = it->second.shape_index;
@@ -289,6 +286,7 @@ void VoxLoader::draw(Shader& shader, Camera& camera, string shape_name, vec3 pos
 		renderers[method][index]->setTransform(pos, it->second.rotation);
 		renderers[method][index]->setWorldTransform(position, rotation);
 		renderers[method][index]->setScale(scale);
+		renderers[method][index]->setTexture(texture);
 		renderers[method][index]->draw(shader, camera);
 	}
 }

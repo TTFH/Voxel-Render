@@ -44,6 +44,9 @@ int main(int argc, char* argv[]) {
 	//scene.push(shadow_volume);
 	shadow_volume.updateTexture();
 
+	glfwSetWindowUserPointer(window, &camera);
+	glfwSetKeyCallback(window, key_press_callback);
+
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_MULTISAMPLE);
 	glEnable(GL_CULL_FACE);

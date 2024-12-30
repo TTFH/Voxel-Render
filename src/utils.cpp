@@ -134,24 +134,15 @@ string GetScenePath(int argc, char* argv[]) {
 	return path;
 }
 
-/*
-	specular	- GL_RED
-	displacement- GL_RED
-	dudv		- GL_RGB
-	normal		- GL_RGB
-	diffuse		- GL_RGBA
-*/
-GLuint LoadTexture(const char* path, GLenum format, bool flip) {
+GLuint LoadTexture2D(const char* path) {
 	GLuint texture_id;
 	int width, height, channels;
-	stbi_set_flip_vertically_on_load(flip);
+	stbi_set_flip_vertically_on_load(true);
 	uint8_t* data = stbi_load(path, &width, &height, &channels, STBI_rgb_alpha);
-	channels = 4;
 	if (data == NULL) {
 		printf("[Warning] Failed to load texture %s\n", path);
 		return 0;
 	}
-	//printf("Loading texture %s with %d channels\n", path, channels);
 
 	glGenTextures(1, &texture_id);
 	glBindTexture(GL_TEXTURE_2D, texture_id);
@@ -160,13 +151,7 @@ GLuint LoadTexture(const char* path, GLenum format, bool flip) {
 	float clampColor[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, clampColor);
 
-	GLenum image_format = GL_RGB;
-	if (channels == 1)
-		image_format = GL_RED;
-	else if (channels == 4)
-		image_format = GL_RGBA;
-
-	glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, image_format, GL_UNSIGNED_BYTE, data);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 	glGenerateMipmap(GL_TEXTURE_2D);
 	stbi_image_free(data);
 	glBindTexture(GL_TEXTURE_2D, 0);

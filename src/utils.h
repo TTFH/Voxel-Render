@@ -21,7 +21,7 @@ void key_press_callback(GLFWwindow* window, int key, int scancode, int action, i
 
 string GetScenePath(int argc, char* argv[]);
 void SaveTexture(const char* path, GLuint texture);
-GLuint LoadTexture(const char* path, GLenum format = GL_RGBA, bool flip = true);
+GLuint LoadTexture2D(const char* path);
 
 int RoundTo_nth_Power(int value, int n);
 uint8_t*** MatrixInit(const MV_Shape& shape);

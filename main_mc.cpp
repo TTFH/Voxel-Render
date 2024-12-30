@@ -230,7 +230,7 @@ private:
 				} else {
 					texture_path = "../minecraft/textures/" + texture_path + ".png";
 					if (texture_cache.find(texture_path) == texture_cache.end())
-						texture_cache[texture_path] = LoadTexture(texture_path.c_str(), GL_RGBA);
+						texture_cache[texture_path] = LoadTexture2D(texture_path.c_str());
 					if (textures.find(it.key()) == textures.end())
 						textures[it.key()] = texture_cache[texture_path];
 				}

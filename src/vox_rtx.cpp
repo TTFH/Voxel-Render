@@ -128,16 +128,16 @@ RTX_Render::RTX_Render(const MV_Shape& shape, GLuint paletteBank, int paletteId)
 
 	if (!init) {
 		init = true;
-		albedoMap = LoadTexture("textures/albedo.png", GL_RGB);
-		blendMap = LoadTexture("textures/blend.png", GL_RGBA);
-		normalMap = LoadTexture("textures/normal.png", GL_RGBA);
-		windowAlbedo = LoadTexture("textures/window.png", GL_RGBA);
-		windowNormal = LoadTexture("textures/window_normal.png", GL_RGBA);
-		blueNoise = LoadTexture("textures/bluenoise512rgb.png", GL_RGBA);
+		albedoMap = LoadTexture2D("textures/albedo.png");
+		blendMap = LoadTexture2D("textures/blend.png");
+		normalMap = LoadTexture2D("textures/normal.png");
+		windowAlbedo = LoadTexture2D("textures/window.png");
+		windowNormal = LoadTexture2D("textures/window_normal.png");
+		blueNoise = LoadTexture2D("textures/bluenoise512rgb.png");
 	}
 }
 
-// Simple shader, from Teardown editor.
+// Simple shader, from the Teardown editor
 void RTX_Render::DrawSimple(Shader& shader, Camera& camera) {
 	vao.Bind();
 
@@ -186,7 +186,6 @@ void RTX_Render::DrawSimple(Shader& shader, Camera& camera) {
 }
 
 void RTX_Render::DrawAdvanced(Shader& shader, Camera& camera) {
-	vec4 texture = vec4(0, 0, 1, 1); // TODO: load texture
 	vao.Bind();
 
 	shader.PushTexture3D("uVolTex", volumeTexture, 0);
@@ -215,7 +214,7 @@ void RTX_Render::DrawAdvanced(Shader& shader, Camera& camera) {
 	shader.PushFloat("uNear", camera.NEAR_PLANE);
 	shader.PushFloat("uFar", camera.FAR_PLANE);
 	shader.PushVec3("uCameraPos", camera.position);
-	shader.PushVec2("uPixelSize", vec2(1 / camera.screen_width, 1 / camera.screen_height));
+	shader.PushVec2("uPixelSize", vec2(1.0f / camera.screen_width, 1.0f / camera.screen_height));
 
 	mat4 toWorldCoords = mat4(vec4(1, 0, 0, 0),
 							  vec4(0, 0, -1, 0),

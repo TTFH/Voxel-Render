@@ -163,9 +163,9 @@ Mesh::Mesh(const char* path, const char* diffuse_path, const char* specular_path
 		return;
 	}
 
-	diffuse_texture = LoadTexture(diffuse_path, GL_RGBA);
+	diffuse_texture = LoadTexture2D(diffuse_path);
 	if (specular_path != NULL)
-		specular_texture = LoadTexture(specular_path, GL_RED);
+		specular_texture = LoadTexture2D(specular_path);
 
 	vao.Bind();
 	VBO vbo(vertices);

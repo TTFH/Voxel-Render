@@ -1,3 +1,4 @@
+#include <stdexcept>
 #include <string.h>
 #include <fstream>
 #include <iostream>
@@ -7,10 +8,7 @@
 
 static string ReadFile(const char* filename) {
 	ifstream in(filename, ifstream::binary);
-	if (!in) {
-		printf("[ERROR] Could not open file %s\n", filename);
-		exit(EXIT_FAILURE);
-	}
+	if (!in) throw runtime_error("Could not open file");
 	string content;
 	in.seekg(0, in.end);
 	content.resize(in.tellg());
@@ -54,8 +52,7 @@ void Shader::Create(const char* vertexSource, const char* fragmentSource) {
 	glGetProgramiv(id, GL_LINK_STATUS, &hasCompiled);
 	if (hasCompiled == GL_FALSE) {
 		//glGetProgramInfoLog(id, 1024, NULL, infoLog);
-		printf("[ERROR] Program linking failed\n");
-		exit(EXIT_FAILURE); // TODO: Handle error
+		throw runtime_error("Program linking failed");
 	}
 
 	glDeleteShader(vertexShader);
@@ -154,8 +151,14 @@ void Shader::Use() {
 
 void Shader::Reload() {
 	GLuint old_id = id;
-	Load();
-	glDeleteProgram(old_id);
+	try {
+		Load();
+		uniforms.clear();
+	} catch (const runtime_error& e) {
+		printf("[Warning] Shader %s failed to reload\n", path1.c_str());
+		glDeleteProgram(id);
+		id = old_id;
+	}
 }
 
 Shader::~Shader() {

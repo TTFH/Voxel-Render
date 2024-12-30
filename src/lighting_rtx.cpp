@@ -66,7 +66,7 @@ Screen::Screen() {
 	ebo.Unbind();
 
 	InitFrameBuffer(WINDOW_WIDTH, WINDOW_HEIGHT);
-	bluenoise = LoadTexture("textures/bluenoise512rgb.png", GL_RGB);
+	bluenoise = LoadTexture2D("textures/bluenoise512rgb.png");
 }
 
 void Screen::start() {
@@ -83,8 +83,8 @@ void Screen::draw(Shader& shader, Camera& camera) {
 
 	shader.PushFloat("uNear", camera.NEAR_PLANE);
 	shader.PushFloat("uFar", camera.FAR_PLANE);
-	shader.PushVec2("uPixelSize", vec2(1 / camera.screen_width, 1 / camera.screen_height));
-	shader.PushVec3("uLightDir", vec3(0.38, -0.76, 0.53));
+	shader.PushVec2("uPixelSize", vec2(1.0f / camera.screen_width, 1.0f / camera.screen_height));
+	shader.PushVec3("uLightDir", vec3(0.38f, -0.76f, 0.53f));
 	shader.PushVec3("uCameraPos", camera.position);
 
 	shader.PushMatrix("uVpMatrix", camera.vpMatrix);

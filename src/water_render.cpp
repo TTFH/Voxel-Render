@@ -63,8 +63,8 @@ WaterRender::WaterRender(vector<vec2> vertices) {
 
 	if (!water_initialized) {
 		water_initialized = true;
-		dudv_texture = LoadTexture("textures/water_dudv.png", GL_RGB);
-		normal_texture = LoadTexture("textures/water_normal.png", GL_RGB);
+		dudv_texture = LoadTexture2D("textures/water_dudv.png");
+		normal_texture = LoadTexture2D("textures/water_normal.png");
 		CreateFBwTexture(reflectionFrameBuffer, reflectionTexture, REFLECTION_WIDTH, REFLECTION_HEIGHT);
 		CreateDepthBuffer(reflectionDepthBuffer, REFLECTION_WIDTH, REFLECTION_HEIGHT);
 		CreateFBwTexture(refractionFrameBuffer, refractionTexture, REFRACTION_WIDTH, REFRACTION_HEIGHT);

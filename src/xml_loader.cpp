@@ -76,14 +76,14 @@ void Scene::RecursiveLoad(XMLElement* element, vec3 parent_pos, quat parent_rot)
 		if (texture != NULL) {
 			int tile = 0; float weight = 1;
 			sscanf(texture, "%d %f", &tile, &weight);
-			vox.texture.x = tile;
+			vox.texture.x = (float)tile;
 			vox.texture.z = weight;
 		}
 		const char* blend_texture = element->Attribute("blendtexture");
 		if (blend_texture != NULL) {
 			int tile = 0; float weight = 1;
 			sscanf(blend_texture, "%d %f", &tile, &weight);
-			vox.texture.y = tile;
+			vox.texture.y = (float)tile;
 			vox.texture.w = weight;
 		}
 		shapes.push_back(vox);
