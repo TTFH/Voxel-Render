@@ -160,7 +160,11 @@ GreedyRender::GreedyRender(const MV_Shape& shape, GLuint palette_bank, int palet
 void GreedyRender::draw(Shader& shader, Camera& camera) {
 	vao.Bind();
 	shader.PushMatrix("camera", camera.vpMatrix);
+
 	shader.PushFloat("scale", scale);
+	shader.PushVec3("size", vec3(0, 0, 0)); // SM flag not a voxagon
+	shader.PushTexture2D("uColor", palette_bank, 1); // Texture 0 is SM
+	shader.PushInt("uPalette", palette_id);
 
 	mat4 pos = translate(mat4(1.0f), position);
 	mat4 rot = mat4_cast(rotation);
@@ -171,9 +175,6 @@ void GreedyRender::draw(Shader& shader, Camera& camera) {
 	mat4 world_rot = mat4_cast(world_rotation);
 	shader.PushMatrix("world_pos", world_pos);
 	shader.PushMatrix("world_rot", world_rot);
-
-	shader.PushTexture2D("uColor", palette_bank, 1);
-	shader.PushInt("uPalette", palette_id);
 
 	//glLineWidth(5.0f); // GL_LINES
 	glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_INT, 0);

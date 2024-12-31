@@ -13,14 +13,14 @@ private:
 	float radius;
 	float azimuth;
 	vec3 position;
-	mat4 projection;
+	mat4 vpMatrix;
 	VoxLoader model;
 	void updatePos(float altitude, float radius, float azimuth);
-	void updateProjection();
+	void updateMatrix();
 public:
-	Light(vec3 pos);
+	Light(vec3 position);
 	vec3 getPosition();
-	mat4 getProjection();
+	mat4 getMatrix();
 	void handleInputs(GLFWwindow* window);
 	void draw(Shader& shader, Camera& camera, RenderMethod method);
 };

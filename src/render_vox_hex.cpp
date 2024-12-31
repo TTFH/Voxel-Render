@@ -131,6 +131,10 @@ void HexRender::draw(Shader& shader, Camera& camera) {
 	vao.Bind();
 	shader.PushMatrix("camera", camera.vpMatrix);
 
+	shader.PushFloat("scale", scale);
+	shader.PushInt("uPalette", palette_id);
+	shader.PushTexture2D("uColor", palette_bank, 1); // Texture 0 is SM
+
 	mat4 pos = translate(mat4(1.0f), position);
 	mat4 rot = mat4_cast(rotation);
 	shader.PushMatrix("position", pos);
@@ -140,10 +144,6 @@ void HexRender::draw(Shader& shader, Camera& camera) {
 	mat4 world_rot = mat4_cast(world_rotation);
 	shader.PushMatrix("world_pos", world_pos);
 	shader.PushMatrix("world_rot", world_rot);
-
-	shader.PushFloat("scale", scale);
-	shader.PushTexture2D("uColor", palette_bank, 1);
-	shader.PushInt("uPalette", palette_id);
 
 	// Use GL_LINES for wireframe
 	glDrawElementsInstanced(GL_TRIANGLES, sizeof(hex_prism_indices) / sizeof(GLuint), GL_UNSIGNED_INT, 0, voxel_count);

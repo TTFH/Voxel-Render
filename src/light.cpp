@@ -4,10 +4,10 @@ void Light::updatePos(float altitude, float radius, float azimuth) {
 	position = vec3(radius * cos(azimuth), altitude, radius * sin(azimuth));
 }
 
-void Light::updateProjection() {
-	mat4 orthgonalProjection = ortho(-90.0f, 90.0f, -90.0f, 90.0f, 0.1f, 500.0f);
-	mat4 lightView = lookAt(position, vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
-	projection = orthgonalProjection * lightView;
+void Light::updateMatrix() {
+	mat4 view = lookAt(position, vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
+	mat4 projection = ortho(-90.0f, 90.0f, -90.0f, 90.0f, 0.1f, 500.0f);
+	vpMatrix = projection * view;
 }
 
 Light::Light(vec3 pos) {
@@ -16,15 +16,15 @@ Light::Light(vec3 pos) {
 	radius = sqrt(pos.x * pos.x + pos.z * pos.z);
 	azimuth = atan2(pos.z, pos.x);
 	model.load("light.vox");
-	updateProjection();
+	updateMatrix();
 }
 
 vec3 Light::getPosition() {
 	return position;
 }
 
-mat4 Light::getProjection() {
-	return projection;
+mat4 Light::getMatrix() {
+	return vpMatrix;
 }
 
 void Light::handleInputs(GLFWwindow* window) {
@@ -41,7 +41,7 @@ void Light::handleInputs(GLFWwindow* window) {
 	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
 		azimuth -= 0.01f;
 	updatePos(altitude, radius, azimuth);
-	updateProjection();
+	updateMatrix();
 }
 
 void Light::draw(Shader& shader, Camera& camera, RenderMethod method) {

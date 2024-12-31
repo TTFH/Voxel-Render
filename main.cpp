@@ -7,12 +7,12 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 
-#include "src/render_mesh.h"
 #include "src/light.h"
 #include "src/utils.h"
 #include "src/shader.h"
 #include "src/skybox.h"
 #include "src/shadow_map.h"
+#include "src/render_mesh.h"
 #include "src/scene_loader.h"
 #include "src/postprocessing.h"
 
@@ -33,7 +33,6 @@ int main(int argc, char* argv[]) {
 	GLFWwindow* window = InitOpenGL("Voxel Render");
 	Shader mesh_shader("shaders/mesh_vert.glsl", "shaders/mesh_frag.glsl");
 	Shader rope_shader("shaders/rope_vert.glsl", "shaders/rope_frag.glsl");
-	Shader screen_shader("editorlighting");
 	Shader shadowmap_shader("shaders/shadowmap_vert.glsl", "shaders/shadowmap_frag.glsl");
 	Shader skybox_shader("shaders/skybox_vert.glsl", "shaders/skybox_frag.glsl");
 	Shader voxbox_shader("shaders/voxbox_vert.glsl", "shaders/voxbox_frag.glsl");
@@ -46,7 +45,6 @@ int main(int argc, char* argv[]) {
 	map<const char*, Shader*> shaders = {
 		{"mesh_shader", &mesh_shader},
 		{"rope_shader", &rope_shader},
-		{"screen_shader", &screen_shader},
 		{"shadowmap_shader", &shadowmap_shader},
 		{"skybox_shader", &skybox_shader},
 		{"voxbox_shader", &voxbox_shader},
@@ -147,8 +145,12 @@ int main(int argc, char* argv[]) {
 	ImVec4 clear_color = ImVec4(0.35, 0.54, 0.8, 1);
 	ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 3.0f);
 
-	Mesh model("meshes/LTM1300.obj", "meshes/LTM1300.png", "meshes/LTM1300_specular.png");
-	Mesh glass("meshes/LTM1300_glass.obj", "meshes/glass.png");
+	Mesh model("meshes/cfa-44.obj");
+	model.addTexture("meshes/fa44_02_D.png");
+	model.setWorldTransform(vec3(0, 0, 0), 90);
+	Mesh glass("meshes/cfa-44_glass.obj");
+	glass.addTexture("meshes/glass.png");
+	glass.setWorldTransform(vec3(0, 0, 0), 90);
 	scene.addMesh(&model);
 	scene.addMesh(&glass);
 
@@ -260,8 +262,8 @@ int main(int argc, char* argv[]) {
 		// Shadows
 		shadow_map.BindShadowMap();
 		shadowmap_shader.Use();
+		shadowmap_shader.PushMatrix("lightMatrix", light.getMatrix());
 		shadowmap_shader.PushInt("side", hex_orientation);
-		shadowmap_shader.PushMatrix("lightProjection", light.getProjection());
 		scene.draw(shadowmap_shader, camera, HEXAGON);
 		shadowmap_shader.PushInt("side", 0);
 		scene.draw(shadowmap_shader, camera, GREEDY);
@@ -278,27 +280,27 @@ int main(int argc, char* argv[]) {
 
 		voxel_hex_shader.Use();
 		voxel_hex_shader.PushInt("side", hex_orientation);
-		voxel_hex_shader.PushVec3("lightpos", light.getPosition());
-		voxel_hex_shader.PushMatrix("lightProjection", light.getProjection());
+		voxel_hex_shader.PushVec3("light_pos", light.getPosition());
+		voxel_hex_shader.PushMatrix("lightMatrix", light.getMatrix());
 		voxel_hex_shader.PushTexture2D("shadowMap", shadow_map.GetTexture(), 0);
 		scene.draw(voxel_hex_shader, camera, HEXAGON);
 
 		voxel_gm_shader.Use();
-		voxel_gm_shader.PushVec3("lightpos", light.getPosition());
-		voxel_gm_shader.PushMatrix("lightProjection", light.getProjection());
+		voxel_gm_shader.PushVec3("light_pos", light.getPosition());
+		voxel_gm_shader.PushMatrix("lightMatrix", light.getMatrix());
 		voxel_gm_shader.PushInt("transparent_glass", transparent_glass);
 		voxel_gm_shader.PushTexture2D("shadowMap", shadow_map.GetTexture(), 0);
 		scene.draw(voxel_gm_shader, camera, GREEDY);
 
 		voxbox_shader.Use();
-		voxbox_shader.PushVec3("lightpos", light.getPosition());
-		voxbox_shader.PushMatrix("lightProjection", light.getProjection());
+		voxbox_shader.PushVec3("light_pos", light.getPosition());
+		voxbox_shader.PushMatrix("lightMatrix", light.getMatrix());
 		voxbox_shader.PushTexture2D("shadowMap", shadow_map.GetTexture(), 0);
 		scene.drawVoxbox(voxbox_shader, camera);
 
 		mesh_shader.Use();
-		mesh_shader.PushVec3("lightpos", light.getPosition());
-		mesh_shader.PushMatrix("lightProjection", light.getProjection());
+		mesh_shader.PushVec3("light_pos", light.getPosition());
+		mesh_shader.PushMatrix("lightMatrix", light.getMatrix());
 		mesh_shader.PushTexture2D("shadowMap", shadow_map.GetTexture(), 0);
 		scene.drawMesh(mesh_shader, camera);
 
@@ -308,7 +310,7 @@ int main(int argc, char* argv[]) {
 
 		if (transparent_glass) {
 			voxel_glass_shader.Use();
-			voxel_glass_shader.PushVec3("lightpos", light.getPosition());
+			voxel_glass_shader.PushVec3("light_pos", light.getPosition());
 			scene.draw(voxel_glass_shader, camera, GREEDY);
 		}
 		glDisable(GL_BLEND);

@@ -4,14 +4,14 @@ layout(location = 3) in vec3 aOffset;
 
 uniform int side;
 uniform vec3 size;
+uniform float scale;
 uniform mat4 position;
 uniform mat4 rotation;
 uniform mat4 world_pos;
 uniform mat4 world_rot;
-uniform float scale;
-uniform mat4 lightProjection;
+uniform mat4 lightMatrix;
 
-vec3 getHexPos() {
+vec3 getHexPos(int side) {
 	vec3 pos;
 	if (side == 0) { // CUBE
 		pos = aPos + aOffset;
@@ -35,17 +35,17 @@ vec3 getHexPos() {
 
 void main() {
 	// Mesh
-	vec4 currentPos = position * rotation * vec4(aPos, 1.0f);
+	vec4 worldPosition = position * rotation * vec4(aPos, 1.0f);
 
 	// Voxbox
 	if (size.x != 0.0f)
-		currentPos = position * rotation * vec4(aPos * size, 10.0f);
+		worldPosition = position * rotation * vec4(aPos * size, 10.0f);
 
 	// Voxel
     if (scale > 0.0f) {
-	    vec4 pos = position * rotation * vec4(getHexPos(), 1.0f);
-	    currentPos = world_pos * world_rot * vec4(pos.x, pos.z, -pos.y, 10.0f / scale);
+	    vec4 pos = position * rotation * vec4(getHexPos(side), 1.0f);
+	    worldPosition = world_pos * world_rot * vec4(pos.x, pos.z, -pos.y, 10.0f / scale);
     }
 
-	gl_Position = lightProjection * currentPos;
+	gl_Position = lightMatrix * worldPosition;
 }

@@ -11,16 +11,16 @@ uniform mat4 position;
 uniform mat4 rotation;
 uniform mat4 world_pos;
 uniform mat4 world_rot;
-uniform mat4 lightProjection;
+uniform mat4 lightMatrix;
 
-out vec3 normal;
-out float tex_coord;
-out vec4 fragPosLight;
+out vec3 vNormal;
+out float vTexCoord;
+out vec4 vFragPosLight;
 
 const float threehalf = sqrt(3);
 const float twoplustwo = 5;
 
-vec3 getHexPos() {
+vec3 getHexPos(int side) {
 	vec3 pos;
 	if (side == 0) { // CUBE
 		pos = aPos + aOffset;
@@ -42,7 +42,7 @@ vec3 getHexPos() {
 	return pos;
 }
 
-vec3 getHexNormal() {
+vec3 getHexNormal(int side) {
 	vec3 normal;
 	if (side == 0 || side == 1)
 		normal = aNormal;
@@ -54,13 +54,14 @@ vec3 getHexNormal() {
 }
 
 void main() {
-	vec4 pos = position * rotation * vec4(getHexPos(), 1.0f);
-	vec4 currentPos = world_pos * world_rot * vec4(pos.x, pos.z, -pos.y, 10.0f / scale);
-	gl_Position = camera * currentPos;
+	vec4 pos = position * rotation * vec4(getHexPos(side), 1.0f);
+	vec4 worldPosition = world_pos * world_rot * vec4(pos.x, pos.z, -pos.y, 10.0f / scale);
 
-	vec4 local_normal = rotation * vec4(getHexNormal(), 1.0f);
-	normal = normalize((world_rot * vec4(local_normal.x, local_normal.z, -local_normal.y, 1.0f)).xyz);
-
-	tex_coord = aTexCoord;
-	fragPosLight = lightProjection * currentPos;
+	vec4 local_normal = rotation * vec4(getHexNormal(side), 1.0f);
+	vec4 normal = world_rot * vec4(local_normal.x, local_normal.z, -local_normal.y, 1.0f);
+	
+	vNormal = normalize(normal.xyz);
+	vTexCoord = aTexCoord;
+	vFragPosLight = lightMatrix * worldPosition;
+	gl_Position = camera * worldPosition;
 }

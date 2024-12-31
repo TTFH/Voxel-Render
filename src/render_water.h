@@ -6,38 +6,14 @@
 #include "shader.h"
 
 using namespace glm;
-/*
-struct AABB_2D {
-	vec2 min;
-	vec2 max;
-};
-*/
+
 class WaterRender {
 private:
 	VAO vao;
 	GLsizei vertex_count;
 	vec3 position = vec3(0, 0, 0);
-/*
-	AABB_2D bounding_box;
-	GLuint reflectionFrameBuffer;
-	//GLuint reflectionTexture;
-	GLuint reflectionDepthBuffer;
-
-	GLuint refractionFrameBuffer;
-	//GLuint refractionTexture;
-	GLuint refractionDepthTexture;
-
-	const int REFLECTION_WIDTH = 640;
-	const int REFLECTION_HEIGHT = 360;
-
-	const int REFRACTION_WIDTH = 1280;
-	const int REFRACTION_HEIGHT = 720;*/
 public:
 	WaterRender(vector<vec2> vertices);
-	/*float GetHeight();
-	void BindReflectionFB();
-	void BindRefractionFB();
-	void UnbindFB(Camera& camera);*/
 	void setWorldTransform(vec3 position);
 	void draw(Shader& shader, Camera& camera);
 };

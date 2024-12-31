@@ -29,9 +29,6 @@ float blueNoise() {
 }
 
 uniform mat4 uVolMatrix;
-//uniform mat4 uOldVolMatrix;
-uniform mat4 uStableVpMatrix;
-//uniform mat4 uOldStableVpMatrix;
 
 //uniform sampler2D uDepth;
 uniform sampler2D uColor;
@@ -45,7 +42,6 @@ uniform sampler2D uWindowNormal;
 uniform int uPalette;
 uniform vec3 uObjSize;
 uniform vec4 uVoxelSize; // objSize, 0.1
-uniform float uEmissive; // 1
 uniform vec4 uTextureTile; // albedo_tile bend_tile albedo_weight bend_weight
 uniform vec3 uTextureParams; // texture offset
 
@@ -54,8 +50,6 @@ uniform usampler3D uVolTex;
 
 uniform float uAlpha; // 1
 uniform float uHighlight; // 0
-uniform uint uEmissiveGlassCount; // 0
-uniform float uEmissiveGlass[12];
 
 varying vec4 vHPos;
 varying vec3 vLocalPos;
@@ -77,11 +71,7 @@ void main() {
 #ifdef FRAGMENT
 layout(location=0) out vec4 outputColor;
 layout(location=1) out vec3 outputNormal;
-/*layout(location=2) out vec4 outputMaterial;
-layout(location=3) out vec3 outputMotion;
-layout(location=4) out float outputDepth;*/
 layout(location=2) out float outputDepth;
-vec4 outputMaterial;
 
 vec3 computeFarVec(vec2 texCoord) {
 	vec4 aa = vec4(texCoord * 2.0 - vec2(1.0), 1.0f, 1.0f);
@@ -200,15 +190,11 @@ void main() {
 	else
 		hitDist += minDist;
 	if (hitDist < maxDist) {
-		outputMaterial = texelFetch(uMaterial, ivec2(index, uPalette), 0);
-		outputMaterial.w *= (index <= uEmissiveGlassCount ? uEmissiveGlass[index - 1u] : 1.0);
-
-		//outputColor.rgb = pow(outputColor.rgb, vec3(2.2));
+		outputColor.rgb = pow(outputColor.rgb, vec3(2.2));
 		vec3 localPos = vLocalCameraPos + localDir * hitDist;
 		vec3 localNormal = vec3(0.0);
 		localNormal[n] = -sign(localDir[n]);
 
-		outputMaterial.w *= 32.0 * uEmissive;
 		vec4 tt = (index == 254u ? vec4(12.0, 0.0, 1.0, 0.0) : uTextureTile);
 
 		if (outputColor.a < 1.0) { // Glass
@@ -231,9 +217,6 @@ void main() {
 
 			vec3 noise = texture(uWindowAlbedo, ntc * 0.2).xyz - vec3(0.5);
 			outputColor.rgb += noise * 0.2;
-
-			outputMaterial.x = 0.1;
-			outputMaterial.y = 1.0;
 		} else {
 			vec2 tc;
 			tc.x = (n == 0 ? coord.y + uTextureParams.y : coord.x + uTextureParams.x);
@@ -241,14 +224,10 @@ void main() {
 			tc = floor(tc) / 256.0;
 
 			if (tt.x != 0) { // Albedo texture
-				tt.z = 0.25;
 				vec2 tcTile = getTile(tc, tt.x, vec2(4.0, 8.0));
-				//if (outputMaterial.w == 0.0f) { // Non emissive
-					vec4 albedoTex = texture(uAlbedoMap, tcTile);
-					albedoTex = mix(vec4(1.0), albedoTex, tt.z);
-					outputColor *= albedoTex;
-					outputMaterial.y *= clamp((albedoTex.r - 0.5) * 2.0, 0.0, 1.0);
-				//}
+				vec4 albedoTex = texture(uAlbedoMap, tcTile);
+				albedoTex = mix(vec4(1.0), albedoTex, tt.z);
+				outputColor *= albedoTex;
 				vec2 normalTex = mix(vec2(0.5), texture(uNormalMap, tcTile).xy, tt.z);
 				normalTex = (normalTex.xy * 2.0 - vec2(1.0)) * 0.2;
 
@@ -264,26 +243,20 @@ void main() {
 				blendTex.rgb = pow(blendTex.rgb, vec3(2.2));
 				blendTex.a *= tt.w;
 				outputColor.rgb = mix(outputColor.rgb, blendTex.rgb, blendTex.a);
-				outputMaterial.y = min(outputMaterial.y, 1.0 - blendTex.a);
 			}
 		}
 
 		outputColor.rgb += vec3(uHighlight) * 0.3;
-		outputMaterial.w += uHighlight * 0.3;
 
 		vec4 worldPos4 = uVolMatrix * vec4(localPos, 1.0);
 		vec4 worldNormal4 = uVolMatrix * vec4(localNormal, 0.0);
 		float linearDepth = (uVpMatrix * worldPos4).w;
-/*
-		vec4 stablePos4 = uStableVpMatrix * worldPos4;
-		vec4 oldWorldPos4 = uOldVolMatrix * vec4(localPos, 1.0);
-		vec4 oldStablePos4 = uOldStableVpMatrix * oldWorldPos4;
-		outputMotion = vec3(stablePos4.xy / (stablePos4.w * 2.0) - oldStablePos4.xy / (oldStablePos4.w * 2.0), outputColor.a < 1.0 ? 1.0 : 0.0);
-*/
+
 		vec3 lightDir = vec3(0.38, -0.76, 0.53);
 		float l = max(0.0, dot(worldNormal4.xyz, -lightDir)) * 0.3 + 0.7;
 		outputColor.rgb *= l;
 
+		outputColor.rgb = pow(outputColor.rgb, vec3(1/2.2));
 		outputColor = clamp(outputColor, vec4(0.0), vec4(1.0));
 		outputNormal = worldNormal4.xyz;
 		outputDepth = linearDepth * uInvFar;

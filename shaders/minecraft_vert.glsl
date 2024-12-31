@@ -13,7 +13,7 @@ uniform mat4 rotation;
 uniform mat4 world_pos;
 uniform mat4 world_rot;
 
-out vec2 tex_coord;
+out vec2 vTexCoord;
 
 void main() {
 	vec2 uv = aTexCoord;
@@ -24,7 +24,7 @@ void main() {
 	else if (tex_rot == 270)
 		uv = vec2(uv.y, 1.0f - uv.x);
 	uv = uv_min + (uv_max - uv_min) * uv;
-	tex_coord = uv;
+	vTexCoord = uv;
 
 	vec4 currentPos = position * rotation * vec4(aPos * size, 0.0f, 1.0f);
 	gl_Position = camera * world_pos * world_rot * currentPos;

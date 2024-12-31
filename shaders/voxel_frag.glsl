@@ -2,22 +2,22 @@
 uniform int uPalette;
 uniform sampler2D uColor;
 uniform sampler2D shadowMap;
-uniform vec3 lightpos;
+uniform vec3 light_pos;
 uniform bool transparent_glass;
 
-in vec3 normal;
-in float tex_coord;
-in vec4 fragPosLight;
+in vec3 vNormal;
+in float vTexCoord;
+in vec4 vFragPosLight;
 
 out vec4 FragColor;
 
-float computeShadows() {
+float calculateShadow() {
 	float shadow = 0.0f;
-	vec3 lightCoords = fragPosLight.xyz / fragPosLight.w;
+	vec3 lightCoords = vFragPosLight.xyz / vFragPosLight.w;
 	if (lightCoords.z <= 1.0f) {
 		lightCoords = (lightCoords + 1.0f) / 2.0f;
 		float currentDepth = lightCoords.z;
-		float bias = max(0.0025f * (1.0f - dot(normal, normalize(lightpos))), 0.001f);
+		float bias = max(0.0025f * (1.0f - dot(vNormal, normalize(light_pos))), 0.0005f);
 
 		int sampleRadius = 4;
 		vec2 pixelSize = 1.0f / textureSize(shadowMap, 0);
@@ -28,24 +28,24 @@ float computeShadows() {
 					shadow += 1.0f;	 
 			}
 		}
-		shadow /= pow((sampleRadius * 2.0f + 1.0f), 2.0f);
+		shadow /= pow(sampleRadius * 2.0f + 1.0f, 2.0f);
 	}
 	shadow *= 0.5f;
 	return shadow;
 }
 
 void main() {
-	float shadow = computeShadows();
-	float l = 0.6f + 0.4f * max(0.0f, dot(normal, normalize(lightpos)));
-	vec4 color = texelFetch(uColor, ivec2(tex_coord + 0.5, uPalette), 0);
+	float shadow = calculateShadow();
+	float l = 0.6f + 0.4f * max(0.0f, dot(vNormal, normalize(light_pos)));
+	vec4 color = texelFetch(uColor, ivec2(vTexCoord + 0.5, uPalette), 0);
 
 	if (transparent_glass && color.a < 1.0f) discard;
 	FragColor = vec4(color.rgb * l * (1.0f - shadow), 1.0f);
 
 	// Debug normals
-	//FragColor = vec4((normal + 1.0f) / 2.0f, 1.0f);
+	//FragColor = vec4((vNormal + 1.0f) / 2.0f, 1.0f);
 
 	// Debug light
-	//float l = max(0.0f, dot(normal, normalize(lightpos)));
+	//float l = max(0.0f, dot(vNormal, normalize(light_pos)));
 	//FragColor = vec4(0.1f, l, 0.1f, 1.0f);
 }

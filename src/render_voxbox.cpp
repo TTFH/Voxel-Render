@@ -77,9 +77,10 @@ void VoxboxRender::setWorldTransform(vec3 position, quat rotation) {
 void VoxboxRender::draw(Shader& shader, Camera& camera) {
 	vao.Bind();
 	shader.PushMatrix("camera", camera.vpMatrix);
+
 	shader.PushVec3("color", color);
 	shader.PushVec3("size", size);
-	shader.PushFloat("scale", 0); // Flag not a voxel
+	shader.PushFloat("scale", 0); // SM flag not a voxel
 
 	mat4 pos = translate(mat4(1.0f), position);
 	mat4 rot = mat4_cast(rotation);

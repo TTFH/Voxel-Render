@@ -201,14 +201,10 @@ void RTX_Render::DrawAdvanced(Shader& shader, Camera& camera) {
 	shader.PushInt("uPalette", paletteId);
 	shader.PushVec3("uObjSize", shapeSize);
 	shader.PushVec4("uVoxelSize", vec4(shapeSize, 0.1f * scale));
-	shader.PushFloat("uEmissive", 1.0f);
 	shader.PushVec4("uTextureTile", texture);
 	shader.PushVec3("uTextureParams", vec3(0, 0, 0));
 	shader.PushFloat("uAlpha", 1.0f);
 	shader.PushFloat("uHighlight", 0.0f);
-	glUniform1ui(glGetUniformLocation(shader.id, "uEmissiveGlassCount"), 0);
-	float emissiveGlass[12] = { 0 };
-	glUniform1fv(glGetUniformLocation(shader.id, "uEmissiveGlass"), 12, emissiveGlass);
 
 	shader.PushFloat("uRndFrame", 0.0f);
 	shader.PushFloat("uNear", camera.NEAR_PLANE);
@@ -237,7 +233,6 @@ void RTX_Render::DrawAdvanced(Shader& shader, Camera& camera) {
 
 	shader.PushMatrix("uVpMatrix", vpMatrix);
 	shader.PushMatrix("uVolMatrix", volMatrix);
-	shader.PushMatrix("uStableVpMatrix", vpMatrix);
 	shader.PushMatrix("uVpInvMatrix", volMatrixInv);
 
 	glDrawElements(GL_TRIANGLES, sizeof(cube_indices) / sizeof(GLuint), GL_UNSIGNED_INT, 0);

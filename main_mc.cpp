@@ -1,19 +1,19 @@
 #include <map>
-#include <unordered_set>
 #include <vector>
 #include <fstream>
 #include <stdio.h>
+#include <unordered_set>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 
 #include "src/vao.h"
 #include "src/ebo.h"
-#include "src/render_mesh.h"
 #include "src/light.h"
 #include "src/utils.h"
 #include "src/camera.h"
 #include "src/shader.h"
+#include "src/render_mesh.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "lib/stb_image.h"

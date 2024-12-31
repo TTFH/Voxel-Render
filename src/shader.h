@@ -14,7 +14,7 @@ private:
 	const char* VERSION = "#version 410 core\n";
 	const char* VERTEX = "#define VERTEX\n";
 	const char* FRAGMENT = "#define FRAGMENT\n";
-	map<const char*, GLint> uniforms;
+	map<string, GLint> uniforms;
 
 	bool unified;
 	string path1;

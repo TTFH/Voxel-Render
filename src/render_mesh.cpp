@@ -153,10 +153,8 @@ void Mesh::SaveOBJ(const char* path) {
 	fclose(output);
 }
 
-Mesh::Mesh(const char* path, const char* diffuse_path, const char* specular_path) {
+Mesh::Mesh(const char* path) {
 	LoadOBJ(path);
-	diffuse_texture = LoadTexture2D(diffuse_path);
-	specular_texture = LoadTexture2D(specular_path);
 
 	vao.Bind();
 	VBO vbo(vertices);
@@ -178,6 +176,11 @@ Mesh::Mesh(const char* path, vec3 color) {
 	vao.LinkAttrib(vbo, 2, 2, GL_FLOAT, sizeof(MeshVertex), (GLvoid*)(6 * sizeof(GLfloat))); // TexCoord
 	vao.Unbind();
 	vbo.Unbind();
+}
+
+void Mesh::addTexture(const char* path) {
+	GLuint texture_id = LoadTexture2D(path);
+	textures.push_back(texture_id);
 }
 
 void Mesh::handleInputs(GLFWwindow* window) {
@@ -209,17 +212,21 @@ void Mesh::draw(Shader& shader, Camera& camera) {
 	vao.Bind();
 	shader.PushMatrix("camera", camera.vpMatrix);
 	shader.PushVec3("camera_pos", camera.position);
+
 	shader.PushFloat("scale", 0); // SM flag not a voxel
 	shader.PushVec3("size", vec3(0, 0, 0)); // SM flag not a voxagon
+	shader.PushVec3("color", color); // No texture
 
 	mat4 pos = translate(mat4(1.0f), position);
 	mat4 rot = mat4_cast(rotation);
 	shader.PushMatrix("position", pos);
 	shader.PushMatrix("rotation", rot);
 
-	shader.PushTexture2D("diffuse0", diffuse_texture, 0);
-	shader.PushTexture2D("specular0", specular_texture, 1);
-	shader.PushVec3("color", color); // No texture
+	for (unsigned int i = 0; i < textures.size(); i++) {
+		char name[16];
+		sprintf(name, "tex%d", i);
+		shader.PushTexture2D(name, textures[i], i + 1); // Texture 0 is SM
+	}
 
 	glDrawArrays(GL_TRIANGLES, 0, vertices.size());
 	vao.Unbind();

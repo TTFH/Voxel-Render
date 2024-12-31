@@ -20,7 +20,6 @@ void Camera::updateScreenSize(int width, int height) {
 }
 
 void Camera::updateMatrix() {
-	const float FOV = 45;
 	mat4 view = lookAt(position, position + direction, up);
 	mat4 projection = perspective(radians(FOV), (float)screen_width / screen_height, NEAR_PLANE, FAR_PLANE);
 	vpMatrix = projection * view;

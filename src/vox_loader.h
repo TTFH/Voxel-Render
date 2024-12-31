@@ -13,9 +13,9 @@
 using namespace std;
 
 enum RenderMethod {
+	RTX,
 	GREEDY,
 	HEXAGON,
-	RTX
 };
 
 struct MV_Diffuse {

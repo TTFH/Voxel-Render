@@ -46,7 +46,7 @@ void Scene::RecursiveLoad(XMLElement* element, vec3 parent_pos, quat parent_rot)
 	rotation = parent_rot * rotation;
 
 	if (strcmp(element->Name(), "vox") == 0) {
-		shape_t vox = { "", "ALL_SHAPES", position, rotation, 1.0f, vec4(0, 0, 1, 1), RTX };
+		shape_t vox = { "", "ALL_SHAPES", position, rotation, 1.0f, vec4(0, 0, 1, 1), GREEDY };
 		const char* file = element->Attribute("file");
 		if (file == NULL) {
 			printf("[ERROR] No file specified for vox\n");
@@ -67,10 +67,14 @@ void Scene::RecursiveLoad(XMLElement* element, vec3 parent_pos, quat parent_rot)
 		const char* scale = element->Attribute("scale");
 		if (scale != NULL) vox.scale = atof(scale);
 		const char* method = element->Attribute("name");
-		if (method != NULL && strcmp(method, "gm") == 0)
-			vox.method = GREEDY;
-		else if (method != NULL && strcmp(method, "hex") == 0)
-			vox.method = HEXAGON;
+		if (method != NULL) {
+			if (strcmp(method, "rtx") == 0)
+				vox.method = RTX;
+			else if (strcmp(method, "gm") == 0)
+				vox.method = GREEDY;
+			else if (strcmp(method, "hex") == 0)
+				vox.method = HEXAGON;
+		}
 
 		const char* texture = element->Attribute("texture");
 		if (texture != NULL) {

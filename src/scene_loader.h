@@ -32,11 +32,11 @@ private:
 	vector<shape_t> shapes;
 	vector<Mesh*> meshes;
 	vector<RopeRender*> ropes;
+	vector<WaterRender*> waters;
 	vector<VoxboxRender*> voxboxes;
 	map<string, VoxLoader*> models;
 	void RecursiveLoad(XMLElement* element, vec3 parent_pos, quat parent_rot);
 public:
-	vector<WaterRender*> waters; // public for water shader
 	Scene(string path);
 	~Scene();
 	void addMesh(Mesh* mesh);

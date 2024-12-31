@@ -78,7 +78,7 @@ Skybox::Skybox(const char* name) {
 
 void Skybox::draw(Shader& shader, Camera& camera) {
 	mat4 view = mat4(mat3(lookAt(camera.position, camera.position + camera.direction, camera.up)));
-	mat4 projection = perspective(radians(45.0f), 16.0f / 9, 0.1f, 1000.0f);
+	mat4 projection = perspective(radians(camera.FOV), (float)camera.screen_width / camera.screen_height, camera.NEAR_PLANE, camera.FAR_PLANE);
 	shader.PushMatrix("vpMatrix", projection * view);
 
 	glDepthFunc(GL_LEQUAL);
