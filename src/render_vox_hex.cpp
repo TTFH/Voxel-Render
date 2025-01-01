@@ -109,7 +109,7 @@ HexRender::HexRender(const MV_Shape& shape, GLuint palette_bank, int palette_id)
 	this->voxel_count = trimed_voxels.size();
 
 	vao.Bind();
-	VBO vbo(hex_prism_vertices, sizeof(hex_prism_vertices));
+	VBO<GLfloat> vbo(hex_prism_vertices, sizeof(hex_prism_vertices));
 	EBO ebo(hex_prism_indices, sizeof(hex_prism_indices));
 
 	vao.LinkAttrib(vbo, 0, 3, GL_FLOAT, 6 * sizeof(GLfloat), (GLvoid*)0);					  // Vertex position

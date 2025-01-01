@@ -11,6 +11,8 @@
 #include "../lib/tinyxml2.h"
 using namespace tinyxml2;
 
+class MV_Shape;
+
 class ShadowVolume {
 private:
 	VAO vao;

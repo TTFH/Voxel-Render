@@ -157,7 +157,7 @@ Mesh::Mesh(const char* path) {
 	LoadOBJ(path);
 
 	vao.Bind();
-	VBO vbo(vertices);
+	VBO<MeshVertex> vbo(vertices);
 	vao.LinkAttrib(vbo, 0, 3, GL_FLOAT, sizeof(MeshVertex), (GLvoid*)0);					 // Position
 	vao.LinkAttrib(vbo, 1, 3, GL_FLOAT, sizeof(MeshVertex), (GLvoid*)(3 * sizeof(GLfloat))); // Normal
 	vao.LinkAttrib(vbo, 2, 2, GL_FLOAT, sizeof(MeshVertex), (GLvoid*)(6 * sizeof(GLfloat))); // TexCoord
@@ -170,7 +170,7 @@ Mesh::Mesh(const char* path, vec3 color) {
 	LoadSimpleOBJ(path);
 
 	vao.Bind();
-	VBO vbo(vertices);
+	VBO<MeshVertex> vbo(vertices);
 	vao.LinkAttrib(vbo, 0, 3, GL_FLOAT, sizeof(MeshVertex), (GLvoid*)0);					 // Position
 	vao.LinkAttrib(vbo, 1, 3, GL_FLOAT, sizeof(MeshVertex), (GLvoid*)(3 * sizeof(GLfloat))); // Normal
 	vao.LinkAttrib(vbo, 2, 2, GL_FLOAT, sizeof(MeshVertex), (GLvoid*)(6 * sizeof(GLfloat))); // TexCoord

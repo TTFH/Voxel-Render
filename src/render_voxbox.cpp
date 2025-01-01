@@ -60,7 +60,7 @@ VoxboxRender::VoxboxRender(vec3 size, vec3 color) {
 	this->size = size;
 	this->color = color;
 	vao.Bind();
-	VBO vbo(cube_vertices, sizeof(cube_vertices));
+	VBO<GLfloat> vbo(cube_vertices, sizeof(cube_vertices));
 	EBO ebo(cube_indices, sizeof(cube_indices));
 	vao.LinkAttrib(vbo, 0, 3, GL_FLOAT, 6 * sizeof(GLfloat), (GLvoid*)0);					  // Vertex position
 	vao.LinkAttrib(vbo, 1, 3, GL_FLOAT, 6 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat))); // Normal

@@ -5,7 +5,7 @@ RopeRender::RopeRender(vector<vec3> points, vec3 color) {
 	this->color = color;
 	points_count = points.size();
 	vao.Bind();
-	VBO vbo(points);
+	VBO<vec3> vbo(points);
 	vao.LinkAttrib(vbo, 0, 3, GL_FLOAT, sizeof(vec3), (GLvoid*)0); // Vertex position
 	vao.Unbind();
 	vbo.Unbind();

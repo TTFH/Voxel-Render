@@ -145,7 +145,7 @@ GreedyRender::GreedyRender(const MV_Shape& shape, GLuint palette_bank, int palet
 #endif
 
 	vao.Bind();
-	VBO vbo(mesh.vertices);
+	VBO<GM_Vertex> vbo(mesh.vertices);
 	EBO ebo(mesh.indices);
 
 	vao.LinkAttrib(vbo, 0, 3, GL_FLOAT, sizeof(GM_Vertex), (GLvoid*)0);								// Vertex position

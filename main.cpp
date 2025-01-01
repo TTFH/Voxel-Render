@@ -276,6 +276,7 @@ int main(int argc, char* argv[]) {
 		scene.drawVoxbox(shadowmap_shader, camera);
 		scene.drawMesh(shadowmap_shader, camera);
 		shadow_map.UnbindShadowMap(camera);
+		//scene.drawShadows(shadow_map); // Should shadow_map be part of light?
 
 		glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

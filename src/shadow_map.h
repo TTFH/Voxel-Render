@@ -2,15 +2,14 @@
 #define SHADOWMAP_H
 
 #include "camera.h"
-#include "shader.h"
 
 #include <glm/glm.hpp>
 #include "../glad/glad.h"
 
 class ShadowMap {
 private:
-	GLuint shadow_map_texture;
 	GLuint shadow_map_fbo;
+	GLuint shadow_map_texture;
 	const unsigned int WIDTH = 4096;
 	const unsigned int HEIGHT = 4096;
 public:

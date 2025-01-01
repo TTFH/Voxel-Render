@@ -14,6 +14,12 @@
 using namespace std;
 using namespace glm;
 
+struct MeshVertex {
+	vec3 position;
+	vec3 normal;
+	vec2 tex_coord;
+};
+
 class Mesh {
 private:
 	VAO vao;

@@ -1,50 +1,41 @@
 #include "vbo.h"
+#include "vox_loader.h"
+#include "render_mesh.h"
+#include "render_vox_greedy.h"
 
 // Vertex Buffer Object
-VBO::VBO(vector<vec2>& vertices) {
+template <typename T>
+VBO<T>::VBO(vector<T>& vertices) {
 	glGenBuffers(1, &vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(vec2), vertices.data(), GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(T), vertices.data(), GL_STATIC_DRAW);
 }
 
-VBO::VBO(vector<vec3>& vertices) {
-	glGenBuffers(1, &vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(vec3), vertices.data(), GL_STATIC_DRAW);
-}
-
-VBO::VBO(vector<GM_Vertex>& vertices) {
-	glGenBuffers(1, &vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GM_Vertex), vertices.data(), GL_STATIC_DRAW);
-}
-
-VBO::VBO(vector<MV_Voxel>& vertices) {
-	glGenBuffers(1, &vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(MV_Voxel), vertices.data(), GL_STATIC_DRAW);
-}
-
-VBO::VBO(vector<MeshVertex>& vertices) {
-	glGenBuffers(1, &vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(MeshVertex), vertices.data(), GL_STATIC_DRAW);
-}
-
-VBO::VBO(const GLfloat* vertices, GLsizeiptr size) {
+template <typename T>
+VBO<T>::VBO(const GLfloat* vertices, GLsizeiptr size) {
 	glGenBuffers(1, &vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
 }
 
-void VBO::Bind() {
+template <typename T>
+void VBO<T>::Bind() {
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 }
 
-void VBO::Unbind() {
+template <typename T>
+void VBO<T>::Unbind() {
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-VBO::~VBO() {
+template <typename T>
+VBO<T>::~VBO() {
 	//glDeleteBuffers(1, &vbo);
 }
+
+template class VBO<GLfloat>;
+template class VBO<vec2>;
+template class VBO<vec3>;
+template class VBO<GM_Vertex>;
+template class VBO<MV_Voxel>;
+template class VBO<MeshVertex>;

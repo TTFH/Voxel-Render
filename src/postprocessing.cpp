@@ -57,7 +57,7 @@ void Screen::InitFrameBuffer(int width, int height) {
 
 Screen::Screen() {
 	vao.Bind();
-	VBO vbo(screen_vertices, sizeof(screen_vertices));
+	VBO<GLfloat> vbo(screen_vertices, sizeof(screen_vertices));
 	EBO ebo(screen_indices, sizeof(screen_indices));
 	vao.LinkAttrib(vbo, 0, 2, GL_FLOAT, 4 * sizeof(GLfloat), (GLvoid*)0);
 	vao.LinkAttrib(vbo, 1, 2, GL_FLOAT, 4 * sizeof(GLfloat), (GLvoid*)(2 * sizeof(GLfloat)));

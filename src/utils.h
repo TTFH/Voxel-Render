@@ -5,7 +5,7 @@
 #include "../glad/glad.h"
 #include <GLFW/glfw3.h>
 
-#include "vbo.h"
+#include "vox_loader.h"
 
 using namespace std;
 

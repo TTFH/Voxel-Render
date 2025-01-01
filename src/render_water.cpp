@@ -8,7 +8,7 @@
 WaterRender::WaterRender(vector<vec2> vertices) {
 	vertex_count = vertices.size();
 	vao.Bind();
-	VBO vbo(vertices);
+	VBO<vec2> vbo(vertices);
 	vao.LinkAttrib(vbo, 0, 2, GL_FLOAT, sizeof(vec2), (GLvoid*)0); // Vertex position
 	vao.Unbind();
 	vbo.Unbind();

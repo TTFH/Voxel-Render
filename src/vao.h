@@ -2,6 +2,7 @@
 #define VAO_H
 
 #include "vbo.h"
+#include "../glad/glad.h"
 
 class VAO {
 private:
@@ -9,7 +10,8 @@ private:
 public:
 	VAO();
 	~VAO();
-	void LinkAttrib(VBO& vbo, GLuint layout, GLint numComponents, GLenum type, GLsizeiptr stride, GLvoid* offset);
+	template <typename T>
+	void LinkAttrib(VBO<T>& vbo, GLuint index, GLint size, GLenum type, GLsizeiptr stride, GLvoid* offset);
 	void Bind();
 	void Unbind();
 };

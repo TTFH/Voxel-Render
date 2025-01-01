@@ -41,7 +41,7 @@ GLuint blueNoise;
 
 RTX_Render::RTX_Render(const MV_Shape& shape, GLuint paletteBank, int paletteId) {
 	vao.Bind();
-	VBO vbo(cube_vertices, sizeof(cube_vertices));
+	VBO<GLfloat> vbo(cube_vertices, sizeof(cube_vertices));
 	EBO ebo(cube_indices, sizeof(cube_indices));
 	vao.LinkAttrib(vbo, 0, 3, GL_FLOAT, 3 * sizeof(GLfloat), (GLvoid*)0);
 	vao.Unbind();

@@ -3,6 +3,7 @@
 
 #include <map>
 #include <string>
+#include <vector>
 #include <stdint.h>
 
 #include "camera.h"
@@ -33,17 +34,17 @@ struct MV_Material { // Unused
 	float metalness;
 	float emissive;
 }
-
-struct MV_Voxel { // Defined in vbo.h
+*/
+struct MV_Voxel {
 	uint8_t x, y, z, index;
 };
 
-struct MV_Shape { // Defined in vbo.h
+struct MV_Shape {
 	string id;
 	int sizex, sizey, sizez;
 	vector<MV_Voxel> voxels;
 };
-*/
+
 struct MV_Model {
 	int shape_index;
 	vec3 position;

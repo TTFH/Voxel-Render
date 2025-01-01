@@ -3,12 +3,19 @@
 
 #include <string>
 #include <vector>
+#include <stdint.h>
 #include <glm/glm.hpp>
 
 #include "vao.h"
 #include "camera.h"
 #include "shader.h"
 #include "render_vox_interface.h"
+
+struct GM_Vertex {
+	vec3 position;
+	vec3 normal;
+	uint8_t index;
+};
 
 struct GreedyMesh {
 	vector<GM_Vertex> vertices;

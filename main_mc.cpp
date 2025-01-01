@@ -63,7 +63,7 @@ public:
 	Quad(GLuint texture) {
 		this->texture = texture;
 		vao.Bind();
-		VBO vbo(quad_vertices, sizeof(quad_vertices));
+		VBO<GLfloat> vbo(quad_vertices, sizeof(quad_vertices));
 		EBO ebo(quad_indices, sizeof(quad_indices));
 		vao.LinkAttrib(vbo, 0, 2, GL_FLOAT, 4 * sizeof(GLfloat), (GLvoid*)0);
 		vao.LinkAttrib(vbo, 1, 2, GL_FLOAT, 4 * sizeof(GLfloat), (GLvoid*)(2 * sizeof(GLfloat)));
