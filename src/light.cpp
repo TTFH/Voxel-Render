@@ -19,11 +19,11 @@ Light::Light(vec3 pos) {
 	updateMatrix();
 }
 
-vec3 Light::getPosition() {
+vec3 Light::getPosition() const {
 	return position;
 }
 
-mat4 Light::getMatrix() {
+mat4 Light::getMatrix() const {
 	return vpMatrix;
 }
 

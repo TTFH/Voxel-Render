@@ -133,6 +133,7 @@ void HexRender::draw(Shader& shader, Camera& camera) {
 
 	shader.PushFloat("scale", scale);
 	shader.PushInt("uPalette", palette_id);
+	shader.PushVec3("size", vec3(0, 0, 0)); // SM flag not a voxagon
 	shader.PushTexture2D("uColor", palette_bank, 1); // Texture 0 is SM
 
 	mat4 pos = translate(mat4(1.0f), position);

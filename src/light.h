@@ -19,8 +19,8 @@ private:
 	void updateMatrix();
 public:
 	Light(vec3 position);
-	vec3 getPosition();
-	mat4 getMatrix();
+	vec3 getPosition() const;
+	mat4 getMatrix() const;
 	void handleInputs(GLFWwindow* window);
 	void draw(Shader& shader, Camera& camera, RenderMethod method);
 };

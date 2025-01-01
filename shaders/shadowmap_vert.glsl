@@ -1,5 +1,5 @@
 #version 410 core
-layout(location = 0) in vec3 aPos;
+layout(location = 0) in vec3 aPosition;
 layout(location = 3) in vec3 aOffset;
 
 uniform int side;
@@ -14,32 +14,32 @@ uniform mat4 lightMatrix;
 vec3 getHexPos(int side) {
 	vec3 pos;
 	if (side == 0) { // CUBE
-		pos = aPos + aOffset;
+		pos = aPosition + aOffset;
 	} else if (side == 1) { // TOP
 		vec3 stretch = vec3(1.5f, sqrt(3), 1.0f);
 		vec3 offset = vec3(1.5 * aOffset.x, sqrt(3) * aOffset.y + mod(aOffset.x, 2) * 0.5 * sqrt(3), aOffset.z);
-		pos = (aPos + offset) / stretch;
+		pos = (aPosition + offset) / stretch;
 	} else if (side == 2) { // FRONT
-		vec3 aPos2 = vec3(aPos.x, aPos.z, -aPos.y);
+		vec3 aPosition2 = vec3(aPosition.x, aPosition.z, -aPosition.y);
 		vec3 stretch = vec3(1.5f, 1.0f, sqrt(3.0f));
 		vec3 offset = vec3(1.5 * aOffset.x, aOffset.y, sqrt(3) * aOffset.z + mod(aOffset.x, 2) * 0.5 * sqrt(3));
-		pos = (aPos2 + offset) / stretch;
+		pos = (aPosition2 + offset) / stretch;
 	} else if (side == 3) { // SIDE
-		vec3 aPos3 = vec3(aPos.z, -aPos.y, aPos.x);
+		vec3 aPosition3 = vec3(aPosition.z, -aPosition.y, aPosition.x);
 		vec3 stretch = vec3(1.0f, sqrt(3.0f), 1.5f);
 		vec3 offset = vec3(aOffset.x, sqrt(3) * aOffset.y + mod(aOffset.z, 2) * 0.5 * sqrt(3), 1.5 * aOffset.z);
-		pos = (aPos3 + offset) / stretch;
+		pos = (aPosition3 + offset) / stretch;
 	}
 	return pos;
 }
 
 void main() {
 	// Mesh
-	vec4 worldPosition = position * rotation * vec4(aPos, 1.0f);
+	vec4 worldPosition = position * rotation * vec4(aPosition, 1.0f);
 
 	// Voxbox
 	if (size.x != 0.0f)
-		worldPosition = position * rotation * vec4(aPos * size, 10.0f);
+		worldPosition = position * rotation * vec4(aPosition * size, 10.0f);
 
 	// Voxel
     if (scale > 0.0f) {

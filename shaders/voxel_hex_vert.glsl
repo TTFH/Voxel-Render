@@ -1,5 +1,5 @@
 #version 410 core
-layout(location = 0) in vec3 aPos;
+layout(location = 0) in vec3 aPosition;
 layout(location = 1) in vec3 aNormal;
 layout(location = 2) in float aTexCoord;
 layout(location = 3) in vec3 aOffset;
@@ -17,27 +17,27 @@ out vec3 vNormal;
 out float vTexCoord;
 out vec4 vFragPosLight;
 
-const float threehalf = sqrt(3);
-const float twoplustwo = 5;
+const float three_halves = sqrt(3);
+const float two_plus_two = 5;
 
 vec3 getHexPos(int side) {
 	vec3 pos;
 	if (side == 0) { // CUBE
-		pos = aPos + aOffset;
+		pos = aPosition + aOffset;
 	} else if (side == 1) { // TOP
-		vec3 stretch = vec3(threehalf, sqrt(3), 1.0f);
-		vec3 offset = vec3(threehalf * aOffset.x, sqrt(3) * aOffset.y + mod(aOffset.x, 2) * 0.5 * sqrt(3), aOffset.z);
-		pos = (aPos + offset) / stretch;
+		vec3 stretch = vec3(three_halves, sqrt(3), 1.0f);
+		vec3 offset = vec3(three_halves * aOffset.x, sqrt(3) * aOffset.y + mod(aOffset.x, 2) * 0.5 * sqrt(3), aOffset.z);
+		pos = (aPosition + offset) / stretch;
 	} else if (side == 2) { // FRONT
-		vec3 aPos2 = vec3(aPos.x, aPos.z, -aPos.y);
-		vec3 stretch = vec3(threehalf, 1.0f, sqrt(3.0f));
-		vec3 offset = vec3(threehalf * aOffset.x, aOffset.y, sqrt(3) * aOffset.z + mod(aOffset.x, 2) * 0.5 * sqrt(3));
-		pos = (aPos2 + offset) / stretch;
+		vec3 aPosition2 = vec3(aPosition.x, aPosition.z, -aPosition.y);
+		vec3 stretch = vec3(three_halves, 1.0f, sqrt(3.0f));
+		vec3 offset = vec3(three_halves * aOffset.x, aOffset.y, sqrt(3) * aOffset.z + mod(aOffset.x, 2) * 0.5 * sqrt(3));
+		pos = (aPosition2 + offset) / stretch;
 	} else if (side == 3) { // SIDE
-		vec3 aPos3 = vec3(aPos.z, -aPos.y, aPos.x);
-		vec3 stretch = vec3(1.0f, sqrt(3.0f), threehalf);
-		vec3 offset = vec3(aOffset.x, sqrt(3) * aOffset.y + mod(aOffset.z, 2) * 0.5 * sqrt(3), threehalf * aOffset.z);
-		pos = (aPos3 + offset) / stretch;
+		vec3 aPosition3 = vec3(aPosition.z, -aPosition.y, aPosition.x);
+		vec3 stretch = vec3(1.0f, sqrt(3.0f), three_halves);
+		vec3 offset = vec3(aOffset.x, sqrt(3) * aOffset.y + mod(aOffset.z, 2) * 0.5 * sqrt(3), three_halves * aOffset.z);
+		pos = (aPosition3 + offset) / stretch;
 	}
 	return pos;
 }

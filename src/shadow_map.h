@@ -17,7 +17,7 @@ public:
 	ShadowMap();
 	void BindShadowMap();
 	void UnbindShadowMap(Camera& camera);
-	GLuint GetTexture();
+	GLuint GetTexture() const;
 	~ShadowMap();
 };
 

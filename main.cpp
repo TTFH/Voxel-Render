@@ -29,6 +29,12 @@
 using namespace std;
 using namespace glm;
 
+void SetLightUniforms(Shader& shader, const Light& light, const ShadowMap& shadow_map) {
+	shader.PushVec3("light_pos", light.getPosition());
+	shader.PushMatrix("lightMatrix", light.getMatrix());
+	shader.PushTexture2D("shadowMap", shadow_map.GetTexture(), 0);
+}
+
 int main(int argc, char* argv[]) {
 	GLFWwindow* window = InitOpenGL("Voxel Render");
 	Shader mesh_shader("shaders/mesh_vert.glsl", "shaders/mesh_frag.glsl");
@@ -263,10 +269,10 @@ int main(int argc, char* argv[]) {
 		shadow_map.BindShadowMap();
 		shadowmap_shader.Use();
 		shadowmap_shader.PushMatrix("lightMatrix", light.getMatrix());
-		shadowmap_shader.PushInt("side", hex_orientation);
-		scene.draw(shadowmap_shader, camera, HEXAGON);
 		shadowmap_shader.PushInt("side", 0);
 		scene.draw(shadowmap_shader, camera, GREEDY);
+		shadowmap_shader.PushInt("side", hex_orientation);
+		scene.draw(shadowmap_shader, camera, HEXAGON);
 		scene.drawVoxbox(shadowmap_shader, camera);
 		scene.drawMesh(shadowmap_shader, camera);
 		shadow_map.UnbindShadowMap(camera);
@@ -278,30 +284,22 @@ int main(int argc, char* argv[]) {
 		light.draw(voxel_rtx_shader, camera, RTX);
 		scene.draw(voxel_rtx_shader, camera, RTX);
 
-		voxel_hex_shader.Use();
-		voxel_hex_shader.PushInt("side", hex_orientation);
-		voxel_hex_shader.PushVec3("light_pos", light.getPosition());
-		voxel_hex_shader.PushMatrix("lightMatrix", light.getMatrix());
-		voxel_hex_shader.PushTexture2D("shadowMap", shadow_map.GetTexture(), 0);
-		scene.draw(voxel_hex_shader, camera, HEXAGON);
-
 		voxel_gm_shader.Use();
-		voxel_gm_shader.PushVec3("light_pos", light.getPosition());
-		voxel_gm_shader.PushMatrix("lightMatrix", light.getMatrix());
 		voxel_gm_shader.PushInt("transparent_glass", transparent_glass);
-		voxel_gm_shader.PushTexture2D("shadowMap", shadow_map.GetTexture(), 0);
+		SetLightUniforms(voxel_gm_shader, light, shadow_map);
 		scene.draw(voxel_gm_shader, camera, GREEDY);
 
+		voxel_hex_shader.Use();
+		voxel_hex_shader.PushInt("side", hex_orientation);
+		SetLightUniforms(voxel_hex_shader, light, shadow_map);
+		scene.draw(voxel_hex_shader, camera, HEXAGON);
+
 		voxbox_shader.Use();
-		voxbox_shader.PushVec3("light_pos", light.getPosition());
-		voxbox_shader.PushMatrix("lightMatrix", light.getMatrix());
-		voxbox_shader.PushTexture2D("shadowMap", shadow_map.GetTexture(), 0);
+		SetLightUniforms(voxbox_shader, light, shadow_map);
 		scene.drawVoxbox(voxbox_shader, camera);
 
 		mesh_shader.Use();
-		mesh_shader.PushVec3("light_pos", light.getPosition());
-		mesh_shader.PushMatrix("lightMatrix", light.getMatrix());
-		mesh_shader.PushTexture2D("shadowMap", shadow_map.GetTexture(), 0);
+		SetLightUniforms(mesh_shader, light, shadow_map);
 		scene.drawMesh(mesh_shader, camera);
 
 		glEnable(GL_BLEND);

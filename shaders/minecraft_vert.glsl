@@ -1,5 +1,5 @@
 #version 410 core
-layout(location = 0) in vec2 aPos;
+layout(location = 0) in vec2 aPosition;
 layout(location = 1) in vec2 aTexCoord;
 
 uniform vec2 size;
@@ -26,6 +26,6 @@ void main() {
 	uv = uv_min + (uv_max - uv_min) * uv;
 	vTexCoord = uv;
 
-	vec4 currentPos = position * rotation * vec4(aPos * size, 0.0f, 1.0f);
+	vec4 currentPos = position * rotation * vec4(aPosition * size, 0.0f, 1.0f);
 	gl_Position = camera * world_pos * world_rot * currentPos;
 }

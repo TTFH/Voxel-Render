@@ -35,7 +35,7 @@ void ShadowMap::UnbindShadowMap(Camera& camera) {
 	glViewport(0, 0, camera.screen_width, camera.screen_height);
 }
 
-GLuint ShadowMap::GetTexture() {
+GLuint ShadowMap::GetTexture() const {
 	return shadow_map_texture;
 }
 
