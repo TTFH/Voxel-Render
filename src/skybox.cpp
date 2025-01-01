@@ -1,10 +1,10 @@
+#include "ebo.h"
+#include "vbo.h"
 #include "skybox.h"
+#include "../lib/stb_image.h"
 
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-
-#include "../lib/stb_image.h"
-#include "ebo.h"
 
 static GLfloat cube_vertices[] = {
 	 1,  1,  1,
@@ -66,10 +66,9 @@ void Skybox::ReloadTexture(const char* name) {
 }
 
 Skybox::Skybox(const char* name) {
-	vao.Bind();
-	VBO<GLfloat> vbo(cube_vertices, sizeof(cube_vertices));
+	VBO vbo(cube_vertices, sizeof(cube_vertices));
 	EBO ebo(cube_indices, sizeof(cube_indices));
-	vao.LinkAttrib(vbo, 0, 3, GL_FLOAT, 3 * sizeof(GLfloat), (GLvoid*)0);
+	vao.LinkAttrib(0, 3, GL_FLOAT, 3 * sizeof(GLfloat), (GLvoid*)0);
 	vao.Unbind();
 	vbo.Unbind();
 	ebo.Unbind();
@@ -82,8 +81,8 @@ void Skybox::draw(Shader& shader, Camera& camera) {
 	shader.PushMatrix("vpMatrix", projection * view);
 
 	glDepthFunc(GL_LEQUAL);
-	vao.Bind();
 	shader.PushTextureCubeMap("skybox", texture, 0);
+	vao.Bind();
 	glDrawElements(GL_TRIANGLES, sizeof(cube_indices) / sizeof(GLuint), GL_UNSIGNED_INT, 0);
 	vao.Unbind();
 	glDepthFunc(GL_LESS);

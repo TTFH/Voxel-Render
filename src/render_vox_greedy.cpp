@@ -1,4 +1,5 @@
 #include "ebo.h"
+#include "vbo.h"
 #include "utils.h"
 #include "render_vox_greedy.h"
 
@@ -144,13 +145,12 @@ GreedyRender::GreedyRender(const MV_Shape& shape, GLuint palette_bank, int palet
 	SaveOBJ(shape.id + ".obj", mesh, palette_id);
 #endif
 
-	vao.Bind();
-	VBO<GM_Vertex> vbo(mesh.vertices);
+	VBO vbo(mesh.vertices);
 	EBO ebo(mesh.indices);
 
-	vao.LinkAttrib(vbo, 0, 3, GL_FLOAT, sizeof(GM_Vertex), (GLvoid*)0);								// Vertex position
-	vao.LinkAttrib(vbo, 1, 3, GL_FLOAT, sizeof(GM_Vertex), (GLvoid*)(3 * sizeof(GLfloat)));			// Normal
-	vao.LinkAttrib(vbo, 2, 1, GL_UNSIGNED_BYTE, sizeof(GM_Vertex), (GLvoid*)(6 * sizeof(GLfloat))); // Texture coord
+	vao.LinkAttrib(0, 3, GL_FLOAT, sizeof(GM_Vertex), (GLvoid*)0);								// Vertex position
+	vao.LinkAttrib(1, 3, GL_FLOAT, sizeof(GM_Vertex), (GLvoid*)(3 * sizeof(GLfloat)));			// Normal
+	vao.LinkAttrib(2, 1, GL_UNSIGNED_BYTE, sizeof(GM_Vertex), (GLvoid*)(6 * sizeof(GLfloat))); // Texture coord
 
 	vao.Unbind();
 	vbo.Unbind();
@@ -158,7 +158,6 @@ GreedyRender::GreedyRender(const MV_Shape& shape, GLuint palette_bank, int palet
 }
 
 void GreedyRender::draw(Shader& shader, Camera& camera) {
-	vao.Bind();
 	shader.PushMatrix("camera", camera.vpMatrix);
 
 	shader.PushFloat("scale", scale);
@@ -176,6 +175,7 @@ void GreedyRender::draw(Shader& shader, Camera& camera) {
 	shader.PushMatrix("world_pos", world_pos);
 	shader.PushMatrix("world_rot", world_rot);
 
+	vao.Bind();
 	//glLineWidth(5.0f); // GL_LINES
 	glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_INT, 0);
 	vao.Unbind();

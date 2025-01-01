@@ -5,37 +5,33 @@
 
 // Vertex Buffer Object
 template <typename T>
-VBO<T>::VBO(vector<T>& vertices) {
+VBO::VBO(vector<T>& vertices) {
 	glGenBuffers(1, &vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(T), vertices.data(), GL_STATIC_DRAW);
 }
 
-template <typename T>
-VBO<T>::VBO(const GLfloat* vertices, GLsizeiptr size) {
+VBO::VBO(const GLfloat* vertices, GLsizeiptr size) {
 	glGenBuffers(1, &vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
 }
 
-template <typename T>
-void VBO<T>::Bind() {
+void VBO::Bind() {
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 }
 
-template <typename T>
-void VBO<T>::Unbind() {
+void VBO::Unbind() {
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-template <typename T>
-VBO<T>::~VBO() {
+VBO::~VBO() {
 	//glDeleteBuffers(1, &vbo);
 }
 
-template class VBO<GLfloat>;
-template class VBO<vec2>;
-template class VBO<vec3>;
-template class VBO<GM_Vertex>;
-template class VBO<MV_Voxel>;
-template class VBO<MeshVertex>;
+template VBO::VBO(vector<GLfloat>&);
+template VBO::VBO(vector<vec2>&);
+template VBO::VBO(vector<vec3>&);
+template VBO::VBO(vector<GM_Vertex>&);
+template VBO::VBO(vector<MV_Voxel>&);
+template VBO::VBO(vector<MeshVertex>&);

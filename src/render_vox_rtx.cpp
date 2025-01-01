@@ -2,6 +2,7 @@
 #include <string.h>
 
 #include "ebo.h"
+#include "vbo.h"
 #include "utils.h"
 #include "render_vox_rtx.h"
 
@@ -40,10 +41,9 @@ GLuint windowNormal;
 GLuint blueNoise;
 
 RTX_Render::RTX_Render(const MV_Shape& shape, GLuint paletteBank, int paletteId) {
-	vao.Bind();
-	VBO<GLfloat> vbo(cube_vertices, sizeof(cube_vertices));
+	VBO vbo(cube_vertices, sizeof(cube_vertices));
 	EBO ebo(cube_indices, sizeof(cube_indices));
-	vao.LinkAttrib(vbo, 0, 3, GL_FLOAT, 3 * sizeof(GLfloat), (GLvoid*)0);
+	vao.LinkAttrib(0, 3, GL_FLOAT, 3 * sizeof(GLfloat), (GLvoid*)0);
 	vao.Unbind();
 	vbo.Unbind();
 	ebo.Unbind();
@@ -139,8 +139,6 @@ RTX_Render::RTX_Render(const MV_Shape& shape, GLuint paletteBank, int paletteId)
 
 // Simple shader, from the Teardown editor
 void RTX_Render::DrawSimple(Shader& shader, Camera& camera) {
-	vao.Bind();
-
 	shader.PushTexture2D("uColor", paletteBank, 0);
 	shader.PushTexture3D("uVolTex", volumeTexture, 1);
 
@@ -181,13 +179,12 @@ void RTX_Render::DrawSimple(Shader& shader, Camera& camera) {
 	shader.PushMatrix("uVolMatrix", volMatrix);
 	shader.PushMatrix("uVolMatrixInv", volMatrixInv);
 
+	vao.Bind();
 	glDrawElements(GL_TRIANGLES, sizeof(cube_indices) / sizeof(GLuint), GL_UNSIGNED_INT, 0);
 	vao.Unbind();
 }
 
 void RTX_Render::DrawAdvanced(Shader& shader, Camera& camera) {
-	vao.Bind();
-
 	shader.PushTexture3D("uVolTex", volumeTexture, 0);
 	shader.PushTexture2D("uColor", paletteBank, 1);
 	//shader.PushTexture2D("uMaterial", materialBank, 2);
@@ -235,6 +232,7 @@ void RTX_Render::DrawAdvanced(Shader& shader, Camera& camera) {
 	shader.PushMatrix("uVolMatrix", volMatrix);
 	shader.PushMatrix("uVpInvMatrix", volMatrixInv);
 
+	vao.Bind();
 	glDrawElements(GL_TRIANGLES, sizeof(cube_indices) / sizeof(GLuint), GL_UNSIGNED_INT, 0);
 	vao.Unbind();
 }

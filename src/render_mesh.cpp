@@ -1,7 +1,8 @@
 #include <string.h>
 
-#include "render_mesh.h"
+#include "vbo.h"
 #include "utils.h"
+#include "render_mesh.h"
 
 struct Triangle {
 	int vertex_index[3];
@@ -155,12 +156,11 @@ void Mesh::SaveOBJ(const char* path) {
 
 Mesh::Mesh(const char* path) {
 	LoadOBJ(path);
-
-	vao.Bind();
-	VBO<MeshVertex> vbo(vertices);
-	vao.LinkAttrib(vbo, 0, 3, GL_FLOAT, sizeof(MeshVertex), (GLvoid*)0);					 // Position
-	vao.LinkAttrib(vbo, 1, 3, GL_FLOAT, sizeof(MeshVertex), (GLvoid*)(3 * sizeof(GLfloat))); // Normal
-	vao.LinkAttrib(vbo, 2, 2, GL_FLOAT, sizeof(MeshVertex), (GLvoid*)(6 * sizeof(GLfloat))); // TexCoord
+;
+	VBO vbo(vertices);
+	vao.LinkAttrib(0, 3, GL_FLOAT, sizeof(MeshVertex), (GLvoid*)0);					 // Position
+	vao.LinkAttrib(1, 3, GL_FLOAT, sizeof(MeshVertex), (GLvoid*)(3 * sizeof(GLfloat))); // Normal
+	vao.LinkAttrib(2, 2, GL_FLOAT, sizeof(MeshVertex), (GLvoid*)(6 * sizeof(GLfloat))); // TexCoord
 	vao.Unbind();
 	vbo.Unbind();
 }
@@ -169,11 +169,10 @@ Mesh::Mesh(const char* path, vec3 color) {
 	this->color = color;
 	LoadSimpleOBJ(path);
 
-	vao.Bind();
-	VBO<MeshVertex> vbo(vertices);
-	vao.LinkAttrib(vbo, 0, 3, GL_FLOAT, sizeof(MeshVertex), (GLvoid*)0);					 // Position
-	vao.LinkAttrib(vbo, 1, 3, GL_FLOAT, sizeof(MeshVertex), (GLvoid*)(3 * sizeof(GLfloat))); // Normal
-	vao.LinkAttrib(vbo, 2, 2, GL_FLOAT, sizeof(MeshVertex), (GLvoid*)(6 * sizeof(GLfloat))); // TexCoord
+	VBO vbo(vertices);
+	vao.LinkAttrib(0, 3, GL_FLOAT, sizeof(MeshVertex), (GLvoid*)0);					 // Position
+	vao.LinkAttrib(1, 3, GL_FLOAT, sizeof(MeshVertex), (GLvoid*)(3 * sizeof(GLfloat))); // Normal
+	vao.LinkAttrib(2, 2, GL_FLOAT, sizeof(MeshVertex), (GLvoid*)(6 * sizeof(GLfloat))); // TexCoord
 	vao.Unbind();
 	vbo.Unbind();
 }
@@ -209,7 +208,6 @@ void Mesh::setWorldTransform(vec3 position, quat rotation) {
 }
 
 void Mesh::draw(Shader& shader, Camera& camera) {
-	vao.Bind();
 	shader.PushMatrix("camera", camera.vpMatrix);
 	shader.PushVec3("camera_pos", camera.position);
 
@@ -228,6 +226,7 @@ void Mesh::draw(Shader& shader, Camera& camera) {
 		shader.PushTexture2D(name, textures[i], i + 1); // Texture 0 is SM
 	}
 
+	vao.Bind();
 	glDrawArrays(GL_TRIANGLES, 0, vertices.size());
 	vao.Unbind();
 }

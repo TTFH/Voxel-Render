@@ -5,6 +5,8 @@
 #include "camera.h"
 #include "shader.h"
 
+#include <vector>
+
 #include <glm/gtc/quaternion.hpp>
 
 class RopeRender {

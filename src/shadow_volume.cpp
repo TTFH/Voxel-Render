@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "ebo.h"
+#include "vbo.h"
 #include "utils.h"
 #include "shadow_volume.h"
 
@@ -20,11 +21,10 @@ static GLuint screen_indices[] = {
 };
 
 ShadowVolume::ShadowVolume(float width_m, float height_m, float depth_m) {
-	vao.Bind();
-	VBO<GLfloat> vbo(screen_vertices, sizeof(screen_vertices));
+	VBO vbo(screen_vertices, sizeof(screen_vertices));
 	EBO ebo(screen_indices, sizeof(screen_indices));
-	vao.LinkAttrib(vbo, 0, 2, GL_FLOAT, 4 * sizeof(GLfloat), (GLvoid*)0);
-	vao.LinkAttrib(vbo, 1, 2, GL_FLOAT, 4 * sizeof(GLfloat), (GLvoid*)(2 * sizeof(GLfloat)));
+	vao.LinkAttrib(0, 2, GL_FLOAT, 4 * sizeof(GLfloat), (GLvoid*)0);
+	vao.LinkAttrib(1, 2, GL_FLOAT, 4 * sizeof(GLfloat), (GLvoid*)(2 * sizeof(GLfloat)));
 	vao.Unbind();
 	vbo.Unbind();
 	ebo.Unbind();
@@ -152,8 +152,6 @@ void ShadowVolume::updateTexture() {
 }
 
 void ShadowVolume::draw(Shader& shader, Camera& camera) {
-	vao.Bind();
-
 	shader.PushFloat("uVolTexelSize", 0.2);
 	shader.PushVec3("uCameraPos", camera.position);
 	shader.PushVec3("uVolOffset", vec3(-width / 20.0f, 0.0f, -depth / 20.0f));
@@ -165,6 +163,7 @@ void ShadowVolume::draw(Shader& shader, Camera& camera) {
 	shader.PushFloat("uFar", camera.FAR_PLANE);
 	shader.PushMatrix("uVpMatrix", camera.vpMatrix);
 
+	vao.Bind();
 	glDrawElements(GL_TRIANGLES, sizeof(screen_indices) / sizeof(GLuint), GL_UNSIGNED_INT, 0);
 	vao.Unbind();
 }

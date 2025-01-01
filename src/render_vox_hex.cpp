@@ -1,4 +1,5 @@
 #include "ebo.h"
+#include "vbo.h"
 #include "utils.h"
 #include "render_vox_hex.h"
 
@@ -108,16 +109,15 @@ HexRender::HexRender(const MV_Shape& shape, GLuint palette_bank, int palette_id)
 	this->palette_id = palette_id;
 	this->voxel_count = trimed_voxels.size();
 
-	vao.Bind();
-	VBO<GLfloat> vbo(hex_prism_vertices, sizeof(hex_prism_vertices));
+	VBO vbo(hex_prism_vertices, sizeof(hex_prism_vertices));
 	EBO ebo(hex_prism_indices, sizeof(hex_prism_indices));
 
-	vao.LinkAttrib(vbo, 0, 3, GL_FLOAT, 6 * sizeof(GLfloat), (GLvoid*)0);					  // Vertex position
-	vao.LinkAttrib(vbo, 1, 3, GL_FLOAT, 6 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat))); // Normal
+	vao.LinkAttrib(0, 3, GL_FLOAT, 6 * sizeof(GLfloat), (GLvoid*)0);					 // Vertex position
+	vao.LinkAttrib(1, 3, GL_FLOAT, 6 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat))); // Normal
 
 	VBO instaceVBO(trimed_voxels);
-	vao.LinkAttrib(instaceVBO, 2, 1, GL_UNSIGNED_BYTE, sizeof(MV_Voxel), (GLvoid*)(3 * sizeof(uint8_t))); // Texture coord
-	vao.LinkAttrib(instaceVBO, 3, 3, GL_UNSIGNED_BYTE, sizeof(MV_Voxel), (GLvoid*)0);					  // Relative position
+	vao.LinkAttrib(2, 1, GL_UNSIGNED_BYTE, sizeof(MV_Voxel), (GLvoid*)(3 * sizeof(uint8_t))); // Palette index
+	vao.LinkAttrib(3, 3, GL_UNSIGNED_BYTE, sizeof(MV_Voxel), (GLvoid*)0);					  // Voxel position
 	glVertexAttribDivisor(2, 1);
 	glVertexAttribDivisor(3, 1);
 	instaceVBO.Unbind();
@@ -128,7 +128,6 @@ HexRender::HexRender(const MV_Shape& shape, GLuint palette_bank, int palette_id)
 }
 
 void HexRender::draw(Shader& shader, Camera& camera) {
-	vao.Bind();
 	shader.PushMatrix("camera", camera.vpMatrix);
 
 	shader.PushFloat("scale", scale);
@@ -147,6 +146,7 @@ void HexRender::draw(Shader& shader, Camera& camera) {
 	shader.PushMatrix("world_rot", world_rot);
 
 	// Use GL_LINES for wireframe
+	vao.Bind();
 	glDrawElementsInstanced(GL_TRIANGLES, sizeof(hex_prism_indices) / sizeof(GLuint), GL_UNSIGNED_INT, 0, voxel_count);
 	vao.Unbind();
 }

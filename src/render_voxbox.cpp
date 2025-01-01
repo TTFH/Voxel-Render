@@ -1,4 +1,5 @@
 #include "ebo.h"
+#include "vbo.h"
 #include "render_voxbox.h"
 
 //   6--------7
@@ -59,11 +60,10 @@ static GLuint cube_indices[] = {
 VoxboxRender::VoxboxRender(vec3 size, vec3 color) {
 	this->size = size;
 	this->color = color;
-	vao.Bind();
-	VBO<GLfloat> vbo(cube_vertices, sizeof(cube_vertices));
+	VBO vbo(cube_vertices, sizeof(cube_vertices));
 	EBO ebo(cube_indices, sizeof(cube_indices));
-	vao.LinkAttrib(vbo, 0, 3, GL_FLOAT, 6 * sizeof(GLfloat), (GLvoid*)0);					  // Vertex position
-	vao.LinkAttrib(vbo, 1, 3, GL_FLOAT, 6 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat))); // Normal
+	vao.LinkAttrib(0, 3, GL_FLOAT, 6 * sizeof(GLfloat), (GLvoid*)0);					  // Vertex position
+	vao.LinkAttrib(1, 3, GL_FLOAT, 6 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat))); // Normal
 	vao.Unbind();
 	vbo.Unbind();
 	ebo.Unbind();
@@ -75,7 +75,6 @@ void VoxboxRender::setWorldTransform(vec3 position, quat rotation) {
 }
 
 void VoxboxRender::draw(Shader& shader, Camera& camera) {
-	vao.Bind();
 	shader.PushMatrix("camera", camera.vpMatrix);
 
 	shader.PushVec3("color", color);
@@ -87,6 +86,7 @@ void VoxboxRender::draw(Shader& shader, Camera& camera) {
 	shader.PushMatrix("position", pos);
 	shader.PushMatrix("rotation", rot);
 
+	vao.Bind();
 	glDrawElements(GL_TRIANGLES, sizeof(cube_indices) / sizeof(GLuint), GL_UNSIGNED_INT, 0);
 	vao.Unbind();
 }

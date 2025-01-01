@@ -1,4 +1,5 @@
 #include "ebo.h"
+#include "vbo.h"
 #include "utils.h"
 #include "postprocessing.h"
 
@@ -56,11 +57,10 @@ void Screen::InitFrameBuffer(int width, int height) {
 }
 
 Screen::Screen() {
-	vao.Bind();
-	VBO<GLfloat> vbo(screen_vertices, sizeof(screen_vertices));
+	VBO vbo(screen_vertices, sizeof(screen_vertices));
 	EBO ebo(screen_indices, sizeof(screen_indices));
-	vao.LinkAttrib(vbo, 0, 2, GL_FLOAT, 4 * sizeof(GLfloat), (GLvoid*)0);
-	vao.LinkAttrib(vbo, 1, 2, GL_FLOAT, 4 * sizeof(GLfloat), (GLvoid*)(2 * sizeof(GLfloat)));
+	vao.LinkAttrib(0, 2, GL_FLOAT, 4 * sizeof(GLfloat), (GLvoid*)0);
+	vao.LinkAttrib(1, 2, GL_FLOAT, 4 * sizeof(GLfloat), (GLvoid*)(2 * sizeof(GLfloat)));
 	vao.Unbind();
 	vbo.Unbind();
 	ebo.Unbind();
@@ -79,8 +79,6 @@ void Screen::end() {
 }
 
 void Screen::draw(Shader& shader, Camera& camera) {
-	vao.Bind();
-
 	shader.PushFloat("uNear", camera.NEAR_PLANE);
 	shader.PushFloat("uFar", camera.FAR_PLANE);
 	shader.PushVec2("uPixelSize", vec2(1.0f / camera.screen_width, 1.0f / camera.screen_height));
@@ -95,6 +93,7 @@ void Screen::draw(Shader& shader, Camera& camera) {
 	shader.PushTexture2D("uDepth", depthTexture, 2);
 	shader.PushTexture2D("uBlueNoise", bluenoise, 3);
 
+	vao.Bind();
 	glDrawElements(GL_TRIANGLES, sizeof(screen_indices) / sizeof(GLuint), GL_UNSIGNED_INT, 0);
 	vao.Unbind();
 }

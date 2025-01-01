@@ -8,6 +8,7 @@
 #include <glm/gtc/quaternion.hpp>
 
 #include "src/vao.h"
+#include "src/vbo.h"
 #include "src/ebo.h"
 #include "src/light.h"
 #include "src/utils.h"
@@ -62,11 +63,10 @@ private:
 public:
 	Quad(GLuint texture) {
 		this->texture = texture;
-		vao.Bind();
-		VBO<GLfloat> vbo(quad_vertices, sizeof(quad_vertices));
+		VBO vbo(quad_vertices, sizeof(quad_vertices));
 		EBO ebo(quad_indices, sizeof(quad_indices));
-		vao.LinkAttrib(vbo, 0, 2, GL_FLOAT, 4 * sizeof(GLfloat), (GLvoid*)0);
-		vao.LinkAttrib(vbo, 1, 2, GL_FLOAT, 4 * sizeof(GLfloat), (GLvoid*)(2 * sizeof(GLfloat)));
+		vao.LinkAttrib(0, 2, GL_FLOAT, 4 * sizeof(GLfloat), (GLvoid*)0);
+		vao.LinkAttrib(1, 2, GL_FLOAT, 4 * sizeof(GLfloat), (GLvoid*)(2 * sizeof(GLfloat)));
 		vao.Unbind();
 		vbo.Unbind();
 		ebo.Unbind();
@@ -93,7 +93,6 @@ public:
 		tint_color = color;
 	}
 	void draw(Shader& shader, Camera& camera) {
-		vao.Bind();
 		shader.PushMatrix("camera", camera.vpMatrix);
 		shader.PushTexture2D("diffuse", texture, 0);
 		shader.PushVec2("size", size);
@@ -110,6 +109,8 @@ public:
 		shader.PushMatrix("rotation", rot);
 		shader.PushMatrix("world_pos", w_pos);
 		shader.PushMatrix("world_rot", w_rot);
+
+		vao.Bind();
 		glDrawElements(GL_TRIANGLES, sizeof(quad_indices) / sizeof(GLuint), GL_UNSIGNED_INT, 0);
 		vao.Unbind();
 	}

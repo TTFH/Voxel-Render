@@ -9,11 +9,11 @@
 using namespace std;
 using namespace glm;
 
-template <typename T>
 class VBO {
 private:
 	GLuint vbo;
 public:
+	template <typename T>
 	VBO(vector<T>& vertices);
 	VBO(const GLfloat* vertices, GLsizeiptr size);
 	~VBO();
