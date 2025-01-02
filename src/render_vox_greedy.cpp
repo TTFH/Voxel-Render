@@ -161,6 +161,7 @@ void GreedyRender::draw(Shader& shader, Camera& camera) {
 	shader.PushMatrix("camera", camera.vpMatrix);
 
 	shader.PushFloat("scale", scale);
+	shader.PushInt("side", 0); // SM flag not an hexagon
 	shader.PushVec3("size", vec3(0, 0, 0)); // SM flag not a voxagon
 	shader.PushTexture2D("uColor", palette_bank, 1); // Texture 0 is SM
 	shader.PushInt("uPalette", palette_id);

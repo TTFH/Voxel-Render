@@ -5,7 +5,6 @@
 #include <string>
 #include <vector>
 
-#include "shadow_map.h"
 #include "render_mesh.h"
 #include "vox_loader.h"
 #include "render_rope.h"

@@ -11,7 +11,6 @@
 #include "src/utils.h"
 #include "src/shader.h"
 #include "src/skybox.h"
-#include "src/shadow_map.h"
 #include "src/render_mesh.h"
 #include "src/scene_loader.h"
 #include "src/postprocessing.h"
@@ -28,12 +27,6 @@
 
 using namespace std;
 using namespace glm;
-
-void SetLightUniforms(Shader& shader, const Light& light, const ShadowMap& shadow_map) {
-	shader.PushVec3("light_pos", light.getPosition());
-	shader.PushMatrix("lightMatrix", light.getMatrix());
-	shader.PushTexture2D("shadowMap", shadow_map.GetTexture(), 0);
-}
 
 int main(int argc, char* argv[]) {
 	GLFWwindow* window = InitOpenGL("Voxel Render");
@@ -125,7 +118,6 @@ int main(int argc, char* argv[]) {
 	};
 
 	Skybox skybox(selected_skybox);
-	ShadowMap shadow_map;
 	Camera camera(vec3(0, 2.5, 10));
 	Light light(vec3(-35, 130, -132));
 	Scene scene(GetScenePath(argc, argv));
@@ -213,7 +205,7 @@ int main(int argc, char* argv[]) {
 
 			ImGui::Text("Camera position: (%.2f, %.2f, %.2f)", camera.position.x, camera.position.y, camera.position.z);
 			ImGui::Text("Camera direction: (%.2f, %.2f, %.2f)", camera.direction.x, camera.direction.y, camera.direction.z);
-			ImGui::Text("Light position: (%.2f, %.2f, %.2f)", light.getPosition().x, light.getPosition().y, light.getPosition().z);
+			ImGui::Text("Light position: (%.2f, %.2f, %.2f)", light.position.x, light.position.y, light.position.z);
 			ImGui::Dummy(ImVec2(0, 10));
 
 			ImGui::Checkbox("Transparent glass", &transparent_glass);
@@ -266,17 +258,13 @@ int main(int argc, char* argv[]) {
 		}
 
 		// Shadows
-		shadow_map.BindShadowMap();
-		shadowmap_shader.Use();
-		shadowmap_shader.PushMatrix("lightMatrix", light.getMatrix());
-		shadowmap_shader.PushInt("side", 0);
+		light.bindShadowMap(shadowmap_shader);
 		scene.draw(shadowmap_shader, camera, GREEDY);
 		shadowmap_shader.PushInt("side", hex_orientation);
 		scene.draw(shadowmap_shader, camera, HEXAGON);
 		scene.drawVoxbox(shadowmap_shader, camera);
 		scene.drawMesh(shadowmap_shader, camera);
-		shadow_map.UnbindShadowMap(camera);
-		//scene.drawShadows(shadow_map); // Should shadow_map be part of light?
+		light.unbindShadowMap(camera);
 
 		glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -287,20 +275,20 @@ int main(int argc, char* argv[]) {
 
 		voxel_gm_shader.Use();
 		voxel_gm_shader.PushInt("transparent_glass", transparent_glass);
-		SetLightUniforms(voxel_gm_shader, light, shadow_map);
+		light.pushUniforms(voxel_gm_shader);
 		scene.draw(voxel_gm_shader, camera, GREEDY);
 
 		voxel_hex_shader.Use();
 		voxel_hex_shader.PushInt("side", hex_orientation);
-		SetLightUniforms(voxel_hex_shader, light, shadow_map);
+		light.pushUniforms(voxel_hex_shader);
 		scene.draw(voxel_hex_shader, camera, HEXAGON);
 
 		voxbox_shader.Use();
-		SetLightUniforms(voxbox_shader, light, shadow_map);
+		light.pushUniforms(voxbox_shader);
 		scene.drawVoxbox(voxbox_shader, camera);
 
 		mesh_shader.Use();
-		SetLightUniforms(mesh_shader, light, shadow_map);
+		light.pushUniforms(mesh_shader);
 		scene.drawMesh(mesh_shader, camera);
 
 		glEnable(GL_BLEND);
@@ -309,7 +297,7 @@ int main(int argc, char* argv[]) {
 
 		if (transparent_glass) {
 			voxel_glass_shader.Use();
-			voxel_glass_shader.PushVec3("light_pos", light.getPosition());
+			voxel_glass_shader.PushVec3("light_pos", light.position);
 			scene.draw(voxel_glass_shader, camera, GREEDY);
 		}
 		glDisable(GL_BLEND);
