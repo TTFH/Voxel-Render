@@ -14,7 +14,11 @@ private:
 	GLuint vbo;
 public:
 	template <typename T>
-	VBO(vector<T>& vertices);
+	VBO(vector<T>& vertices) {
+		glGenBuffers(1, &vbo);
+		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(T), vertices.data(), GL_STATIC_DRAW);
+	}
 	VBO(const GLfloat* vertices, GLsizeiptr size);
 	~VBO();
 	void Bind();
