@@ -11,8 +11,10 @@
 #include "render_water.h"
 #include "render_voxbox.h"
 #include "shadow_volume.h"
-#include "../lib/tinyxml2.h"
 
+#include <glm/glm.hpp>
+#include <glm/gtc/quaternion.hpp>
+#include "../lib/tinyxml2.h"
 using namespace tinyxml2;
 
 struct shape_t {
@@ -23,6 +25,11 @@ struct shape_t {
 	float scale;
 	vec4 texture;
 	RenderMethod method;
+};
+
+struct Transform {
+	vec3 pos;
+	quat rot;
 };
 
 class Scene {
@@ -37,6 +44,7 @@ private:
 	map<string, VoxLoader*> models;
 	void RecursiveLoad(XMLElement* element, vec3 parent_pos, quat parent_rot);
 public:
+	Transform spawnpoint;
 	Scene(string path);
 	~Scene();
 	void addMesh(Mesh* mesh);

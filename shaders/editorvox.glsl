@@ -35,7 +35,7 @@ void main() {
 #ifdef FRAGMENT
 layout(location = 0) out vec3 outputColor;
 layout(location = 1) out vec3 outputNormal;
-layout(location = 2) out float outputDepth;
+layout(location = 4) out float outputDepth;
 
 float raycastVolume(vec3 origin, vec3 dir, float dist, int mip, out int normal, out uint value) {
 	float mipScale = float(1 << mip);

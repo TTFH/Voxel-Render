@@ -8,7 +8,7 @@
 
 #include "scene_loader.h"
 
-// Example of how to use tinyxml2
+// Example on how to use tinyxml2
 void iterate_xml(XMLElement* root, int depth) {
 	for (int i = 0; i < depth; i++)
 		printf("    ");
@@ -166,6 +166,9 @@ void Scene::RecursiveLoad(XMLElement* element, vec3 parent_pos, quat parent_rot)
 		Mesh* mesh = new Mesh(path.c_str(), color);
 		mesh->setWorldTransform(position, rotation);
 		meshes.push_back(mesh);
+	} else if (strcmp(element->Name(), "spawnpoint") == 0) {
+		spawnpoint.pos = position;
+		spawnpoint.rot = rotation;
 	}
 	for (XMLElement* child = element->FirstChildElement(); child != NULL; child = child->NextSiblingElement())
 		RecursiveLoad(child, position, rotation);
@@ -185,6 +188,7 @@ Scene::Scene(string path) {
 	//iterate_xml(root, 0);
 	vec3 position = vec3(0, 0, 0);
 	quat rotation = quat(1, 0, 0, 0);
+	spawnpoint = { position, rotation };
 	RecursiveLoad(root, position, rotation);
 	printf("Loaded %d shapes, %d voxbox, %d water, %d rope\n", (int)shapes.size(), (int)voxboxes.size(), (int)waters.size(), (int)ropes.size());
 }

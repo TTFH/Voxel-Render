@@ -89,7 +89,7 @@ void ShadowVolume::addShape(const MV_Shape& shape, mat4 model_matrix) {
 		vec4 voxel_pos = model_matrix * vec4(xv, yv, zv, 1.0f);
 		int x = round(voxel_pos.x) + width / 2;
 		int y = round(voxel_pos.y);
-		int z = round(voxel_pos.z - 1) + depth / 2;
+		int z = round(voxel_pos.z) + depth / 2;
 
 		if (x < 0 || x >= width || y < 0 || y >= height || z < 0 || z >= depth)
 			continue;

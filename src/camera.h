@@ -22,7 +22,7 @@ public:
 	const vec3 up = vec3(0, 1, 0);
 	vec3 position, direction;
 	mat4 vpMatrix = mat4(1.0);
-	Camera(vec3 position);
+	Camera(vec3 position = vec3(0, 1.8, 0));
 	void updateScreenSize(int width, int height);
 	void translateAndInvertPitch(float distance);
 	void handleInputs(GLFWwindow* window);

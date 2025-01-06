@@ -30,14 +30,16 @@ int main(int argc, char* argv[]) {
 	Shader sv_shader("debugvolume");
 	Shader voxel_rtx_shader("gbuffervox");
 	Shader screen_shader("editorlighting");
-	Shader voxel_gm_shader("shaders/voxel_gm_vert.glsl", "shaders/voxel_frag.glsl");
 
 	Screen screen;
-	Camera camera(vec3(0, 2.5, 10));
+	Camera camera;
 	Scene scene(GetScenePath(argc, argv));
+	camera.position = scene.spawnpoint.pos;
+	camera.position.y += 1.8;
+	camera.direction = scene.spawnpoint.rot * vec3(0, 0, 1);
 
 	ShadowVolume shadow_volume(40, 10, 40);
-	scene.push(shadow_volume);
+	//scene.push(shadow_volume);
 	shadow_volume.updateTexture();
 
 	glfwSetWindowUserPointer(window, &camera);
@@ -66,9 +68,6 @@ int main(int argc, char* argv[]) {
 
 		screen_shader.Use();
 		screen.draw(screen_shader, camera);
-
-		//voxel_gm_shader.Use();
-		//scene.draw(voxel_gm_shader, camera, GREEDY);
 
 		sv_shader.Use();
 		shadow_volume.draw(sv_shader, camera);

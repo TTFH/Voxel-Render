@@ -69,9 +69,9 @@ void main() {
 #endif
 
 #ifdef FRAGMENT
-layout(location=0) out vec4 outputColor;
-layout(location=1) out vec3 outputNormal;
-layout(location=2) out float outputDepth;
+layout(location = 0) out vec4 outputColor;
+layout(location = 1) out vec3 outputNormal;
+layout(location = 4) out float outputDepth;
 
 vec3 computeFarVec(vec2 texCoord) {
 	vec4 aa = vec4(texCoord * 2.0 - vec2(1.0), 1.0f, 1.0f);

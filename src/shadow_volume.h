@@ -1,13 +1,13 @@
 #ifndef SHADOW_VOLUME_H
 #define SHADOW_VOLUME_H
 
-#include <glm/glm.hpp>
-#include <glm/gtc/quaternion.hpp>
+#include <stdint.h>
 
 #include "vao.h"
 #include "camera.h"
 #include "shader.h"
 
+#include <glm/glm.hpp>
 #include "../lib/tinyxml2.h"
 using namespace tinyxml2;
 

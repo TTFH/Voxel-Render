@@ -8,10 +8,14 @@
 class Screen {
 private:
 	VAO vao;
+	GLuint sampler;
 	GLuint bluenoise;
 	GLuint framebuffer;
+
 	GLuint colorTexture;
 	GLuint normalTexture;
+	GLuint materialTexture;
+	GLuint motionTexture;
 	GLuint depthTexture;
 	void InitFrameBuffer(int width, int height);
 public:
