@@ -1,17 +1,26 @@
-.vscode/
+# Compiled files
 obj/*.o
 vox_render
 vox_render.exe
 
+# Blender files
 *.obj
 scene.xml
 palette.png
-village.schem
 
+# Assets
 meshes/
 skyboxes/
 castle.vox
 
+# Screenshots
+screenshot_*.png
+
+# Misc
+.vscode/
+village.schem
+
+# Map folders
 SV_Test/
 Water Test/
-screenshot_*.png
+hub_carib_sandbox/

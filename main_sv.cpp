@@ -28,8 +28,9 @@ int main(int argc, char* argv[]) {
 	GLFWwindow* window = InitOpenGL("Voxel Render");
 
 	Shader sv_shader("debugvolume");
-	Shader voxel_rtx_shader("editorvox");
+	Shader voxel_rtx_shader("gbuffervox");
 	Shader screen_shader("editorlighting");
+	Shader voxel_gm_shader("shaders/voxel_gm_vert.glsl", "shaders/voxel_frag.glsl");
 
 	Screen screen;
 	Camera camera(vec3(0, 2.5, 10));
@@ -65,6 +66,9 @@ int main(int argc, char* argv[]) {
 
 		screen_shader.Use();
 		screen.draw(screen_shader, camera);
+
+		//voxel_gm_shader.Use();
+		//scene.draw(voxel_gm_shader, camera, GREEDY);
 
 		sv_shader.Use();
 		shadow_volume.draw(sv_shader, camera);

@@ -15,7 +15,8 @@ private:
 	int paletteId;
 	GLuint paletteBank;
 	GLuint volumeTexture;
-	vec3 shapeSize;
+	vec3 objSize;
+	vec4 voxelSize;
 	void DrawSimple(Shader& shader, Camera& camera);
 	void DrawAdvanced(Shader& shader, Camera& camera);
 public:

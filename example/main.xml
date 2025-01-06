@@ -1,4 +1,4 @@
-<scene version="1.4.0" shadowVolume="100 25 100">
+<scene version="1.6.2" shadowVolume="100 25 100">
 	<voxbox name="ground" pos="-50.0 -0.1 -50.0" size="1000 1 1000" color="0.29 0.37 0.25"/>
 	<water pos="-13.3 0.0 -5.5" type="polygon">
 		<vertex pos="0.0 0.0"/>
@@ -20,8 +20,8 @@
 		<vox pos="1.94108 0.98682 1.95529" rot="-10 45 0" file="MOD/vox/chopper.vox" object="body"/>
 	</group>
 	<group name="truck" pos="-3.5 0.0 -0.1">
-		<vox pos="-0.05 0.3 -4.6" name="hex" file="MOD/vox/semitruck-us.vox" object="body"/>
-		<vox pos="-0.05 0.3 2.4" name="hex" file="MOD/vox/semi_baggage.vox" object="trailer"/>
+		<vox name="hex" pos="-0.05 0.3 -4.6" file="MOD/vox/semitruck-us.vox" object="body"/>
+		<vox name="hex" pos="-0.05 0.3 2.4" file="MOD/vox/semi_baggage.vox" object="trailer"/>
 		<vox pos="0.75 0.0 4.1" file="MOD/vox/semitruck-us.vox" object="wheel_br"/>
 		<vox pos="0.65 0.0 -3.0" file="MOD/vox/semitruck-us.vox" object="wheel_br"/>
 		<vox pos="0.65 0.0 -1.6" file="MOD/vox/semitruck-us.vox" object="wheel_br"/>
@@ -36,11 +36,11 @@
 		<vox pos="0.75 0.0 5.3" file="MOD/vox/semitruck-us.vox" object="wheel_br"/>
 	</group>
 	<group name="monster truck" pos="-0.9 4.1 0.0" rot="0 0 -20">
-		<vox pos="-0.65977 1.37183 0.0" rot="0 90 0" name="gm" file="MOD/vox/monster_truck2.vox" object="body"/>
-		<vox pos="-2.85977 0.67183 -1.1" rot="0 90 0" name="gm" file="MOD/vox/monster_truck2.vox" object="wheel_fr"/>
-		<vox pos="-2.85977 0.67183 1.1" rot="0 90 0" name="gm" file="MOD/vox/monster_truck2.vox" object="wheel_fl"/>
-		<vox pos="0.84023 0.67183 -1.1" rot="0 90 0" name="gm" file="MOD/vox/monster_truck2.vox" object="wheel_br"/>
-		<vox pos="0.82023 0.67183 1.1" rot="0 90 0" name="gm" file="MOD/vox/monster_truck2.vox" object="wheel_bl"/>
+		<vox name="gm" pos="-0.65977 1.37183 0.0" rot="0 90 0" file="MOD/vox/monster_truck2.vox" object="body"/>
+		<vox name="gm" pos="-2.85977 0.67183 -1.1" rot="0 90 0" file="MOD/vox/monster_truck2.vox" object="wheel_fr"/>
+		<vox name="gm" pos="-2.85977 0.67183 1.1" rot="0 90 0" file="MOD/vox/monster_truck2.vox" object="wheel_fl"/>
+		<vox name="gm" pos="0.84023 0.67183 -1.1" rot="0 90 0" file="MOD/vox/monster_truck2.vox" object="wheel_br"/>
+		<vox name="gm" pos="0.82023 0.67183 1.1" rot="0 90 0" file="MOD/vox/monster_truck2.vox" object="wheel_bl"/>
 	</group>
 	<group name="police" pos="9.0 0.0 -6.0">
 		<vox pos="0.06 0.2 0.0" rot="0 120 0" density="1.5" strength="2" file="MOD/vox/police_car.vox" object="body"/>
@@ -51,56 +51,56 @@
 		<vox tags="blink=14" pos="0.7 1.6 0.1" rot="0 120 0" density="1.5" strength="2" file="MOD/vox/police_car.vox" object="blue_light"/>
 		<vox tags="blink=22" pos="0.3 1.6 -0.6" rot="0 120 0" density="1.5" strength="2" file="MOD/vox/police_car.vox" object="red_light"/>
 	</group>
-	<group name="spider" pos="-12.1 0.0 0.0">
-		<body tags="foot force=8,5" pos="-1.35 0.0 2.75" rot="0 160 0" dynamic="true">
+	<group name="spider" pos="-12.0 0.0 0.0">
+		<body tags="foot force=8,5" pos="-1.45 0.0 2.75" rot="0 160 0" dynamic="true">
 			<vox tags="unbreakable" pos="0.3 0 0" rot="0 180 0" density="0.6" file="MOD/vox/mech-spider.vox" object="leg_br"/>
 		</body>
-		<body tags="stepsound=l body" pos="0.1 1.2 0.0" dynamic="true">
+		<body tags="stepsound=l body" pos="0.0 1.2 0.0" dynamic="true">
 			<vox tags="unbreakable" rot="0 180 0" density="5" file="MOD/vox/mech-spider.vox" object="body"/>
 		</body>
-		<body tags="head" pos="0.1 2.4 0.1" dynamic="true">
+		<body tags="head" pos="0.0 2.4 0.1" dynamic="true">
 			<vox tags="unbreakable" rot="0 180 0" density="0.4" file="MOD/vox/mech-spider.vox" object="head"/>
 		</body>
-		<body tags="aim" pos="0.1 3.6 -0.9" dynamic="true">
+		<body tags="aim" pos="0.0 3.6 -0.9" dynamic="true">
 			<vox tags="unbreakable" rot="0 -180 0" density="0.5" file="MOD/vox/mech-spider.vox" object="aim_top"/>
 		</body>
-		<body tags="aim" pos="0.1 2.5 -0.9" dynamic="true">
+		<body tags="aim" pos="0.0 2.5 -0.9" dynamic="true">
 			<vox tags="unbreakable" rot="0 -180 0" density="0.5" file="MOD/vox/mech-spider.vox" object="aim_bottom"/>
 		</body>
-		<rope pos="-1.3 2.3 -1.8" rot="0 -180 0" color="0.7 0.05 0.05">
+		<rope pos="-1.4 2.3 -1.8" rot="0 -180 0" color="0.7 0.05 0.05">
 			<location pos="-0.45 -0.55 -0.8"/>
 			<location/>
 		</rope>
-		<body tags="foot force=8,5" pos="-1.85 0.0 -2.5" rot="0 30 0" dynamic="true">
+		<body tags="foot force=8,5" pos="-1.95 0.0 -2.5" rot="0 30 0" dynamic="true">
 			<vox tags="unbreakable" rot="0 180 0" density="0.6" file="MOD/vox/mech-spider.vox" object="leg_bl"/>
 		</body>
-		<body pos="-1.2 1.7 -1.5" rot="0 30 0" dynamic="true">
+		<body pos="-1.3 1.7 -1.5" rot="0 30 0" dynamic="true">
 			<vox tags="unbreakable" rot="0 180 0" density="0.2" file="MOD/vox/mech-spider.vox" object="leg_tl"/>
 		</body>
-		<body pos="1.1 1.7 -1.7" rot="0 -20 0" dynamic="true">
+		<body pos="1.0 1.7 -1.7" rot="0 -20 0" dynamic="true">
 			<vox tags="unbreakable" rot="0 180 0" density="0.2" file="MOD/vox/mech-spider.vox" object="leg_tr"/>
 		</body>
-		<rope pos="1.2 2.3 -2.05" rot="0 130 0" color="0.7 0.05 0.05">
+		<rope pos="1.1 2.3 -2.05" rot="0 130 0" color="0.7 0.05 0.05">
 			<location pos="-0.5 -0.55 -0.85"/>
 			<location/>
 		</rope>
-		<body tags="foot force=8,5" pos="1.45 0.0 -2.85" rot="0 -20 0" dynamic="true">
+		<body tags="foot force=8,5" pos="1.35 0.0 -2.85" rot="0 -20 0" dynamic="true">
 			<vox tags="unbreakable" pos="0.3 0 0" rot="0 180 0" density="0.6" file="MOD/vox/mech-spider.vox" object="leg_br"/>
 		</body>
-		<rope pos="1.4 2.3 1.7" color="0.7 0.05 0.05">
+		<rope pos="1.3 2.3 1.7" color="0.7 0.05 0.05">
 			<location pos="-0.45 -0.55 -0.8"/>
 			<location/>
 		</rope>
-		<body tags="foot force=8,5" pos="1.95 0.0 2.4" rot="0 -150 0" dynamic="true">
+		<body tags="foot force=8,5" pos="1.85 0.0 2.4" rot="0 -150 0" dynamic="true">
 			<vox tags="unbreakable" rot="0 180 0" density="0.6" file="MOD/vox/mech-spider.vox" object="leg_bl"/>
 		</body>
-		<body pos="1.3 1.7 1.4" rot="0 -150 0" dynamic="true">
+		<body pos="1.2 1.7 1.4" rot="0 -150 0" dynamic="true">
 			<vox tags="unbreakable" rot="0 180 0" density="0.2" file="MOD/vox/mech-spider.vox" object="leg_tl"/>
 		</body>
-		<body pos="-1.0 1.7 1.6" rot="0 160 0" dynamic="true">
+		<body pos="-1.1 1.7 1.6" rot="0 160 0" dynamic="true">
 			<vox tags="unbreakable" rot="0 180 0" density="0.2" file="MOD/vox/mech-spider.vox" object="leg_tr"/>
 		</body>
-		<rope pos="-1.1 2.3 1.95" rot="0 -50 0" color="0.7 0.05 0.05">
+		<rope pos="-1.2 2.3 1.95" rot="0 -50 0" color="0.7 0.05 0.05">
 			<location pos="-0.5 -0.55 -0.85"/>
 			<location/>
 		</rope>

@@ -1,3 +1,4 @@
+#include <math.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
@@ -82,13 +83,13 @@ void ShadowVolume::addShape(const MV_Shape& shape, mat4 model_matrix) {
 #endif
 
 	for (unsigned int i = 0; i < shape.voxels.size(); i++) {
-		float xv = shape.voxels[i].x;
-		float yv = shape.voxels[i].y + 1.0f;
-		float zv = shape.voxels[i].z;
+		int xv = shape.voxels[i].x;
+		int yv = shape.voxels[i].y;
+		int zv = shape.voxels[i].z;
 		vec4 voxel_pos = model_matrix * vec4(xv, yv, zv, 1.0f);
-		int x = (int)voxel_pos.x + width / 2;
-		int y = (int)voxel_pos.y;
-		int z = (int)voxel_pos.z + depth / 2;
+		int x = round(voxel_pos.x) + width / 2;
+		int y = round(voxel_pos.y);
+		int z = round(voxel_pos.z - 1) + depth / 2;
 
 		if (x < 0 || x >= width || y < 0 || y >= height || z < 0 || z >= depth)
 			continue;
@@ -152,7 +153,7 @@ void ShadowVolume::updateTexture() {
 }
 
 void ShadowVolume::draw(Shader& shader, Camera& camera) {
-	shader.PushFloat("uVolTexelSize", 0.2);
+	shader.PushFloat("uVolTexelSize", 0.2f);
 	shader.PushVec3("uCameraPos", camera.position);
 	shader.PushVec3("uVolOffset", vec3(-width / 20.0f, 0.0f, -depth / 20.0f));
 	shader.PushVec3("uVolResolution", vec3(width, height, depth));

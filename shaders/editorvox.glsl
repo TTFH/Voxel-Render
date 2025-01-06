@@ -124,10 +124,7 @@ float distanceToBox(vec3 origin, vec3 dir, vec3 size) {
 	if (clamp(origin, vec3(0.0), size) == origin)
 		return 0.0;
 
-	vec3 invDir;
-	invDir.x = dir.x == 0 ? 0.0 : 1.0 / dir.x;
-	invDir.y = dir.y == 0 ? 0.0 : 1.0 / dir.y;
-	invDir.z = dir.z == 0 ? 0.0 : 1.0 / dir.z;
+	vec3 invDir = vec3(1.0) / dir;
 	vec3 sgn = step(dir, vec3(0.0));
 
 	vec3 tmin = (sgn * size - origin) * invDir;
