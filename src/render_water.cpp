@@ -1,5 +1,3 @@
-#include <stdio.h>
-
 #include "vbo.h"
 #include "utils.h"
 #include "render_water.h"

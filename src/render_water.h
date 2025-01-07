@@ -1,6 +1,8 @@
 #ifndef WATER_RENDER_H
 #define WATER_RENDER_H
 
+#include <vector>
+
 #include "vao.h"
 #include "camera.h"
 #include "shader.h"

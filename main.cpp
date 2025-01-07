@@ -30,6 +30,7 @@ using namespace glm;
 
 int main(int argc, char* argv[]) {
 	GLFWwindow* window = InitOpenGL("Voxel Render");
+	Shader boundary_shader("boundary");
 	Shader mesh_shader("shaders/mesh_vert.glsl", "shaders/mesh_frag.glsl");
 	Shader rope_shader("shaders/rope_vert.glsl", "shaders/rope_frag.glsl");
 	Shader shadowmap_shader("shaders/shadowmap_vert.glsl", "shaders/shadowmap_frag.glsl");
@@ -42,6 +43,7 @@ int main(int argc, char* argv[]) {
 	Shader water_shader("shaders/water_vert.glsl", "shaders/water_frag.glsl");
 
 	map<const char*, Shader*> shaders = {
+		{"boundary_shader", &boundary_shader},
 		{"mesh_shader", &mesh_shader},
 		{"rope_shader", &rope_shader},
 		{"shadowmap_shader", &shadowmap_shader},
@@ -51,7 +53,7 @@ int main(int argc, char* argv[]) {
 		{"voxel_gm_shader", &voxel_gm_shader},
 		{"voxel_hex_shader", &voxel_hex_shader},
 		{"voxel_rtx_shader", &voxel_rtx_shader},
-		{"water_shader", &water_shader}
+		{"water_shader", &water_shader},
 	};
 
 	const char* selected_skybox = "day";
@@ -121,6 +123,9 @@ int main(int argc, char* argv[]) {
 	Camera camera(vec3(0, 2.5, 10));
 	Light light(vec3(-35, 130, -132));
 	Scene scene(GetScenePath(argc, argv));
+	camera.position = scene.spawnpoint.pos;
+	camera.position.y += 1.8;
+	camera.direction = scene.spawnpoint.rot * vec3(0, 0, 1);
 	bool transparent_glass = true;
 	int hex_orientation = 2;
 
@@ -307,6 +312,11 @@ int main(int argc, char* argv[]) {
 
 		skybox_shader.Use();
 		skybox.draw(skybox_shader, camera);
+
+		glEnable(GL_BLEND);
+		boundary_shader.Use();
+		scene.drawBoundary(boundary_shader, camera);
+		glDisable(GL_BLEND);
 
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
