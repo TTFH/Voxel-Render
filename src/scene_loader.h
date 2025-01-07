@@ -5,12 +5,13 @@
 #include <string>
 #include <vector>
 
-#include "render_mesh.h"
 #include "vox_loader.h"
 #include "render_rope.h"
+#include "render_mesh.h"
 #include "render_water.h"
 #include "render_voxbox.h"
 #include "shadow_volume.h"
+#include "render_boundary.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
@@ -38,6 +39,7 @@ private:
 	string child_folder;
 	vector<shape_t> shapes;
 	vector<Mesh*> meshes;
+	BoundaryRender* boundary;
 	vector<RopeRender*> ropes;
 	vector<WaterRender*> waters;
 	vector<VoxboxRender*> voxboxes;
@@ -54,6 +56,7 @@ public:
 	void drawMesh(Shader& shader, Camera& camera);
 	void drawRope(Shader& shader, Camera& camera);
 	void drawWater(Shader& shader, Camera& camera);
+	void drawBoundary(Shader& shader, Camera& camera);
 };
 
 #endif

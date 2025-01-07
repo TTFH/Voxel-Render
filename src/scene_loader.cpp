@@ -169,6 +169,21 @@ void Scene::RecursiveLoad(XMLElement* element, vec3 parent_pos, quat parent_rot)
 	} else if (strcmp(element->Name(), "spawnpoint") == 0) {
 		spawnpoint.pos = position;
 		spawnpoint.rot = rotation;
+	} else if (strcmp(element->Name(), "boundary") == 0) {
+		vector<vec2> boundary_verts;
+		for (XMLElement* e = element->FirstChildElement(); e != NULL; e = e->NextSiblingElement()) {
+			if (strcmp(e->Name(), "vertex") == 0) {
+				const char* pos = e->Attribute("pos");
+				if (pos != NULL) {
+					float x, y;
+					sscanf(pos, "%f %f", &x, &y);
+					boundary_verts.push_back(vec2(x, y));
+				}
+			}
+		}
+		if (boundary_verts.size() > 2) {
+			boundary = new BoundaryRender(boundary_verts);
+		}
 	}
 	for (XMLElement* child = element->FirstChildElement(); child != NULL; child = child->NextSiblingElement())
 		RecursiveLoad(child, position, rotation);
@@ -186,6 +201,7 @@ Scene::Scene(string path) {
 
 	XMLElement* root = xml_file.RootElement();
 	//iterate_xml(root, 0);
+	boundary = NULL;
 	vec3 position = vec3(0, 0, 0);
 	quat rotation = quat(1, 0, 0, 0);
 	spawnpoint = { position, rotation };
@@ -236,6 +252,11 @@ void Scene::drawRope(Shader& shader, Camera& camera) {
 void Scene::drawWater(Shader& shader, Camera& camera) {
 	for (vector<WaterRender*>::iterator it = waters.begin(); it != waters.end(); it++)
 		(*it)->draw(shader, camera);
+}
+
+void Scene::drawBoundary(Shader& shader, Camera& camera) {
+	if (boundary != NULL)
+		boundary->draw(shader, camera);
 }
 
 Scene::~Scene() {
