@@ -46,7 +46,7 @@ void Scene::RecursiveLoad(XMLElement* element, vec3 parent_pos, quat parent_rot)
 	rotation = parent_rot * rotation;
 
 	if (strcmp(element->Name(), "vox") == 0) {
-		shape_t vox = { "", "ALL_SHAPES", position, rotation, 1.0f, vec4(0, 0, 1, 1), RTX };
+		shape_t vox = { "", "ALL_SHAPES", position, rotation, 1.0f, vec4(0, 0, 1, 1), GREEDY };
 		const char* file = element->Attribute("file");
 		if (file == NULL) {
 			printf("[ERROR] No file specified for vox\n");
@@ -216,7 +216,9 @@ void Scene::addMesh(Mesh* mesh) {
 void Scene::push(ShadowVolume& shadow_volume) {
 	for (vector<shape_t>::iterator it = shapes.begin(); it != shapes.end(); it++) {
 		VoxLoader* model = models[it->file];
-		if (it->object == "ALL_SHAPES")
+		if (it->scale != 1.0f)
+			printf("[Warning] Scale not implemented for shadow volume\n");
+		else if (it->object == "ALL_SHAPES")
 			printf("[Warning] All shapes not implemented for shadow volume\n");
 		else
 			model->push(shadow_volume, it->object, it->position, it->rotation);

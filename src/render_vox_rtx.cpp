@@ -125,8 +125,8 @@ RTX_Render::RTX_Render(const MV_Shape& shape, GLuint paletteBank, int paletteId)
 
 	this->paletteId = paletteId;
 	this->paletteBank = paletteBank;
-	objSize = vec3(shape.sizex, shape.sizey, shape.sizez);
-	voxelSize = vec4(width_mip0, height_mip0, depth_mip0, scale);
+	shapeSize = vec3(shape.sizex, shape.sizey, shape.sizez);
+	matrixSize = vec3(width_mip0, height_mip0, depth_mip0);
 
 	if (!init) {
 		init = true;
@@ -150,10 +150,10 @@ void RTX_Render::DrawSimple(Shader& shader, Camera& camera) {
 	shader.PushInt("uPalette", paletteId);
 	shader.PushVec4("uMultColor", vec4(1, 1, 1, 1));
 	shader.PushFloat("uVolTexelSize", 0.1f * scale);
-	shader.PushVec3("uVolResolution", objSize);
+	shader.PushVec3("uVolResolution", matrixSize);
 	shader.PushVec3("uCameraPos", camera.position);
 
-	mat4 scaleBox = glm::scale(mat4(1.0f), 0.1f * scale * objSize);
+	mat4 scaleBox = glm::scale(mat4(1.0f), 0.1f * scale * matrixSize);
 	mat4 toWorldCoords = mat4(vec4(1, 0, 0, 0),
 							  vec4(0, 0, -1, 0),
 							  vec4(0, 1, 0, 0),
@@ -198,8 +198,8 @@ void RTX_Render::DrawAdvanced(Shader& shader, Camera& camera) {
 	shader.PushTexture2D("uBlueNoise", blueNoise, 8);
 
 	shader.PushInt("uPalette", paletteId);
-	shader.PushVec3("uObjSize", objSize);
-	shader.PushVec4("uVoxelSize", voxelSize);
+	shader.PushVec3("uObjSize", shapeSize);
+	shader.PushVec4("uVoxelSize", vec4(matrixSize, 0.1f * scale));
 	shader.PushVec4("uTextureTile", texture);
 	shader.PushVec3("uTextureParams", vec3(0, 0, 0));
 	shader.PushFloat("uAlpha", 1.0f);

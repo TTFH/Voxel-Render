@@ -3,27 +3,24 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "glad/glad.h"
-#include <GLFW/glfw3.h>
-#include <glm/glm.hpp>
-
 #include "src/light.h"
 #include "src/utils.h"
 #include "src/shader.h"
 #include "src/skybox.h"
+#include "src/overlay.h"
 #include "src/render_mesh.h"
 #include "src/scene_loader.h"
 #include "src/postprocessing.h"
+
+#include "glad/glad.h"
+#include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "lib/stb_image.h"
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "lib/stb_image_write.h"
-
-#include "imgui/imgui.h"
-#include "imgui/backend/imgui_impl_glfw.h"
-#include "imgui/backend/imgui_impl_opengl3.h"
 
 using namespace std;
 using namespace glm;
@@ -56,78 +53,14 @@ int main(int argc, char* argv[]) {
 		{"water_shader", &water_shader},
 	};
 
-	const char* selected_skybox = "day";
-	vector<const char*> skyboxes = {
-		"arizona_desert",
-		"arizona_desert2",
-		"arizona_desert_cloudy",
-		"arizona_desert_cloudy2",
-		"arizona_desert_dawn",
-		"arizona_desert_night",
-		"arizona_desert_night_clear",
-		"arizona_desert_sunset",
-		"arizona_desert_sunset2",
-		"cannon_2k",
-		"CGSkies_0061_8k",
-		"CGSkies_0086_8k",
-		"CGSkies_0219_8k",
-		"CGSkies_0274_8k",
-		"cloudy",
-		"cold_dramatic_clouds",
-		"cold_sunny_evening",
-		"cold_sunset",
-		"cold_wispy_sky",
-		"cool_clear_sunrise",
-		"cool_day",
-		"day",
-		"industrial_sunset_2k",
-		"jk2",
-		"mod_cloudy",
-		"mod_cold_sunny_evening",
-		"mod_cold_sunset",
-		"mod_cool_clear_sunrise",
-		"mod_day",
-		"mod_starry_night",
-		"mod_starry_sky",
-		"mod_sunset",
-		"moonlit",
-		"night",
-		"night_clear",
-		"overcast_day",
-		"sky_vr_001",
-		"sky",
-		"sunflowers_2k",
-		"sunset",
-		"sunset_in_the_chalk_quarry_2k",
-		"tc_day_05",
-		"tc_day_07",
-		"tc_hub_01",
-		"tc_night_03",
-		"tc_night_04",
-		"tc_night_06",
-		"tc_overcast_02",
-		"tc_stormy_03",
-		"tc_sunrise_clear_07",
-		"tc_sunset_03",
-		"tc_tornado_01",
-		"tornado",
-		"village",
-		"village_2",
-		"village_3",
-		"village_4",
-		"Ultimate_Skies_4k_0066",
-		"Ultimate_Skies_4k_0067",
-	};
-
-	Skybox skybox(selected_skybox);
+	Skybox skybox("day");
 	Camera camera(vec3(0, 2.5, 10));
 	Light light(vec3(-35, 130, -132));
 	Scene scene(GetScenePath(argc, argv));
 	camera.position = scene.spawnpoint.pos;
 	camera.position.y += 1.8;
 	camera.direction = scene.spawnpoint.rot * vec3(0, 0, 1);
-	bool transparent_glass = true;
-	int hex_orientation = 2;
+	Overlay overlay(window, camera, light, skybox, shaders);
 
 #ifdef _BLENDER
 	ShadowVolume shadow_volume(40, 10, 40);
@@ -135,25 +68,10 @@ int main(int argc, char* argv[]) {
 	shadow_volume.updateTexture();
 #endif
 
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO();
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-	ImGuiWindowFlags dialog_flags = 0;
-	dialog_flags |= ImGuiWindowFlags_NoResize;
-
-	ImGui::StyleColorsDark();
-	ImGui_ImplGlfw_InitForOpenGL(window, true);
-	ImGui_ImplOpenGL3_Init("#version 410");
-	ImVec4 clear_color = ImVec4(0.35, 0.54, 0.8, 1);
-	ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 3.0f);
-
 	Mesh model("meshes/cfa-44.obj");
 	model.addTexture("meshes/fa44_02_D.png");
-	model.setWorldTransform(vec3(0, 0, 0), 90);
 	Mesh glass("meshes/cfa-44_glass.obj");
-	glass.addTexture("meshes/glass.png");
-	glass.setWorldTransform(vec3(0, 0, 0), 90);
+	glass.addTexture("textures/window.png");
 	scene.addMesh(&model);
 	scene.addMesh(&glass);
 
@@ -202,76 +120,16 @@ int main(int argc, char* argv[]) {
 			glass.rotation = model.rotation;
 		}
 
-		ImGui_ImplOpenGL3_NewFrame();
-		ImGui_ImplGlfw_NewFrame();
-		ImGui::NewFrame();
-		{
-			ImGui::Begin("Voxel Render - Settings", NULL, dialog_flags);
-
-			ImGui::Text("Camera position: (%.2f, %.2f, %.2f)", camera.position.x, camera.position.y, camera.position.z);
-			ImGui::Text("Camera direction: (%.2f, %.2f, %.2f)", camera.direction.x, camera.direction.y, camera.direction.z);
-			ImGui::Text("Light position: (%.2f, %.2f, %.2f)", light.position.x, light.position.y, light.position.z);
-			ImGui::Dummy(ImVec2(0, 10));
-
-			ImGui::Checkbox("Transparent glass", &transparent_glass);
-			ImGui::Text("Hex Voxel Orientation: ");
-			ImGui::SameLine();
-			ImGui::PushItemWidth(80);
-			ImGui::Combo("##orientation", &hex_orientation, "Cube\0Top\0Front\0Side\0");
-			ImGui::PopItemWidth();
-
-			if (ImGui::Button("Toggle fullscreen"))
-				ToggleFullscreen(window);
-			ImGui::SameLine();
-			if (ImGui::Button("Screenshot"))
-				Screenshot(window);
-
-			static const char* selected_shader = "voxel_rtx_shader";
-			if (ImGui::BeginCombo("##combo", selected_shader)) {
-				for (map<const char*, Shader*>::iterator it = shaders.begin(); it != shaders.end(); it++) {
-					bool is_selected = strcmp(selected_shader, it->first) == 0;
-					if (ImGui::Selectable(it->first, is_selected))
-						selected_shader = it->first;
-					if (is_selected)
-						ImGui::SetItemDefaultFocus();
-				}
-				ImGui::EndCombo();
-			}
-			ImGui::SameLine();
-			if (ImGui::Button("Reload") && selected_shader != NULL)
-				shaders[selected_shader]->Reload();
-
-			if (ImGui::BeginCombo("##combosk", selected_skybox)) {
-				for (vector<const char*>::iterator it = skyboxes.begin(); it != skyboxes.end(); it++) {
-					bool is_selected = strcmp(selected_skybox, *it) == 0;
-					if (ImGui::Selectable(*it, is_selected)) {
-						selected_skybox = *it;
-						skybox.ReloadTexture(selected_skybox);
-					}
-					if (is_selected)
-						ImGui::SetItemDefaultFocus();
-				}
-				ImGui::EndCombo();
-			}
-			//ImGui::Image((void*)(intptr_t)texture_test, ImVec2(256, 256));
-
-			ImGui::ColorEdit3("Clear color", (float*)&clear_color);
-			ImGui::Dummy(ImVec2(0, 10));
-			ImGui::Text("FPS: %.0f", io.Framerate);
-			ImGui::Text("Frametime: %.1f ms", 1000.0f / io.Framerate);
-			ImGui::End();
-		}
-
+		overlay.Frame();
 		// Shadows
 		light.bindShadowMap(shadowmap_shader);
 		scene.draw(shadowmap_shader, camera, GREEDY);
-		shadowmap_shader.PushInt("side", hex_orientation);
+		shadowmap_shader.PushInt("side", overlay.hex_orientation);
 		scene.draw(shadowmap_shader, camera, HEXAGON);
 		scene.drawVoxbox(shadowmap_shader, camera);
 		scene.drawMesh(shadowmap_shader, camera);
 		light.unbindShadowMap(camera);
 
-		glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		voxel_rtx_shader.Use();
@@ -279,12 +137,12 @@ int main(int argc, char* argv[]) {
 		scene.draw(voxel_rtx_shader, camera, RTX);
 
 		voxel_gm_shader.Use();
-		voxel_gm_shader.PushInt("transparent_glass", transparent_glass);
+		voxel_gm_shader.PushInt("transparent_glass", overlay.transparent_glass);
 		light.pushUniforms(voxel_gm_shader);
 		scene.draw(voxel_gm_shader, camera, GREEDY);
 
 		voxel_hex_shader.Use();
-		voxel_hex_shader.PushInt("side", hex_orientation);
+		voxel_hex_shader.PushInt("side", overlay.hex_orientation);
 		light.pushUniforms(voxel_hex_shader);
 		scene.draw(voxel_hex_shader, camera, HEXAGON);
 
@@ -300,7 +158,7 @@ int main(int argc, char* argv[]) {
 		water_shader.Use();
 		scene.drawWater(water_shader, camera);
 
-		if (transparent_glass) {
+		if (overlay.transparent_glass) {
 			voxel_glass_shader.Use();
 			voxel_glass_shader.PushVec3("light_pos", light.position);
 			scene.draw(voxel_glass_shader, camera, GREEDY);
@@ -318,8 +176,7 @@ int main(int argc, char* argv[]) {
 		scene.drawBoundary(boundary_shader, camera);
 		glDisable(GL_BLEND);
 
-		ImGui::Render();
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+		overlay.Render();
 		glfwSwapBuffers(window);
 	}
 

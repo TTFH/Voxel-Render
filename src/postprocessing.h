@@ -23,6 +23,7 @@ public:
 	void start();
 	void end();
 	void draw(Shader& shader, Camera& camera);
+	void pushUniforms(Shader& shader);
 };
 
 #endif

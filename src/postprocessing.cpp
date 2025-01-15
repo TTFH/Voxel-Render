@@ -127,3 +127,9 @@ void Screen::draw(Shader& shader, Camera& camera) {
 	glDrawElements(GL_TRIANGLES, sizeof(screen_indices) / sizeof(GLuint), GL_UNSIGNED_INT, 0);
 	vao.Unbind();
 }
+
+void Screen::pushUniforms(Shader& shader) {
+	shader.PushTexture2D("uColor", colorTexture, 1);
+	shader.PushTexture2D("uDepth", depthTexture, 2);
+	shader.PushTexture2D("uBlueNoise", bluenoise, 3);
+}

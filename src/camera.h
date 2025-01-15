@@ -1,11 +1,11 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
+#include "shader.h"
+
 #include "../glad/glad.h"
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
-
-#include "shader.h"
 
 using namespace glm;
 
@@ -17,7 +17,7 @@ private:
 public:
 	const float FOV = 45;
 	const float NEAR_PLANE = 0.1;
-	const float FAR_PLANE = 500;
+	const float FAR_PLANE = 1000;
 	int screen_width, screen_height;
 	const vec3 up = vec3(0, 1, 0);
 	vec3 position, direction;

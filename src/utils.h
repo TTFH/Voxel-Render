@@ -2,10 +2,11 @@
 #define UTILS_H
 
 #include <string>
-#include "../glad/glad.h"
-#include <GLFW/glfw3.h>
 
 #include "vox_loader.h"
+
+#include "../glad/glad.h"
+#include <GLFW/glfw3.h>
 
 using namespace std;
 

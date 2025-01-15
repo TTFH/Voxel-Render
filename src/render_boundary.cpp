@@ -50,7 +50,7 @@ BoundaryRender::BoundaryRender(vector<vec2> vertices_2d) {
 	EBO ebo(indices);
 
 	vao.LinkAttrib(0, 3, GL_FLOAT, sizeof(BoundaryVertex), (GLvoid*)0);						// Vertex position
-	vao.LinkAttrib(1, 2, GL_FLOAT, sizeof(BoundaryVertex), (GLvoid*)(3 * sizeof(GLfloat)));	// Texture coord
+	vao.LinkAttrib(1, 2, GL_FLOAT, sizeof(BoundaryVertex), (GLvoid*)(3 * sizeof(GLfloat))); // Texture coord
 
 	vao.Unbind();
 	vbo.Unbind();

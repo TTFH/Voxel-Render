@@ -132,7 +132,7 @@ void SaveOBJ(string path, const GreedyMesh& mesh, int palette_id) {
 		fprintf(output, "f %d/%d/%d %d/%d/%d %d/%d/%d\n", i + 3, i + 3, i + 3, i + 2, i + 2, i + 2, i + 1, i + 1, i + 1);
 	}
 	fclose(output);
-	printf("Saved shape to %s\n", path.c_str());
+	printf("[INFO] Saved shape to %s\n", path.c_str());
 }
 
 GreedyRender::GreedyRender(const MV_Shape& shape, GLuint palette_bank, int palette_id) {
@@ -148,9 +148,9 @@ GreedyRender::GreedyRender(const MV_Shape& shape, GLuint palette_bank, int palet
 	VBO vbo(mesh.vertices);
 	EBO ebo(mesh.indices);
 
-	vao.LinkAttrib(0, 3, GL_FLOAT, sizeof(GM_Vertex), (GLvoid*)0);								// Vertex position
-	vao.LinkAttrib(1, 3, GL_FLOAT, sizeof(GM_Vertex), (GLvoid*)(3 * sizeof(GLfloat)));			// Normal
-	vao.LinkAttrib(2, 1, GL_UNSIGNED_BYTE, sizeof(GM_Vertex), (GLvoid*)(6 * sizeof(GLfloat)));	// Texture coord
+	vao.LinkAttrib(0, 3, GL_FLOAT, sizeof(GM_Vertex), (GLvoid*)0);							   // Vertex position
+	vao.LinkAttrib(1, 3, GL_FLOAT, sizeof(GM_Vertex), (GLvoid*)(3 * sizeof(GLfloat)));		   // Normal
+	vao.LinkAttrib(2, 1, GL_UNSIGNED_BYTE, sizeof(GM_Vertex), (GLvoid*)(6 * sizeof(GLfloat))); // Texture coord
 
 	vao.Unbind();
 	vbo.Unbind();

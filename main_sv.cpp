@@ -30,8 +30,6 @@ int main(int argc, char* argv[]) {
 	Shader sv_shader("debugvolume");
 	Shader voxel_rtx_shader("gbuffervox");
 	Shader screen_shader("editorlighting");
-	Shader boundary_shader("boundary");
-	Shader water_shader("shaders/water_vert.glsl", "shaders/water_frag.glsl");
 
 	Screen screen;
 	Camera camera;
@@ -41,7 +39,7 @@ int main(int argc, char* argv[]) {
 	camera.direction = scene.spawnpoint.rot * vec3(0, 0, 1);
 
 	ShadowVolume shadow_volume(40, 10, 40);
-	//scene.push(shadow_volume);
+	scene.push(shadow_volume);
 	shadow_volume.updateTexture();
 
 	glfwSetWindowUserPointer(window, &camera);
@@ -70,14 +68,6 @@ int main(int argc, char* argv[]) {
 
 		screen_shader.Use();
 		screen.draw(screen_shader, camera);
-
-		glEnable(GL_BLEND);
-		water_shader.Use();
-		scene.drawWater(water_shader, camera);
-
-		boundary_shader.Use();
-		scene.drawBoundary(boundary_shader, camera);
-		glDisable(GL_BLEND);
 
 		sv_shader.Use();
 		shadow_volume.draw(sv_shader, camera);

@@ -9,7 +9,7 @@
 
 class IRender {
 protected:
-	float scale = 0.1;
+	float scale = 1;
 	vec3 position = vec3(0, 0, 0);
 	quat rotation = quat(1, 0, 0, 0);
 	vec3 world_position = vec3(0, 0, 0);

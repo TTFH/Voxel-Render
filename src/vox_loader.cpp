@@ -267,11 +267,12 @@ void VoxLoader::draw(Shader& shader, Camera& camera, vec3 position, quat rotatio
 		int index = it->second.shape_index;
 		const MV_Shape& shape = shapes[index];
 		vec3 pos = it->second.position - (it->second.rotation * vec3(shape.sizex / 2, shape.sizey / 2, shape.sizez / 2));
-		renderers[method][index]->setTransform(pos, it->second.rotation);
-		renderers[method][index]->setWorldTransform(position, rotation);
-		renderers[method][index]->setScale(scale);
-		renderers[method][index]->setTexture(texture);
-		renderers[method][index]->draw(shader, camera);
+		IRender* renderer = renderers[method][index];
+		renderer->setTransform(pos, it->second.rotation);
+		renderer->setWorldTransform(position, rotation);
+		renderer->setScale(scale);
+		renderer->setTexture(texture);
+		renderer->draw(shader, camera);
 	}
 }
 
@@ -281,11 +282,12 @@ void VoxLoader::draw(Shader& shader, Camera& camera, string shape_name, vec3 pos
 		int index = it->second.shape_index;
 		const MV_Shape& shape = shapes[index];
 		vec3 pos = it->second.rotation * vec3(-shape.sizex / 2, -shape.sizey / 2, 0);
-		renderers[method][index]->setTransform(pos, it->second.rotation);
-		renderers[method][index]->setWorldTransform(position, rotation);
-		renderers[method][index]->setScale(scale);
-		renderers[method][index]->setTexture(texture);
-		renderers[method][index]->draw(shader, camera);
+		IRender* renderer = renderers[method][index];
+		renderer->setTransform(pos, it->second.rotation);
+		renderer->setWorldTransform(position, rotation);
+		renderer->setScale(scale);
+		renderer->setTexture(texture);
+		renderer->draw(shader, camera);
 	}
 }
 
