@@ -86,10 +86,11 @@ void ShadowVolume::addShape(const MV_Shape& shape, mat4 model_matrix) {
 		int xv = shape.voxels[i].x;
 		int yv = shape.voxels[i].y;
 		int zv = shape.voxels[i].z;
-		vec4 voxel_pos = model_matrix * vec4(xv, yv, zv, 1.0f);
-		int x = round(voxel_pos.x) + width / 2;
-		int y = round(voxel_pos.y);
-		int z = round(voxel_pos.z) + depth / 2;
+		vec3 voxel_pos = vec3(xv, yv, zv) + vec3(0.5f, 0.5f, 0.5f); // offset to center of voxel
+		voxel_pos = vec3(model_matrix * vec4(voxel_pos, 10.0f)); // convert from meters
+		int x = floor(voxel_pos.x) + width / 2;
+		int y = floor(voxel_pos.y);
+		int z = floor(voxel_pos.z) + depth / 2;
 
 		if (x < 0 || x >= width || y < 0 || y >= height || z < 0 || z >= depth)
 			continue;

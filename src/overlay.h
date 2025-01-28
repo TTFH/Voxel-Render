@@ -33,7 +33,7 @@ private:
 	map<const char*, Shader*>* shaders;
 public:
 	bool transparent_glass = true;
-	int hex_orientation = 2;
+	int hex_orientation = 1;
 
 	Overlay(GLFWwindow* window, Camera& camera, Light& light, Skybox& skybox, map<const char*, Shader*>& shaders);
 	void Frame();

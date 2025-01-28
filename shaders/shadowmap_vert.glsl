@@ -11,23 +11,27 @@ uniform mat4 world_pos;
 uniform mat4 world_rot;
 uniform mat4 lightMatrix;
 
+const float three_halves = sqrt(3);
+const float two_plus_two = 5;
+
 vec3 getHexPos(int side) {
-	vec3 pos;
-	if (side == 0) { // CUBE
-		pos = aPosition + aOffset;
-	} else if (side == 1) { // TOP
-		vec3 stretch = vec3(1.5f, sqrt(3), 1.0f);
-		vec3 offset = vec3(1.5 * aOffset.x, sqrt(3) * aOffset.y + mod(aOffset.x, 2) * 0.5 * sqrt(3), aOffset.z);
+	vec3 pos = aPosition + aOffset;
+	if (side == 1) { // TOP
+		vec3 stretch = vec3(three_halves, sqrt(3), 1.0f);
+		vec3 offset = vec3(three_halves * aOffset.x, sqrt(3) * aOffset.y + mod(aOffset.x, 2) * 0.5 * sqrt(3), aOffset.z);
+		offset += vec3(0.25f, -0.5 * sqrt(3), 0);
 		pos = (aPosition + offset) / stretch;
 	} else if (side == 2) { // FRONT
 		vec3 aPosition2 = vec3(aPosition.x, aPosition.z, -aPosition.y);
-		vec3 stretch = vec3(1.5f, 1.0f, sqrt(3.0f));
-		vec3 offset = vec3(1.5 * aOffset.x, aOffset.y, sqrt(3) * aOffset.z + mod(aOffset.x, 2) * 0.5 * sqrt(3));
+		vec3 stretch = vec3(three_halves, 1.0f, sqrt(3.0f));
+		vec3 offset = vec3(three_halves * aOffset.x, aOffset.y, sqrt(3) * aOffset.z + mod(aOffset.x, 2) * 0.5 * sqrt(3));
+		offset += vec3(0.25f, 0, 0.5 * sqrt(3));
 		pos = (aPosition2 + offset) / stretch;
 	} else if (side == 3) { // SIDE
 		vec3 aPosition3 = vec3(aPosition.z, -aPosition.y, aPosition.x);
-		vec3 stretch = vec3(1.0f, sqrt(3.0f), 1.5f);
-		vec3 offset = vec3(aOffset.x, sqrt(3) * aOffset.y + mod(aOffset.z, 2) * 0.5 * sqrt(3), 1.5 * aOffset.z);
+		vec3 stretch = vec3(1.0f, sqrt(3.0f), three_halves);
+		vec3 offset = vec3(aOffset.x, sqrt(3) * aOffset.y + mod(aOffset.z, 2) * 0.5 * sqrt(3), three_halves * aOffset.z);
+		offset += vec3(0, 0.5 * sqrt(3), 0.25f);
 		pos = (aPosition3 + offset) / stretch;
 	}
 	return pos;

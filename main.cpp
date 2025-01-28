@@ -68,10 +68,10 @@ int main(int argc, char* argv[]) {
 	shadow_volume.updateTexture();
 #endif
 
-	Mesh model("meshes/cfa-44.obj");
-	model.addTexture("meshes/fa44_02_D.png");
-	Mesh glass("meshes/cfa-44_glass.obj");
-	glass.addTexture("textures/window.png");
+	Mesh model("meshes/LTM1300.obj");
+	model.addTexture("meshes/LTM1300.png");
+	Mesh glass("meshes/LTM1300_glass.obj");
+	glass.addTexture("textures/glass.png");
 	scene.addMesh(&model);
 	scene.addMesh(&glass);
 

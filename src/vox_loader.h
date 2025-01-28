@@ -19,16 +19,22 @@ enum RenderMethod {
 	HEXAGON,
 };
 
+#ifndef _BLENDER
+#define DEFAULT_METHOD RTX
+#else
+#define DEFAULT_METHOD GREEDY
+#endif
+
 struct MV_Diffuse {
 	uint8_t r, g, b, a;
 };
 /*
-struct MV_PBR { // Unused
+struct MV_PBR {
 	uint8_t flux;
 	float rough, sp, metal, emit;
 };
 
-struct MV_Material { // Unused
+struct MV_Material {
 	float reflectivity;
 	float shinyness;
 	float metalness;

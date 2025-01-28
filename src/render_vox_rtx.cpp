@@ -154,22 +154,7 @@ void RTX_Render::DrawSimple(Shader& shader, Camera& camera) {
 	shader.PushVec3("uCameraPos", camera.position);
 
 	mat4 scaleBox = glm::scale(mat4(1.0f), 0.1f * scale * matrixSize);
-	mat4 toWorldCoords = mat4(vec4(1, 0, 0, 0),
-							  vec4(0, 0, -1, 0),
-							  vec4(0, 1, 0, 0),
-							  vec4(0, 0, 0, 1));
-
-	// Coordinate system: x right, z up, y forward, scale 10 voxels : 1 meter
-	mat4 pos = translate(mat4(1.0f), 0.1f * position);
-	mat4 rot = mat4_cast(rotation);
-	mat4 localTr = toWorldCoords * pos * rot;
-
-	// Coordinate system: x right, y up, -z forward, scale 1:1 (in meters)
-	mat4 world_pos = translate(mat4(1.0f), world_position);
-	mat4 world_rot = mat4_cast(world_rotation);
-	mat4 worldTr = world_pos * world_rot;
-
-	mat4 volMatrix = worldTr * localTr;
+	mat4 volMatrix = getVolumeMatrix();
 	mat4 modelMatrix = volMatrix * scaleBox;
 	mat4 vpMatrix = camera.vpMatrix;
 	mat4 mvpMatrix = vpMatrix * modelMatrix;
@@ -212,23 +197,8 @@ void RTX_Render::DrawAdvanced(Shader& shader, Camera& camera) {
 	shader.PushVec3("uCameraPos", camera.position);
 	shader.PushVec2("uPixelSize", vec2(1.0f / camera.screen_width, 1.0f / camera.screen_height));
 
-	mat4 toWorldCoords = mat4(vec4(1, 0, 0, 0),
-							  vec4(0, 0, -1, 0),
-							  vec4(0, 1, 0, 0),
-							  vec4(0, 0, 0, 1));
-
-	// Coordinate system: x right, z up, y forward, scale 10 voxels : 1 meter
-	mat4 pos = translate(mat4(1.0f), 0.1f * position);
-	mat4 rot = mat4_cast(rotation);
-	mat4 localTr = toWorldCoords * pos * rot;
-
-	// Coordinate system: x right, y up, -z forward, scale 1:1 (in meters)
-	mat4 world_pos = translate(mat4(1.0f), world_position);
-	mat4 world_rot = mat4_cast(world_rotation);
-	mat4 worldTr = world_pos * world_rot;
-
 	mat4 vpMatrix = camera.vpMatrix;
-	mat4 volMatrix = worldTr * localTr;
+	mat4 volMatrix = getVolumeMatrix();
 	mat4 volMatrixInv = inverse(volMatrix);
 
 	shader.PushMatrix("uVpMatrix", vpMatrix);

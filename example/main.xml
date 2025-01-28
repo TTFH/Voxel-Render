@@ -91,5 +91,16 @@
 			<location/>
 		</rope>
 	</group>
+	<group name="hi" pos="8.5 0.0 5.0" rot="0.0 -60.0 0.0">
+		<vox name="gm" pos="-0.5 0.0 -1.5" file="MOD/vox/corner.vox" object="hello"/>
+		<vox name="gm" pos="0.5 0.0 -1.5" file="MOD/vox/corner.vox" object="hello" scale="2"/>
+		<vox name="gm" pos="-1.0 0.0 -1.5" file="MOD/vox/corner.vox" object="hello" scale="0.5"/>
+		<vox pos="-0.5 0.0 0.1" file="MOD/vox/corner.vox" object="hello"/>
+		<vox pos="0.5 0.0 0.1" file="MOD/vox/corner.vox" object="hello" scale="2"/>
+		<vox pos="-1.0 0.0 0.1" file="MOD/vox/corner.vox" object="hello" scale="0.5"/>
+		<vox name="hex" pos="-0.5 0.0 1.7" file="MOD/vox/corner.vox" object="hello"/>
+		<vox name="hex" pos="0.5 0.0 1.7" file="MOD/vox/corner.vox" object="hello" scale="2"/>
+		<vox name="hex" pos="-1.0 0.0 1.7" file="MOD/vox/corner.vox" object="hello" scale="0.5"/>
+	</group>
 </scene>
 

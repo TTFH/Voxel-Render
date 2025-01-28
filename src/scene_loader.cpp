@@ -46,7 +46,7 @@ void Scene::RecursiveLoad(XMLElement* element, vec3 parent_pos, quat parent_rot)
 	rotation = parent_rot * rotation;
 
 	if (strcmp(element->Name(), "vox") == 0) {
-		shape_t vox = { "", "ALL_SHAPES", position, rotation, 1.0f, vec4(0, 0, 1, 1), GREEDY };
+		shape_t vox = { "", "ALL_SHAPES", position, rotation, 1.0f, vec4(0, 0, 1, 1), DEFAULT_METHOD };
 		const char* file = element->Attribute("file");
 		if (file == NULL) {
 			printf("[ERROR] No file specified for vox\n");

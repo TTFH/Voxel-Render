@@ -158,7 +158,7 @@ Mesh::Mesh(const char* path) {
 	LoadOBJ(path);
 
 	VBO vbo(vertices);
-	vao.LinkAttrib(0, 3, GL_FLOAT, sizeof(MeshVertex), (GLvoid*)0);					 	// Position
+	vao.LinkAttrib(0, 3, GL_FLOAT, sizeof(MeshVertex), (GLvoid*)0);						// Position
 	vao.LinkAttrib(1, 3, GL_FLOAT, sizeof(MeshVertex), (GLvoid*)(3 * sizeof(GLfloat))); // Normal
 	vao.LinkAttrib(2, 2, GL_FLOAT, sizeof(MeshVertex), (GLvoid*)(6 * sizeof(GLfloat))); // TexCoord
 	vao.Unbind();
