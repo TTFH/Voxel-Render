@@ -24,6 +24,7 @@
 		<voxbox pos="-2.9 0.0 -1.0" size="2 39 2" color="0.7 0.7 0.7"/>
 	</group>
 	<group name="truck" pos="-3.5 0.0 -0.1">
+		<vox pos="-2.55 0.0 0.2" file="MOD/vox/semitruck-us.vox"/>
 		<vox name="hex" pos="-0.05 0.3 -4.6" file="MOD/vox/semitruck-us.vox" object="body"/>
 		<vox name="hex" pos="-0.05 0.3 2.4" file="MOD/vox/semi_baggage.vox" object="trailer"/>
 		<vox pos="0.75 0.0 4.1" file="MOD/vox/semitruck-us.vox" object="wheel_br"/>

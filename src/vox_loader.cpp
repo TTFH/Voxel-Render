@@ -103,12 +103,6 @@ int ReadHeader(FILE* file) {
 	return mainChunk.end;
 }
 
-VoxLoader::VoxLoader() { }
-
-VoxLoader::VoxLoader(const char* filename) {
-	load(filename);
-}
-
 static const int MAX_PALETTES = 1024;
 static int paletteCount = 0;
 static GLuint paletteBank;
@@ -119,7 +113,7 @@ static string RemoveExtension(const string& path) {
 	return path.substr(0, last_dot);
 }
 
-void VoxLoader::load(const char* filename) {
+VoxLoader::VoxLoader(const char* filename) {
 	int sizex = 0;
 	int sizey = 0;
 	int sizez = 0;
@@ -262,26 +256,18 @@ void VoxLoader::load(const char* filename) {
 #endif
 }
 
-void VoxLoader::draw(Shader& shader, Camera& camera, vec3 position, quat rotation, float scale, vec4 texture, RenderMethod method) {
-	for (mv_model_iterator it = models.begin(); it != models.end(); it++) {
-		int index = it->second.shape_index;
-		const MV_Shape& shape = shapes[index];
-		vec3 pos = it->second.position - (it->second.rotation * vec3(shape.sizex / 2, shape.sizey / 2, shape.sizez / 2));
-		IRender* renderer = renderers[method][index];
-		renderer->setTransform(pos, it->second.rotation);
-		renderer->setWorldTransform(position, rotation);
-		renderer->setScale(scale);
-		renderer->setTexture(texture);
-		renderer->draw(shader, camera);
-	}
-}
-
 void VoxLoader::draw(Shader& shader, Camera& camera, string shape_name, vec3 position, quat rotation, float scale, vec4 texture, RenderMethod method) {
 	pair<mv_model_iterator, mv_model_iterator> homonym_shapes = models.equal_range(shape_name);
+	if (shape_name == "ALL_SHAPES")
+		homonym_shapes = make_pair(models.begin(), models.end());
 	for (mv_model_iterator it = homonym_shapes.first; it != homonym_shapes.second; it++) {
 		int index = it->second.shape_index;
 		const MV_Shape& shape = shapes[index];
 		vec3 pos = it->second.rotation * vec3(-shape.sizex / 2, -shape.sizey / 2, 0);
+		if (shape_name == "ALL_SHAPES") {
+			pos.z = -shape.sizez / 2;
+			pos += it->second.position;
+		}
 		IRender* renderer = renderers[method][index];
 		renderer->setTransform(pos, it->second.rotation);
 		renderer->setWorldTransform(position, rotation);
@@ -291,7 +277,9 @@ void VoxLoader::draw(Shader& shader, Camera& camera, string shape_name, vec3 pos
 	}
 }
 
-void VoxLoader::push(ShadowVolume& shadow_volume, string shape_name, vec3 position, quat rotation) {
+void VoxLoader::push(ShadowVolume& shadow_volume, string shape_name, vec3 position, quat rotation, float scale) {
+	if (shape_name == "ALL_SHAPES" || scale != 1.0f)
+		return;
 	pair<mv_model_iterator, mv_model_iterator> homonym_shapes = models.equal_range(shape_name);
 	for (mv_model_iterator it = homonym_shapes.first; it != homonym_shapes.second; it++) {
 		int index = it->second.shape_index;

@@ -67,12 +67,9 @@ private:
 	vector<IRender*> renderers[3];
 	multimap<string, MV_Model> models;
 public:
-	VoxLoader();
 	VoxLoader(const char* filename);
-	void load(const char* filename);
-	void draw(Shader& shader, Camera& camera, vec3 position, quat rotation, float scale, vec4 texture, RenderMethod method);
 	void draw(Shader& shader, Camera& camera, string shape_name, vec3 position, quat rotation, float scale, vec4 texture, RenderMethod method);
-	void push(ShadowVolume& shadow_volume, string shape_name, vec3 position, quat rotation);
+	void push(ShadowVolume& shadow_volume, string shape_name, vec3 position, quat rotation, float scale);
 	~VoxLoader();
 };
 

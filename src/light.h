@@ -14,7 +14,7 @@ private:
 	float radius;
 	float azimuth;
 	mat4 vpMatrix;
-	VoxLoader model;
+	VoxLoader* model;
 
 	GLuint shadow_map_fbo;
 	GLuint shadow_map_texture;

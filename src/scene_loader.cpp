@@ -46,16 +46,18 @@ void Scene::RecursiveLoad(XMLElement* element, vec3 parent_pos, quat parent_rot)
 	rotation = parent_rot * rotation;
 
 	if (strcmp(element->Name(), "vox") == 0) {
-		shape_t vox = { "", "ALL_SHAPES", position, rotation, 1.0f, vec4(0, 0, 1, 1), DEFAULT_METHOD };
 		const char* file = element->Attribute("file");
 		if (file == NULL) {
-			printf("[ERROR] No file specified for vox\n");
-			exit(EXIT_FAILURE);
+			printf("[Warning] No file specified for vox\n");
+			return;
 		}
+		shape_t vox = { "", "ALL_SHAPES", position, rotation, 1.0f, vec4(0, 0, 1, 1), DEFAULT_METHOD };
 		if (strncmp(file, "MOD/", 4) == 0)
 			vox.file = parent_folder + string(file + 4);
 		else if (strncmp(file, "LEVEL/", 6) == 0)
 			vox.file = child_folder + string(file + 6);
+		else if (strncmp(file, "BUILT-IN/", 9) == 0)
+			vox.file = "built-in/" + string(file + 9);
 		else
 			vox.file = file;
 		if (models.find(vox.file) == models.end()) {
@@ -127,10 +129,10 @@ void Scene::RecursiveLoad(XMLElement* element, vec3 parent_pos, quat parent_rot)
 			water->setWorldTransform(position);
 			waters.push_back(water);
 		}
-	} else if (strcmp(element->Name(), "rope") == 0) {
+	} else if (strcmp(element->Name(), "rope") == 0 || strcmp(element->Name(), "voxagon") == 0) {
 		vector<vec3> rope_verts;
 		for (XMLElement* e = element->FirstChildElement(); e != NULL; e = e->NextSiblingElement()) {
-			if (strcmp(e->Name(), "location") == 0) {
+			if (strcmp(e->Name(), "location") == 0 || strcmp(e->Name(), "vertex") == 0) {
 				const char* pos = e->Attribute("pos");
 				vec3 vert_pos = vec3(0, 0, 0);
 				if (pos != NULL) {
@@ -153,19 +155,6 @@ void Scene::RecursiveLoad(XMLElement* element, vec3 parent_pos, quat parent_rot)
 			rope->setWorldTransform(position, rotation);
 			ropes.push_back(rope);
 		}
-	} else if (strcmp(element->Name(), "mesh") == 0) {
-		vec3 color = vec3(0, 0, 0);
-		const char* color_str = element->Attribute("color");
-		if (color_str != NULL) {
-			float r, g, b;
-			sscanf(color_str, "%f %f %f", &r, &g, &b);
-			color = vec3(r, g, b);
-		}
-		const char* file = element->Attribute("file");
-		string path = parent_folder + file;
-		Mesh* mesh = new Mesh(path.c_str(), color);
-		mesh->setWorldTransform(position, rotation);
-		meshes.push_back(mesh);
 	} else if (strcmp(element->Name(), "spawnpoint") == 0) {
 		spawnpoint.pos = position;
 		spawnpoint.rot = rotation;
@@ -181,9 +170,37 @@ void Scene::RecursiveLoad(XMLElement* element, vec3 parent_pos, quat parent_rot)
 				}
 			}
 		}
-		if (boundary_verts.size() > 2) {
+		if (boundary_verts.size() > 2)
 			boundary = new BoundaryRender(boundary_verts);
+	} else if (strcmp(element->Name(), "mesh") == 0) {
+		vec3 color = vec3(0, 0, 0);
+		const char* color_str = element->Attribute("color");
+		if (color_str != NULL) {
+			float r, g, b;
+			sscanf(color_str, "%f %f %f", &r, &g, &b);
+			color = vec3(r, g, b);
 		}
+		const char* file = element->Attribute("file");
+		string path = parent_folder + file;
+		Mesh* mesh = new Mesh(path.c_str(), color);
+		mesh->setWorldTransform(position, rotation);
+		meshes.push_back(mesh);
+	} else if (strcmp(element->Name(), "instance") == 0) {
+		const char* file = element->Attribute("file");
+		string instance_path = parent_folder + file;
+		if (strncmp(file, "MOD/", 4) == 0)
+			instance_path = parent_folder + string(file + 4);
+		else if (strncmp(file, "LEVEL/", 6) == 0)
+			instance_path = child_folder + string(file + 6);
+		else if (strncmp(file, "BUILT-IN/", 9) == 0)
+			instance_path = "built-in/" + string(file + 9);
+		XMLDocument instance_file;
+		if (instance_file.LoadFile(instance_path.c_str()) != XML_SUCCESS) {
+			printf("[Warning] Instance XML file %s not found.\n", instance_path.c_str());
+			return;
+		}
+		XMLElement* instance_root = instance_file.RootElement();
+		RecursiveLoad(instance_root, position, rotation);
 	}
 	for (XMLElement* child = element->FirstChildElement(); child != NULL; child = child->NextSiblingElement())
 		RecursiveLoad(child, position, rotation);
@@ -216,12 +233,7 @@ void Scene::addMesh(Mesh* mesh) {
 void Scene::push(ShadowVolume& shadow_volume) {
 	for (vector<shape_t>::iterator it = shapes.begin(); it != shapes.end(); it++) {
 		VoxLoader* model = models[it->file];
-		if (it->scale != 1.0f)
-			printf("[Warning] Scale not implemented for shadow volume\n");
-		else if (it->object == "ALL_SHAPES")
-			printf("[Warning] All shapes not implemented for shadow volume\n");
-		else
-			model->push(shadow_volume, it->object, it->position, it->rotation);
+		model->push(shadow_volume, it->object, it->position, it->rotation, it->scale);
 	}
 }
 
@@ -229,10 +241,7 @@ void Scene::draw(Shader& shader, Camera& camera, RenderMethod method) {
 	for (vector<shape_t>::iterator it = shapes.begin(); it != shapes.end(); it++) {
 		if (method != it->method) continue;
 		VoxLoader* model = models[it->file];
-		if (it->object == "ALL_SHAPES")
-			model->draw(shader, camera, it->position, it->rotation, it->scale, it->texture, method);
-		else
-			model->draw(shader, camera, it->object, it->position, it->rotation, it->scale, it->texture, method);
+		model->draw(shader, camera, it->object, it->position, it->rotation, it->scale, it->texture, method);
 	}
 }
 

@@ -15,7 +15,7 @@ Light::Light(vec3 pos) {
 	altitude = pos.y;
 	radius = sqrt(pos.x * pos.x + pos.z * pos.z);
 	azimuth = atan2(pos.z, pos.x);
-	model.load("light.vox");
+	model = new VoxLoader("light.vox");
 	updateMatrix();
 	initShadowMap();
 }
@@ -38,7 +38,7 @@ void Light::handleInputs(GLFWwindow* window) {
 }
 
 void Light::draw(Shader& shader, Camera& camera, RenderMethod method) {
-	model.draw(shader, camera, position, quat(1, 0, 0, 0), 1.0f, vec4(0, 0, 1, 1), method);
+	model->draw(shader, camera, "ALL_SHAPES", position, quat(1, 0, 0, 0), 1.0f, vec4(0, 0, 1, 1), method);
 }
 
 void Light::initShadowMap() {
@@ -85,6 +85,7 @@ void Light::pushUniforms(Shader& shader) {
 }
 
 Light::~Light() {
+	delete model;
 	glDeleteTextures(1, &shadow_map_texture);
 	glDeleteFramebuffers(1, &shadow_map_fbo);
 }
