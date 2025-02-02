@@ -135,9 +135,8 @@ void SaveOBJ(string path, const GreedyMesh& mesh, int palette_id) {
 	printf("[INFO] Saved shape to %s\n", path.c_str());
 }
 
-GreedyRender::GreedyRender(const MV_Shape& shape, GLuint palette_bank, int palette_id) {
+GreedyRender::GreedyRender(const MV_Shape& shape, int palette_id) {
 	GreedyMesh mesh = generateGreedyMesh(shape);
-	this->palette_bank = palette_bank;
 	this->palette_id = palette_id;
 	index_count = mesh.indices.size();
 
@@ -163,7 +162,7 @@ void GreedyRender::draw(Shader& shader, Camera& camera) {
 	shader.PushFloat("scale", scale);
 	shader.PushInt("side", 0); // SM flag not an hexagon
 	shader.PushVec3("size", vec3(0, 0, 0)); // SM flag not a voxagon
-	shader.PushTexture2D("uColor", palette_bank, 1); // Texture 0 is SM
+	shader.PushTexture2D("uColor", paletteBank, 1); // Texture 0 is SM
 	shader.PushInt("uPalette", palette_id);
 
 	mat4 pos = translate(mat4(1.0f), position);

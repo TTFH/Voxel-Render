@@ -1,11 +1,11 @@
 #ifndef ROPE_RENDER_H
 #define ROPE_RENDER_H
 
+#include <vector>
+
 #include "vao.h"
 #include "camera.h"
 #include "shader.h"
-
-#include <vector>
 
 #include <glm/gtc/quaternion.hpp>
 

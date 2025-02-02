@@ -5,18 +5,18 @@ from mathutils import Euler, Vector
 blend_file_directory = bpy.path.abspath('//')
 
 def import_obj(file_path, position, rotation):
-    bpy.ops.import_scene.obj(filepath=file_path)
-    obj = bpy.context.selected_objects[0]
+	bpy.ops.import_scene.obj(filepath=file_path)
+	obj = bpy.context.selected_objects[0]
 
-    # Set object's position
-    obj.location = Vector([float(val) for val in position.split()])
+	# Set object's position
+	obj.location = Vector([float(val) for val in position.split()])
 
-    # Convert degrees to radians
-    rotation_degrees = [float(angle) for angle in rotation.split()]
-    rotation_radians = [angle * (3.14159 / 180) for angle in rotation_degrees]
+	# Convert degrees to radians
+	rotation_degrees = [float(angle) for angle in rotation.split()]
+	rotation_radians = [angle * (3.14159 / 180) for angle in rotation_degrees]
 
-    # Apply rotations
-    obj.rotation_euler = Euler(rotation_radians)
+	# Apply rotations
+	obj.rotation_euler = Euler(rotation_radians)
 
 
 # Parse the XML file
@@ -30,19 +30,19 @@ n = 0 # Change by 100 for next batch
 
 # Loop through the <mesh> elements in the XML
 for mesh in root.findall('mesh'):
-    i = i + 1
-    if i <= n:
-        continue
+	i = i + 1
+	if i <= n:
+		continue
 
-    file_path = FOLDER + mesh.get('file')
-    position = mesh.get('pos')
-    rotation = mesh.get('rot')
-    print("FILE PATH:", file_path)
-    
-    # Import the OBJ file and set properties
-    import_obj(file_path, position, rotation)
-    if i % 100 == 0:
-        break
+	file_path = FOLDER + mesh.get('file')
+	position = mesh.get('pos')
+	rotation = mesh.get('rot')
+	print("FILE PATH:", file_path)
+	
+	# Import the OBJ file and set properties
+	import_obj(file_path, position, rotation)
+	if i % 100 == 0:
+		break
 
 # To rotate the scene press:
 # 'A' 'R' 'X' '9' '0' 'Enter'

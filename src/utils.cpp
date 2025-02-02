@@ -2,6 +2,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <string>
+#include <stdexcept>
+#include <fstream>
+#include <iostream>
 
 #include "vao.h"
 #include "ebo.h"
@@ -45,15 +48,6 @@ GLFWwindow* InitOpenGL(const char* window_title) {
 	return window;
 }
 
-void debug(const char* message) {
-	GLenum error;
-	do {
-		error = glGetError();
-		if (error != GL_NO_ERROR)
-			printf("[ERROR] %d %s\n", error, message);
-	} while (error != GL_NO_ERROR);
-}
-
 void FlipImageVertically(int width, int height, uint8_t* data) {
 	uint8_t rgb[3];
 	for (int y = 0; y < height / 2; y++) {
@@ -80,9 +74,9 @@ void Screenshot(GLFWwindow* window) {
 
 void SaveTexture(const char* path, GLuint texture) {
 	int width, height;
-    glBindTexture(GL_TEXTURE_2D, texture);
-    glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &width);
-    glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &height);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &width);
+	glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &height);
 	uint8_t* pixels = new uint8_t[width * height * 4];
 	glBindTexture(GL_TEXTURE_2D, texture);
 	glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
@@ -90,24 +84,21 @@ void SaveTexture(const char* path, GLuint texture) {
 	delete[] pixels;
 }
 
-static bool g_fullscreen = false;
-
 void ToggleFullscreen(GLFWwindow* window) {
-	g_fullscreen = !g_fullscreen;
 	Camera* camera = (Camera*)glfwGetWindowUserPointer(window);
-	if (g_fullscreen) {
+	if (camera == NULL) return;
+	camera->fullscreen = !camera->fullscreen;
+	if (camera->fullscreen) {
 		GLFWmonitor* monitor = glfwGetPrimaryMonitor();
 		const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 		glfwSetWindowMonitor(window, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
 		glfwSwapInterval(1);
 		glViewport(0, 0, mode->width, mode->height);
-		if (camera != NULL)
-			camera->updateScreenSize(mode->width, mode->height);
+		camera->updateScreenSize(mode->width, mode->height);
 	} else {
 		glfwSetWindowMonitor(window, NULL, 100, 100, WINDOW_WIDTH, WINDOW_HEIGHT, 0);
 		glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
-		if (camera != NULL)
-			camera->updateScreenSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+		camera->updateScreenSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 	}
 }
 
@@ -118,6 +109,24 @@ void key_press_callback(GLFWwindow* window, int key, int scancode, int action, i
 		Screenshot(window);
 	else if (key == GLFW_KEY_F11)
 		ToggleFullscreen(window);
+}
+
+string ReadFile(const char* filename) {
+	ifstream in(filename, ifstream::binary);
+	if (!in) throw runtime_error("Could not open file");
+	string content;
+	in.seekg(0, in.end);
+	content.resize(in.tellg());
+	in.seekg(0, in.beg);
+	in.read(&content[0], content.size());
+	in.close();
+	return content;
+}
+
+string RemoveExtension(const string& path) {
+	size_t last_dot = path.find_last_of(".");
+	if (last_dot == string::npos) return path;
+	return path.substr(0, last_dot);
 }
 
 string GetScenePath(int argc, char* argv[]) {
@@ -159,7 +168,7 @@ GLuint LoadTexture2D(const char* path) {
 	return texture_id;
 }
 
-int RoundTo_nth_Power(int value, int n) {
+int CeilExp2(int value, int n) {
 	int exp = 1 << n;
 	int result = value;
 	if (value % exp != 0)

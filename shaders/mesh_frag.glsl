@@ -2,8 +2,10 @@
 
 uniform vec3 camera_pos;
 uniform vec3 light_pos;
-uniform sampler2D tex0;
 uniform sampler2D shadowMap;
+uniform sampler2D tex0; // diffuse
+uniform sampler2D tex1; // specular
+uniform sampler2D tex2; // normal
 
 in vec3 vNormal;
 in vec2 vTexCoord;
@@ -38,6 +40,7 @@ float calculateShadow() {
 void main() {
 	float shadow = calculateShadow();
 	vec3 color = texture(tex0, vTexCoord).rgb;
+	float strength = texture(tex1, vTexCoord).r;
 
 	vec3 lightDir = normalize(light_pos - vFragPosition);
 	vec3 viewDir = normalize(camera_pos - vFragPosition);
@@ -49,7 +52,7 @@ void main() {
 	vec3 diffuse = diff * color;
 
 	float spec = pow(max(dot(vNormal, halfwayDir), 0.0), 32);
-	vec3 specular = spec * vec3(0.5);
+	vec3 specular = spec * strength * vec3(1.0);
 
 	vec3 lighting = ambient + (1.0 - shadow) * (diffuse + specular);
 	FragColor = vec4(lighting, 1.0);

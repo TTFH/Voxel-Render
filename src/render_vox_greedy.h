@@ -9,7 +9,7 @@
 #include "vao.h"
 #include "camera.h"
 #include "shader.h"
-#include "render_vox_interface.h"
+#include "render_interface.h"
 
 struct GM_Vertex {
 	vec3 position;
@@ -22,14 +22,11 @@ struct GreedyMesh {
 	vector<GLuint> indices;
 };
 
-class GreedyRender : public IRender {
+class GreedyRender : public VoxRender {
 private:
-	VAO vao;
-	int palette_id;
-	GLuint palette_bank;
 	GLsizei index_count = 0;
 public:
-	GreedyRender(const MV_Shape& shape, GLuint palette_bank, int palette_id);
+	GreedyRender(const MV_Shape& shape, int palette_id);
 	void draw(Shader& shader, Camera& camera) override;
 };
 

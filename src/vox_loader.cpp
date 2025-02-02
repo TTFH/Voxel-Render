@@ -103,16 +103,6 @@ int ReadHeader(FILE* file) {
 	return mainChunk.end;
 }
 
-static const int MAX_PALETTES = 1024;
-static int paletteCount = 0;
-static GLuint paletteBank;
-
-static string RemoveExtension(const string& path) {
-	size_t last_dot = path.find_last_of(".");
-	if (last_dot == string::npos) return path;
-	return path.substr(0, last_dot);
-}
-
 VoxLoader::VoxLoader(const char* filename) {
 	int sizex = 0;
 	int sizey = 0;
@@ -224,21 +214,6 @@ VoxLoader::VoxLoader(const char* filename) {
 	}
 	fclose(file);
 
-	if (paletteCount == 0) { // Create texture
-		glGenTextures(1, &paletteBank);
-		glBindTexture(GL_TEXTURE_2D, paletteBank);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, MAX_PALETTES, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-	} else
-		glBindTexture(GL_TEXTURE_2D, paletteBank);
-	if (paletteCount < MAX_PALETTES)
-		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, paletteCount, 256, 1, GL_RGBA, GL_UNSIGNED_BYTE, palette);
-	else if (paletteCount == MAX_PALETTES)
-		printf("[Warning] Palette limit reached!\n");
-	paletteCount++;
-	glBindTexture(GL_TEXTURE_2D, 0);
-
 	/*GLuint texture_id;
 	glGenTextures(1, &texture_id);
 	glBindTexture(GL_TEXTURE_1D, texture_id);
@@ -246,13 +221,14 @@ VoxLoader::VoxLoader(const char* filename) {
 	glTexImage1D(GL_TEXTURE_1D, 0, GL_RGBA, 256, 0, GL_RGBA, GL_UNSIGNED_BYTE, palette);
 	glBindTexture(GL_TEXTURE_1D, 0);*/
 
+	int palette_id = VoxRender::getIndex(palette);
 	for (unsigned int i = 0; i < shapes.size(); i++) {
-		renderers[GREEDY].push_back(new GreedyRender(shapes[i], paletteBank, paletteCount - 1));
-		renderers[HEXAGON].push_back(new HexRender(shapes[i], paletteBank, paletteCount - 1));
-		renderers[RTX].push_back(new RTX_Render(shapes[i], paletteBank, paletteCount - 1));
+		renderers[GREEDY].push_back(new GreedyRender(shapes[i], palette_id));
+		renderers[HEXAGON].push_back(new HexRender(shapes[i], palette_id));
+		renderers[RTX].push_back(new RTX_Render(shapes[i], palette_id));
 	}
 #ifdef _BLENDER
-	SaveTexture("palette.png", paletteBank);
+	VoxRender::SaveTexture();
 #endif
 }
 
@@ -268,11 +244,12 @@ void VoxLoader::draw(Shader& shader, Camera& camera, string shape_name, vec3 pos
 			pos.z = -shape.sizez / 2;
 			pos += it->second.position;
 		}
-		IRender* renderer = renderers[method][index];
+		VoxRender* renderer = renderers[method][index];
 		renderer->setTransform(pos, it->second.rotation);
 		renderer->setWorldTransform(position, rotation);
 		renderer->setScale(scale);
-		renderer->setTexture(texture);
+		(void)texture;
+		//renderer->setTexture(texture);
 		renderer->draw(shader, camera);
 	}
 }
@@ -285,7 +262,7 @@ void VoxLoader::push(ShadowVolume& shadow_volume, string shape_name, vec3 positi
 		int index = it->second.shape_index;
 		const MV_Shape& shape = shapes[index];
 		vec3 pos = it->second.rotation * vec3(-shape.sizex / 2, -shape.sizey / 2, 0);
-		IRender* renderer = renderers[DEFAULT_METHOD][index];
+		VoxRender* renderer = renderers[DEFAULT_METHOD][index];
 		renderer->setTransform(pos, it->second.rotation);
 		renderer->setWorldTransform(position, rotation);
 		mat4 modelMatrix = renderer->getVolumeMatrix();

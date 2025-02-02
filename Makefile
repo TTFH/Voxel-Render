@@ -13,7 +13,7 @@ SOURCES += src/postprocessing.cpp src/render_boundary.cpp src/render_mesh.cpp
 SOURCES += src/render_rope.cpp src/render_vox_greedy.cpp src/render_vox_hex.cpp
 SOURCES += src/render_vox_rtx.cpp src/render_voxbox.cpp src/render_water.cpp
 SOURCES += src/scene_loader.cpp src/shader.cpp src/shadow_volume.cpp src/skybox.cpp
-SOURCES += src/utils.cpp src/vao.cpp src/vbo.cpp src/vox_loader.cpp
+SOURCES += src/render_interface.cpp src/utils.cpp src/vao.cpp src/vbo.cpp src/vox_loader.cpp
 SOURCES += imgui/imgui.cpp imgui/imgui_draw.cpp imgui/imgui_tables.cpp imgui/imgui_widgets.cpp
 SOURCES += imgui/backends/imgui_impl_glfw.cpp imgui/backends/imgui_impl_opengl3.cpp
 

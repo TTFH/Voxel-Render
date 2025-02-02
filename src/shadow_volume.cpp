@@ -30,9 +30,9 @@ ShadowVolume::ShadowVolume(float width_m, float height_m, float depth_m) {
 	vbo.Unbind();
 	ebo.Unbind();
 
-	width = RoundTo_nth_Power(10.0f * width_m, 2);
-	height = RoundTo_nth_Power(10.0f * height_m, 2);
-	depth = RoundTo_nth_Power(10.0f * depth_m, 2);
+	width = CeilExp2(10.0f * width_m, 2);
+	height = CeilExp2(10.0f * height_m, 2);
+	depth = CeilExp2(10.0f * depth_m, 2);
 
 	int volume = width * height * depth;
 	shadowVolume_mip0 = new uint8_t[volume];
@@ -67,10 +67,10 @@ ShadowVolume::ShadowVolume(float width_m, float height_m, float depth_m) {
 void ShadowVolume::addShape(const MV_Shape& shape, mat4 model_matrix) {
 	// Export scene to Blender
 #ifdef _BLENDER
-    vec3 position(model_matrix[3]);
+	vec3 position(model_matrix[3]);
 	mat3 rot_matrix(model_matrix);
-    quat quat = quat_cast(rot_matrix);
-    vec3 rotation = degrees(eulerAngles(quat));
+	quat quat = quat_cast(rot_matrix);
+	vec3 rotation = degrees(eulerAngles(quat));
 
 	XMLElement* mesh_element = scene_xml.NewElement("mesh");
 	string path = shape.id + ".obj";

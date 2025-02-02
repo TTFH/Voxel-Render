@@ -1,23 +1,20 @@
 #ifndef HEX_RENDER_H
 #define HEX_RENDER_H
 
-#include <glm/glm.hpp>
-
 #include "vao.h"
 #include "camera.h"
 #include "shader.h"
-#include "render_vox_interface.h"
+#include "render_interface.h"
+
+#include <glm/glm.hpp>
 
 using namespace glm;
 
-class HexRender : public IRender {
+class HexRender : public VoxRender {
 private:
-	VAO vao;
-	int palette_id;
-	GLuint palette_bank;
 	GLsizei voxel_count = 0;
 public:
-	HexRender(const MV_Shape& shape, GLuint palette_id, int palette_bank);
+	HexRender(const MV_Shape& shape, int palette_id);
 	void draw(Shader& shader, Camera& camera) override;
 };
 

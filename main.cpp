@@ -70,6 +70,8 @@ int main(int argc, char* argv[]) {
 
 	Mesh model("meshes/LTM1300.obj");
 	model.addTexture("meshes/LTM1300.png");
+	model.addTexture("meshes/LTM1300_specular.png");
+	model.addTexture("meshes/LTM1300_normal.png");
 	Mesh glass("meshes/LTM1300_glass.obj");
 	glass.addTexture("textures/glass.png");
 	scene.addMesh(&model);

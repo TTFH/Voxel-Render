@@ -9,7 +9,7 @@
 #include "camera.h"
 #include "shader.h"
 #include "shadow_volume.h"
-#include "render_vox_interface.h"
+#include "render_interface.h"
 
 using namespace std;
 
@@ -64,7 +64,7 @@ private:
 	string filename;
 	MV_Diffuse palette[256];
 	vector<MV_Shape> shapes;
-	vector<IRender*> renderers[3];
+	vector<VoxRender*> renderers[3];
 	multimap<string, MV_Model> models;
 public:
 	VoxLoader(const char* filename);

@@ -40,7 +40,7 @@ GLuint windowAlbedo;
 GLuint windowNormal;
 GLuint blueNoise;
 
-RTX_Render::RTX_Render(const MV_Shape& shape, GLuint paletteBank, int paletteId) {
+RTX_Render::RTX_Render(const MV_Shape& shape, int palette_id) {
 	VBO vbo(cube_vertices, sizeof(cube_vertices));
 	EBO ebo(cube_indices, sizeof(cube_indices));
 	vao.LinkAttrib(0, 3, GL_FLOAT, 3 * sizeof(GLfloat), (GLvoid*)0);
@@ -48,9 +48,9 @@ RTX_Render::RTX_Render(const MV_Shape& shape, GLuint paletteBank, int paletteId)
 	vbo.Unbind();
 	ebo.Unbind();
 
-	int width_mip0 = RoundTo_nth_Power(shape.sizex, 2);
-	int height_mip0 = RoundTo_nth_Power(shape.sizey, 2);
-	int depth_mip0 = RoundTo_nth_Power(shape.sizez, 2);
+	int width_mip0 = CeilExp2(shape.sizex, 2);
+	int height_mip0 = CeilExp2(shape.sizey, 2);
+	int depth_mip0 = CeilExp2(shape.sizez, 2);
 	int volume_mip0 = width_mip0 * height_mip0 * depth_mip0;
 	uint8_t* voxels_mip0 = new uint8_t[volume_mip0];
 	memset(voxels_mip0, 0, volume_mip0);
@@ -123,8 +123,7 @@ RTX_Render::RTX_Render(const MV_Shape& shape, GLuint paletteBank, int paletteId)
 	delete[] voxels_mip1;
 	delete[] voxels_mip2;
 
-	this->paletteId = paletteId;
-	this->paletteBank = paletteBank;
+	this->palette_id = palette_id;
 	shapeSize = vec3(shape.sizex, shape.sizey, shape.sizez);
 	matrixSize = vec3(width_mip0, height_mip0, depth_mip0);
 
@@ -147,7 +146,7 @@ void RTX_Render::DrawSimple(Shader& shader, Camera& camera) {
 	shader.PushFloat("uNear", camera.NEAR_PLANE);
 	shader.PushFloat("uFar", camera.FAR_PLANE);
 	glUniform1ui(glGetUniformLocation(shader.id, "uMaxValue"), 254);
-	shader.PushInt("uPalette", paletteId);
+	shader.PushInt("uPalette", palette_id);
 	shader.PushVec4("uMultColor", vec4(1, 1, 1, 1));
 	shader.PushFloat("uVolTexelSize", 0.1f * scale);
 	shader.PushVec3("uVolResolution", matrixSize);
@@ -182,10 +181,11 @@ void RTX_Render::DrawAdvanced(Shader& shader, Camera& camera) {
 	shader.PushTexture2D("uWindowNormal", windowNormal, 7);
 	shader.PushTexture2D("uBlueNoise", blueNoise, 8);
 
-	shader.PushInt("uPalette", paletteId);
+	shader.PushInt("uPalette", palette_id);
 	shader.PushVec3("uObjSize", shapeSize);
 	shader.PushVec4("uVoxelSize", vec4(matrixSize, 0.1f * scale));
-	shader.PushVec4("uTextureTile", texture);
+	//shader.PushVec4("uTextureTile", texture);
+	shader.PushVec4("uTextureTile", vec4(0, 0, 1, 1));
 	shader.PushVec3("uTextureParams", vec3(0, 0, 0));
 	shader.PushFloat("uAlpha", 1.0f);
 	shader.PushFloat("uHighlight", 0.0f);

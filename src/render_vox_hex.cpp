@@ -90,7 +90,7 @@ static GLuint hex_prism_indices[] = {
 	32, 34, 35,
 };
 
-HexRender::HexRender(const MV_Shape& shape, GLuint palette_bank, int palette_id) {
+HexRender::HexRender(const MV_Shape& shape, int palette_id) {
 	uint8_t*** voxels = MatrixInit(shape);
 	TrimShape(voxels, shape.sizex, shape.sizey, shape.sizez);
 
@@ -105,7 +105,6 @@ HexRender::HexRender(const MV_Shape& shape, GLuint palette_bank, int palette_id)
 				}
 	MatrixDelete(voxels, shape);
 
-	this->palette_bank = palette_bank;
 	this->palette_id = palette_id;
 	this->voxel_count = trimed_voxels.size();
 
@@ -133,7 +132,7 @@ void HexRender::draw(Shader& shader, Camera& camera) {
 	shader.PushFloat("scale", scale);
 	shader.PushInt("uPalette", palette_id);
 	shader.PushVec3("size", vec3(0, 0, 0)); // SM flag not a voxagon
-	shader.PushTexture2D("uColor", palette_bank, 1); // Texture 0 is SM
+	shader.PushTexture2D("uColor", paletteBank, 1); // Texture 0 is SM
 
 	mat4 pos = translate(mat4(1.0f), position);
 	mat4 rot = mat4_cast(rotation);

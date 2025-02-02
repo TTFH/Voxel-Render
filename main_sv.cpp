@@ -38,7 +38,7 @@ int main(int argc, char* argv[]) {
 	camera.position.y += 1.8;
 	camera.direction = scene.spawnpoint.rot * vec3(0, 0, 1);
 
-	ShadowVolume shadow_volume(40, 10, 40);
+	ShadowVolume shadow_volume(40, 10, 40); // TODO: test half size
 	scene.push(shadow_volume);
 	shadow_volume.updateTexture();
 

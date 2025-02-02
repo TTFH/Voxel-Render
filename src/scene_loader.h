@@ -37,8 +37,8 @@ class Scene {
 private:
 	string parent_folder;
 	string child_folder;
-	vector<shape_t> shapes;
 	vector<Mesh*> meshes;
+	vector<shape_t> shapes;
 	BoundaryRender* boundary;
 	vector<RopeRender*> ropes;
 	vector<WaterRender*> waters;

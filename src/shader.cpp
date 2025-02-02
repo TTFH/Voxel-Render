@@ -1,23 +1,10 @@
 #include <stdexcept>
 #include <string.h>
-#include <fstream>
-#include <iostream>
 
+#include "utils.h"
 #include "shader.h"
 
 #include <glm/gtc/type_ptr.hpp>
-
-static string ReadFile(const char* filename) {
-	ifstream in(filename, ifstream::binary);
-	if (!in) throw runtime_error("Could not open file");
-	string content;
-	in.seekg(0, in.end);
-	content.resize(in.tellg());
-	in.seekg(0, in.beg);
-	in.read(&content[0], content.size());
-	in.close();
-	return content;
-}
 
 void Shader::Create(const char* vertexSource, const char* fragmentSource) {
 	GLint hasCompiled;

@@ -44,7 +44,7 @@ The engine uses the following libraries:
 - Run the following command:
 
 ```bash
-    make
+	make
 ```
 
 ## Example Scenes
@@ -60,7 +60,7 @@ Render the included example scenes using these commands:
 	1. Extract castle.7z.
 	2. Run:
 ```bash
-    ./vox_render main.xml
+	./vox_render main.xml
 ```
 - Render a converted Teardown map:
 ```bash

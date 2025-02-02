@@ -46,10 +46,10 @@ void main() {
 		worldPosition = position * rotation * vec4(aPosition * size, 10.0f);
 
 	// Voxel
-    if (scale > 0.0f) {
-	    vec4 pos = position * rotation * vec4(getHexPos(side), 1.0f);
-	    worldPosition = world_pos * world_rot * vec4(pos.x, pos.z, -pos.y, 10.0f / scale);
-    }
+	if (scale > 0.0f) {
+		vec4 pos = position * rotation * vec4(getHexPos(side), 1.0f);
+		worldPosition = world_pos * world_rot * vec4(pos.x, pos.z, -pos.y, 10.0f / scale);
+	}
 
 	gl_Position = lightMatrix * worldPosition;
 }
