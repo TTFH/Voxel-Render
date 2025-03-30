@@ -3,7 +3,6 @@
 
 #include "camera.h"
 #include "shader.h"
-#include "vox_loader.h"
 
 #include <glm/glm.hpp>
 #include "../glad/glad.h"
@@ -14,7 +13,6 @@ private:
 	float radius;
 	float azimuth;
 	mat4 vpMatrix;
-	VoxLoader* model;
 
 	GLuint shadow_map_fbo;
 	GLuint shadow_map_texture;
@@ -27,14 +25,12 @@ private:
 public:
 	vec3 position;
 	Light(vec3 position);
+	void handleInputs(GLFWwindow* window);
 	~Light();
 
 	void bindShadowMap(Shader& shader);
 	void unbindShadowMap(Camera& camera);
 	void pushUniforms(Shader& shader);
-
-	void handleInputs(GLFWwindow* window);
-	void draw(Shader& shader, Camera& camera, RenderMethod method);
 };
 
 #endif

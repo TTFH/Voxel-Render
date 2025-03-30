@@ -135,7 +135,6 @@ int main(int argc, char* argv[]) {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		voxel_rtx_shader.Use();
-		light.draw(voxel_rtx_shader, camera, RTX);
 		scene.draw(voxel_rtx_shader, camera, RTX);
 
 		voxel_gm_shader.Use();

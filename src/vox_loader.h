@@ -8,22 +8,11 @@
 
 #include "camera.h"
 #include "shader.h"
-#include "shadow_volume.h"
-#include "render_interface.h"
+
+#include <glm/glm.hpp>
+#include <glm/gtc/quaternion.hpp>
 
 using namespace std;
-
-enum RenderMethod : uint8_t {
-	RTX,
-	GREEDY,
-	HEXAGON,
-};
-
-#ifndef _BLENDER
-#define DEFAULT_METHOD RTX
-#else
-#define DEFAULT_METHOD GREEDY
-#endif
 
 struct MV_Diffuse {
 	uint8_t r, g, b, a;
@@ -60,17 +49,12 @@ struct MV_Model {
 typedef multimap<string, MV_Model>::iterator mv_model_iterator;
 
 class VoxLoader {
-private:
-	string filename;
-	MV_Diffuse palette[256];
-	vector<MV_Shape> shapes;
-	vector<VoxRender*> renderers[3]; // TODO: move to scene
-	multimap<string, MV_Model> models;
 public:
+	int palette_id;
+	vector<MV_Shape> shapes;
+	MV_Diffuse palette[256];
+	multimap<string, MV_Model> models;
 	VoxLoader(const char* filename);
-	void draw(Shader& shader, Camera& camera, string shape_name, vec3 position, quat rotation, float scale, vec4 texture, RenderMethod method);
-	void push(ShadowVolume& shadow_volume, string shape_name, vec3 position, quat rotation, float scale);
-	~VoxLoader();
 };
 
 #endif

@@ -1,8 +1,8 @@
 #include <stdio.h>
 
 #include "vox_loader.h"
-#include "render_vox_hex.h"
 #include "render_vox_greedy.h"
+#include "render_vox_hex.h"
 #include "render_vox_rtx.h"
 #include "utils.h"
 
@@ -108,7 +108,6 @@ VoxLoader::VoxLoader(const char* filename) {
 	int sizey = 0;
 	int sizez = 0;
 	int ref_model_id = -1;
-	this->filename = filename;
 	mv_model_iterator last_inserted = models.end();
 
 	FILE* file = fopen(filename, "rb");
@@ -214,64 +213,8 @@ VoxLoader::VoxLoader(const char* filename) {
 	}
 	fclose(file);
 
-	/*GLuint texture_id;
-	glGenTextures(1, &texture_id);
-	glBindTexture(GL_TEXTURE_1D, texture_id);
-	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexImage1D(GL_TEXTURE_1D, 0, GL_RGBA, 256, 0, GL_RGBA, GL_UNSIGNED_BYTE, palette);
-	glBindTexture(GL_TEXTURE_1D, 0);*/
-
-	int palette_id = VoxRender::getIndex(palette);
-	for (unsigned int i = 0; i < shapes.size(); i++) {
-		renderers[GREEDY].push_back(new GreedyRender(shapes[i], palette_id));
-		renderers[HEXAGON].push_back(new HexRender(shapes[i], palette_id));
-		renderers[RTX].push_back(new RTX_Render(shapes[i], palette_id));
-	}
+	palette_id = VoxRender::getIndex(palette); // TODO: move to Scene, add map<filename, palette_id> as cache
 #ifdef _BLENDER
 	VoxRender::SaveTexture();
 #endif
-}
-
-void VoxLoader::draw(Shader& shader, Camera& camera, string shape_name, vec3 position, quat rotation, float scale, vec4 texture, RenderMethod method) {
-	pair<mv_model_iterator, mv_model_iterator> homonym_shapes = models.equal_range(shape_name);
-	if (shape_name == "ALL_SHAPES")
-		homonym_shapes = make_pair(models.begin(), models.end());
-	for (mv_model_iterator it = homonym_shapes.first; it != homonym_shapes.second; it++) {
-		int index = it->second.shape_index;
-		const MV_Shape& shape = shapes[index];
-		vec3 pos = it->second.rotation * vec3(-shape.sizex / 2, -shape.sizey / 2, 0);
-		if (shape_name == "ALL_SHAPES") {
-			pos.z = -shape.sizez / 2;
-			pos += it->second.position;
-		}
-		VoxRender* renderer = renderers[method][index];
-		renderer->setTransform(pos, it->second.rotation);
-		renderer->setWorldTransform(position, rotation);
-		renderer->setScale(scale);
-		(void)texture;
-		//renderer->setTexture(texture);
-		renderer->draw(shader, camera);
-	}
-}
-
-void VoxLoader::push(ShadowVolume& shadow_volume, string shape_name, vec3 position, quat rotation, float scale) {
-	if (shape_name == "ALL_SHAPES" || scale != 1.0f)
-		return;
-	pair<mv_model_iterator, mv_model_iterator> homonym_shapes = models.equal_range(shape_name);
-	for (mv_model_iterator it = homonym_shapes.first; it != homonym_shapes.second; it++) {
-		int index = it->second.shape_index;
-		const MV_Shape& shape = shapes[index];
-		vec3 pos = it->second.rotation * vec3(-shape.sizex / 2, -shape.sizey / 2, 0);
-		VoxRender* renderer = renderers[DEFAULT_METHOD][index];
-		renderer->setTransform(pos, it->second.rotation);
-		renderer->setWorldTransform(position, rotation);
-		mat4 modelMatrix = renderer->getVolumeMatrix();
-		shadow_volume.addShape(shape, modelMatrix);
-	}
-}
-
-VoxLoader::~VoxLoader() {
-	for (int i = 0; i < 3; i++)
-		for (unsigned int j = 0; j < renderers[i].size(); j++)
-			delete renderers[i][j];
 }

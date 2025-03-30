@@ -210,7 +210,11 @@ void RTX_Render::DrawAdvanced(Shader& shader, Camera& camera) {
 }
 
 void RTX_Render::draw(Shader& shader, Camera& camera) {
-	DrawSimple(shader, camera);
+	DrawAdvanced(shader, camera);
+}
+
+void RTX_Render::setTexture(vec4 texture) {
+	this->texture = texture;
 }
 
 RTX_Render::~RTX_Render() {

@@ -8,6 +8,16 @@
 
 #include "scene_loader.h"
 
+struct shape_t {
+	string file;
+	string object;
+	vec3 position;
+	quat rotation;
+	float scale;
+	vec4 texture;
+	RenderMethod method;
+};
+
 // Example on how to use tinyxml2
 void iterate_xml(XMLElement* root, int depth) {
 	for (int i = 0; i < depth; i++)
@@ -60,9 +70,9 @@ void Scene::RecursiveLoad(XMLElement* element, vec3 parent_pos, quat parent_rot)
 			vox.file = "built-in/" + string(file + 9);
 		else
 			vox.file = file;
-		if (models.find(vox.file) == models.end()) {
-			VoxLoader* model = new VoxLoader(vox.file.c_str());
-			models[vox.file] = model;
+		if (vox_files.find(vox.file) == vox_files.end()) {
+			VoxLoader* vox_file = new VoxLoader(vox.file.c_str());
+			vox_files[vox.file] = vox_file;
 		}
 		const char* object = element->Attribute("object");
 		if (object != NULL) vox.object = object;
@@ -92,7 +102,45 @@ void Scene::RecursiveLoad(XMLElement* element, vec3 parent_pos, quat parent_rot)
 			vox.texture.y = (float)tile;
 			vox.texture.w = weight;
 		}
-		shapes.push_back(vox);
+
+		VoxLoader* vox_file = vox_files[vox.file];
+		int palette_id = vox_file->palette_id;
+
+		pair<mv_model_iterator, mv_model_iterator> homonym_shapes = vox_file->models.equal_range(vox.object);
+		if (vox.object == "ALL_SHAPES")
+			homonym_shapes = make_pair(vox_file->models.begin(), vox_file->models.end());
+		for (mv_model_iterator it = homonym_shapes.first; it != homonym_shapes.second; it++) {
+			int index = it->second.shape_index;
+			const MV_Shape& shape = vox_file->shapes[index];
+			vec3 pos = it->second.rotation * vec3(-shape.sizex / 2, -shape.sizey / 2, 0);
+			if (vox.object == "ALL_SHAPES") {
+				pos.z = -shape.sizez / 2;
+				pos += it->second.position;
+			}
+
+			VoxRender* renderer = NULL;
+			switch (vox.method) {
+			case RTX:
+				renderer = new RTX_Render(shape, palette_id);
+				vox_rtx.push_back((RTX_Render*)renderer);
+				((RTX_Render*)renderer)->setTexture(vox.texture);
+				break;
+			case GREEDY:
+				renderer = new GreedyRender(shape, palette_id);
+				vox_greedy.push_back((GreedyRender*)renderer);
+				break;
+			case HEXAGON:
+				renderer = new HexRender(shape, palette_id);
+				vox_hexagon.push_back((HexRender*)renderer);
+				break;
+			}
+
+			renderer->setTransform(pos, it->second.rotation);
+			renderer->setWorldTransform(position, rotation);
+			renderer->setScale(vox.scale);
+			//mat4 modelMatrix = renderer->getVolumeMatrix();
+			//shadow_volume->addShape(shape, modelMatrix);
+		}
 	} else if (strcmp(element->Name(), "voxbox") == 0) {
 		vec3 size = vec3(10, 10, 10);
 		const char* size_str = element->Attribute("size");
@@ -207,6 +255,7 @@ void Scene::RecursiveLoad(XMLElement* element, vec3 parent_pos, quat parent_rot)
 }
 
 Scene::Scene(string path) {
+	shadow_volume = new ShadowVolume(20, 5, 20);
 	XMLDocument xml_file;
 	if (xml_file.LoadFile(path.c_str()) != XML_SUCCESS) {
 		printf("[Warning] XML file %s not found or corrupted.\n", path.c_str());
@@ -223,25 +272,27 @@ Scene::Scene(string path) {
 	quat rotation = quat(1, 0, 0, 0);
 	spawnpoint = { position, rotation };
 	RecursiveLoad(root, position, rotation);
-	printf("Loaded %d shapes, %d voxbox, %d water, %d rope\n", (int)shapes.size(), (int)voxboxes.size(), (int)waters.size(), (int)ropes.size());
+	shadow_volume->updateTexture();
 }
 
 void Scene::addMesh(Mesh* mesh) {
 	meshes.push_back(mesh);
 }
 
-void Scene::push(ShadowVolume& shadow_volume) {
-	for (vector<shape_t>::iterator it = shapes.begin(); it != shapes.end(); it++) {
-		VoxLoader* model = models[it->file];
-		model->push(shadow_volume, it->object, it->position, it->rotation, it->scale);
-	}
-}
-
 void Scene::draw(Shader& shader, Camera& camera, RenderMethod method) {
-	for (vector<shape_t>::iterator it = shapes.begin(); it != shapes.end(); it++) {
-		if (method != it->method) continue;
-		VoxLoader* model = models[it->file];
-		model->draw(shader, camera, it->object, it->position, it->rotation, it->scale, it->texture, method);
+	switch (method) {
+	case RTX:
+		for (vector<RTX_Render*>::iterator it = vox_rtx.begin(); it != vox_rtx.end(); it++)
+			(*it)->draw(shader, camera);
+		break;
+	case GREEDY:
+		for (vector<GreedyRender*>::iterator it = vox_greedy.begin(); it != vox_greedy.end(); it++)
+			(*it)->draw(shader, camera);
+		break;
+	case HEXAGON:
+		for (vector<HexRender*>::iterator it = vox_hexagon.begin(); it != vox_hexagon.end(); it++)
+			(*it)->draw(shader, camera);
+		break;
 	}
 }
 
@@ -270,7 +321,28 @@ void Scene::drawBoundary(Shader& shader, Camera& camera) {
 		boundary->draw(shader, camera);
 }
 
+void Scene::drawShadowVolume(Shader& shader, Camera& camera) {
+	shadow_volume->draw(shader, camera);
+}
+
 Scene::~Scene() {
-	for (map<string, VoxLoader*>::iterator it = models.begin(); it != models.end(); it++)
+	delete shadow_volume;
+	for (vector<Mesh*>::iterator it = meshes.begin(); it != meshes.end(); it++)
+		delete *it;
+	for (vector<RopeRender*>::iterator it = ropes.begin(); it != ropes.end(); it++)
+		delete *it;
+	for (vector<WaterRender*>::iterator it = waters.begin(); it != waters.end(); it++)
+		delete *it;
+	for (vector<VoxboxRender*>::iterator it = voxboxes.begin(); it != voxboxes.end(); it++)
+		delete *it;
+	for (vector<GreedyRender*>::iterator it = vox_greedy.begin(); it != vox_greedy.end(); it++)
+		delete *it;
+	for (vector<HexRender*>::iterator it = vox_hexagon.begin(); it != vox_hexagon.end(); it++)
+		delete *it;
+	for (vector<RTX_Render*>::iterator it = vox_rtx.begin(); it != vox_rtx.end(); it++)
+		delete *it;
+	if (boundary != NULL)
+		delete boundary;
+	for (map<string, VoxLoader*>::iterator it = vox_files.begin(); it != vox_files.end(); it++)
 		delete it->second;
 }

@@ -21,6 +21,7 @@ private:
 public:
 	RTX_Render(const MV_Shape& shape, int palette_id);
 	void draw(Shader& shader, Camera& camera) override;
+	void setTexture(vec4 texture);
 	~RTX_Render();
 };
 
