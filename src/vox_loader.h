@@ -13,7 +13,7 @@
 
 using namespace std;
 
-enum RenderMethod {
+enum RenderMethod : uint8_t {
 	RTX,
 	GREEDY,
 	HEXAGON,
@@ -64,7 +64,7 @@ private:
 	string filename;
 	MV_Diffuse palette[256];
 	vector<MV_Shape> shapes;
-	vector<VoxRender*> renderers[3];
+	vector<VoxRender*> renderers[3]; // TODO: move to scene
 	multimap<string, MV_Model> models;
 public:
 	VoxLoader(const char* filename);

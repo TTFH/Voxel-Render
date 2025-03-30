@@ -25,7 +25,7 @@ struct shape_t {
 	quat rotation;
 	float scale;
 	vec4 texture;
-	RenderMethod method;
+	RenderMethod method; // TODO: remove
 };
 
 struct Transform {

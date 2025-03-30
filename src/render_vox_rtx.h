@@ -15,6 +15,7 @@ private:
 	vec3 shapeSize;
 	vec3 matrixSize;
 	GLuint volumeTexture;
+	vec4 texture = vec4(0, 0, 1, 1);
 	void DrawSimple(Shader& shader, Camera& camera);
 	void DrawAdvanced(Shader& shader, Camera& camera);
 public:

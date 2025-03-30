@@ -184,8 +184,7 @@ void RTX_Render::DrawAdvanced(Shader& shader, Camera& camera) {
 	shader.PushInt("uPalette", palette_id);
 	shader.PushVec3("uObjSize", shapeSize);
 	shader.PushVec4("uVoxelSize", vec4(matrixSize, 0.1f * scale));
-	//shader.PushVec4("uTextureTile", texture);
-	shader.PushVec4("uTextureTile", vec4(0, 0, 1, 1));
+	shader.PushVec4("uTextureTile", texture);
 	shader.PushVec3("uTextureParams", vec3(0, 0, 0));
 	shader.PushFloat("uAlpha", 1.0f);
 	shader.PushFloat("uHighlight", 0.0f);
@@ -211,7 +210,7 @@ void RTX_Render::DrawAdvanced(Shader& shader, Camera& camera) {
 }
 
 void RTX_Render::draw(Shader& shader, Camera& camera) {
-	DrawAdvanced(shader, camera);
+	DrawSimple(shader, camera);
 }
 
 RTX_Render::~RTX_Render() {
