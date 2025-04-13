@@ -16,6 +16,8 @@
 #include "src/shader.h"
 #include "src/render_mesh.h"
 
+#include "mc_blocks.h"
+
 #define STB_IMAGE_IMPLEMENTATION
 #include "lib/stb_image.h"
 
@@ -410,8 +412,8 @@ private:
 		}
 	}
 public:
-	BlockVariant(const char* block_id) {
-		string path = "../minecraft/blockstates/" + string(block_id) + ".json";
+	BlockVariant(string block_id) {
+		string path = "../minecraft/blockstates/" + block_id + ".json";
 		loadFile(path);
 	}
 	unsigned int getVariantCount() {
@@ -439,33 +441,11 @@ int main(/*int argc, char* argv[]*/) {
 	GLFWwindow* window = InitOpenGL("Minecraft Renderer");
 	Shader mc_shader("shaders/minecraft_vert.glsl", "shaders/minecraft_frag.glsl");
 
-	vector<string> blocks = {
-		"anvil",
-		"bamboo",
-		"beacon",
-		"bricks",
-		"cauldron",
-		"dropper",
-		"creeper_head",
-		"detector_rail",
-		"dragon_egg",
-		"end_portal_frame",
-		"glass",
-		"jukebox",
-		"lectern",
-		"magenta_glazed_terracotta",
-		"note_block",
-		"oak_fence",
-		"observer",
-		"redstone_ore",
-		"short_grass",
-		"tall_grass",
-		"blue_banner",
-	};
-
 	vector<BlockVariant*> block_variants;
-	for (vector<string>::iterator it = blocks.begin(); it != blocks.end(); it++)
-		block_variants.push_back(new BlockVariant(it->c_str()));
+	for (vector<string>::iterator it = MC_BLOCKS.begin(); it != MC_BLOCKS.end(); it++) {
+		printf("[INFO] Loading block %s\n", it->c_str());
+		block_variants.push_back(new BlockVariant(*it));
+	}
 
 	Camera camera(vec3(0, 2.5, 10));
 	glfwSetWindowUserPointer(window, &camera);
@@ -490,7 +470,7 @@ int main(/*int argc, char* argv[]*/) {
 		glEnable(GL_BLEND);
 		mc_shader.Use();
 		unsigned int i = 0;
-		const int WIDTH = 8;
+		const int WIDTH = 32;
 		for (vector<BlockVariant*>::iterator it = block_variants.begin(); it != block_variants.end(); it++) {
 			for (unsigned int j = 0; j < (*it)->getVariantCount(); j++) {
 				(*it)->draw(mc_shader, camera, j, vec3(2.0f * (i % WIDTH), 0.0f, -2.0f * (i / WIDTH)));
