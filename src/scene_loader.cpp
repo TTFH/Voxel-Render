@@ -138,6 +138,7 @@ void Scene::RecursiveLoad(XMLElement* element, vec3 parent_pos, quat parent_rot)
 			renderer->setTransform(pos, it->second.rotation);
 			renderer->setWorldTransform(position, rotation);
 			renderer->setScale(vox.scale);
+
 			//mat4 modelMatrix = renderer->getVolumeMatrix();
 			//shadow_volume->addShape(shape, modelMatrix);
 		}

@@ -140,8 +140,8 @@ RTX_Render::RTX_Render(const MV_Shape& shape, int palette_id) {
 
 // Simple shader, from the Teardown editor
 void RTX_Render::DrawSimple(Shader& shader, Camera& camera) {
-	shader.PushTexture2D("uColor", paletteBank, 0);
-	shader.PushTexture3D("uVolTex", volumeTexture, 1);
+	shader.PushTexture3D("uVolTex", volumeTexture, 0);
+	shader.PushTexture2D("uColor", paletteBank, 1);
 
 	shader.PushFloat("uNear", camera.NEAR_PLANE);
 	shader.PushFloat("uFar", camera.FAR_PLANE);
@@ -210,6 +210,7 @@ void RTX_Render::DrawAdvanced(Shader& shader, Camera& camera) {
 }
 
 void RTX_Render::draw(Shader& shader, Camera& camera) {
+	// TODO: switch based on shader name
 	DrawAdvanced(shader, camera);
 }
 

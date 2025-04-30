@@ -50,7 +50,7 @@ static GLuint quad_indices[] = {
 
 class Quad {
 private:
-	VAO vao;
+	//VAO vao;
 	GLuint texture;
 	int texture_rotation = 0;
 	vec2 size = vec2(1, 1);
@@ -65,13 +65,13 @@ private:
 public:
 	Quad(GLuint texture) {
 		this->texture = texture;
-		VBO vbo(quad_vertices, sizeof(quad_vertices));
+		/*VBO vbo(quad_vertices, sizeof(quad_vertices));
 		EBO ebo(quad_indices, sizeof(quad_indices));
 		vao.LinkAttrib(0, 2, GL_FLOAT, 4 * sizeof(GLfloat), (GLvoid*)0);
 		vao.LinkAttrib(1, 2, GL_FLOAT, 4 * sizeof(GLfloat), (GLvoid*)(2 * sizeof(GLfloat)));
 		vao.Unbind();
 		vbo.Unbind();
-		ebo.Unbind();
+		ebo.Unbind();*/
 	}
 	void setSize(vec2 size) {
 		this->size = size;
@@ -112,9 +112,9 @@ public:
 		shader.PushMatrix("world_pos", w_pos);
 		shader.PushMatrix("world_rot", w_rot);
 
-		vao.Bind();
+		//vao.Bind();
 		glDrawElements(GL_TRIANGLES, sizeof(quad_indices) / sizeof(GLuint), GL_UNSIGNED_INT, 0);
-		vao.Unbind();
+		//vao.Unbind();
 	}
 };
 
@@ -451,6 +451,17 @@ int main(/*int argc, char* argv[]*/) {
 	glfwSetWindowUserPointer(window, &camera);
 	glfwSetKeyCallback(window, key_press_callback);
 
+	VAO vao;
+	VBO vbo(quad_vertices, sizeof(quad_vertices));
+	EBO ebo(quad_indices, sizeof(quad_indices));
+	vao.LinkAttrib(0, 2, GL_FLOAT, 4 * sizeof(GLfloat), (GLvoid*)0);
+	vao.LinkAttrib(1, 2, GL_FLOAT, 4 * sizeof(GLfloat), (GLvoid*)(2 * sizeof(GLfloat)));
+	vao.Unbind();
+	vbo.Unbind();
+	ebo.Unbind();
+
+	vao.Bind();
+
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_MULTISAMPLE);
 	glEnable(GL_CULL_FACE);
@@ -470,7 +481,7 @@ int main(/*int argc, char* argv[]*/) {
 		glEnable(GL_BLEND);
 		mc_shader.Use();
 		unsigned int i = 0;
-		const int WIDTH = 32;
+		const int WIDTH = 64;
 		for (vector<BlockVariant*>::iterator it = block_variants.begin(); it != block_variants.end(); it++) {
 			for (unsigned int j = 0; j < (*it)->getVariantCount(); j++) {
 				(*it)->draw(mc_shader, camera, j, vec3(2.0f * (i % WIDTH), 0.0f, -2.0f * (i / WIDTH)));
