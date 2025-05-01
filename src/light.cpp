@@ -22,6 +22,8 @@ Light::Light(vec3 pos) {
 }
 
 void Light::handleInputs(GLFWwindow* window) {
+	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) != GLFW_PRESS)
+		return;
 	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
 		altitude += 0.5f;
 	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)

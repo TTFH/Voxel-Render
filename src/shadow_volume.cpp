@@ -8,7 +8,7 @@
 #include "utils.h"
 #include "shadow_volume.h"
 
-static GLfloat screen_vertices[] = {
+static const GLfloat screen_vertices[] = {
 	// pos  uv
 	-1, -1, 0, 0,
 	 1, -1, 1, 0,
@@ -16,7 +16,7 @@ static GLfloat screen_vertices[] = {
 	 1,  1, 1, 1,
 };
 
-static GLuint screen_indices[] = {
+static const GLuint screen_indices[] = {
 	0, 1, 2,
 	1, 3, 2,
 };

@@ -79,7 +79,7 @@ GLint Shader::GetLocation(const char* uniform) {
 	if (uniforms.find(uniform) == uniforms.end()) {
 		GLint location = glGetUniformLocation(id, uniform);
 		if (location == -1)
-			printf("[Warning] Uniform %s not found in %s / %s\n", uniform, path1.c_str(), path2.c_str());
+			printf("[Warning] Uniform %s not found or used in %s / %s\n", uniform, path1.c_str(), path2.c_str());
 		uniforms[uniform] = location;
 	}
 	return uniforms[uniform];

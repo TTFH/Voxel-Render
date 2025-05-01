@@ -63,13 +63,8 @@ static vector<const char*> skyboxes = {
 	"Ultimate_Skies_4k_0067",
 };
 
-Overlay::Overlay(GLFWwindow* window, Camera& camera, Light& light, Skybox& skybox, map<const char*, Shader*>& shaders) {
-	this->window = window;
-	this->camera = &camera;
-	this->light = &light;
-	this->skybox = &skybox;
-	this->shaders = &shaders;
-
+Overlay::Overlay(GLFWwindow* window, const Camera& camera, const Light& light, Skybox& skybox, const map<const char*, Shader*>& shaders) : 
+	window(window), camera(camera), light(light), skybox(skybox), shaders(shaders) {
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO();
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
@@ -88,9 +83,9 @@ void Overlay::Frame() {
 	{
 		ImGui::Begin("Voxel Render - Settings", NULL, dialog_flags);
 
-		ImGui::Text("Camera position: (%.2f, %.2f, %.2f)", camera->position.x, camera->position.y, camera->position.z);
-		ImGui::Text("Camera direction: (%.2f, %.2f, %.2f)", camera->direction.x, camera->direction.y, camera->direction.z);
-		ImGui::Text("Light position: (%.2f, %.2f, %.2f)", light->position.x, light->position.y, light->position.z);
+		ImGui::Text("Camera position: (%.2f, %.2f, %.2f)", camera.position.x, camera.position.y, camera.position.z);
+		ImGui::Text("Camera direction: (%.2f, %.2f, %.2f)", camera.direction.x, camera.direction.y, camera.direction.z);
+		ImGui::Text("Light position: (%.2f, %.2f, %.2f)", light.position.x, light.position.y, light.position.z);
 		ImGui::Dummy(ImVec2(0, 10));
 
 		ImGui::Checkbox("Transparent glass", &transparent_glass);
@@ -107,7 +102,7 @@ void Overlay::Frame() {
 			Screenshot(window);
 
 		if (ImGui::BeginCombo("##combo", selected_shader)) {
-			for (map<const char*, Shader*>::iterator it = shaders->begin(); it != shaders->end(); it++) {
+			for (map<const char*, Shader*>::const_iterator it = shaders.begin(); it != shaders.end(); it++) {
 				bool is_selected = strcmp(selected_shader, it->first) == 0;
 				if (ImGui::Selectable(it->first, is_selected))
 					selected_shader = it->first;
@@ -118,14 +113,14 @@ void Overlay::Frame() {
 		}
 		ImGui::SameLine();
 		if (ImGui::Button("Reload") && selected_shader != NULL)
-			(*shaders)[selected_shader]->Reload();
+			shaders.at(selected_shader)->Reload();
 
 		if (ImGui::BeginCombo("##combosk", selected_skybox)) {
 			for (vector<const char*>::iterator it = skyboxes.begin(); it != skyboxes.end(); it++) {
 				bool is_selected = strcmp(selected_skybox, *it) == 0;
 				if (ImGui::Selectable(*it, is_selected)) {
 					selected_skybox = *it;
-					skybox->ReloadTexture(selected_skybox);
+					skybox.ReloadTexture(selected_skybox);
 				}
 				if (is_selected)
 					ImGui::SetItemDefaultFocus();

@@ -16,18 +16,24 @@ Camera::Camera(vec3 pos) {
 void Camera::updateScreenSize(int width, int height) {
 	screen_width = width;
 	screen_height = height;
+	updateMatrix();
 }
 
-void Camera::updateMatrix() {
-	mat4 view = lookAt(position, position + direction, up);
-	mat4 projection = perspective(radians(FOV), (float)screen_width / screen_height, NEAR_PLANE, FAR_PLANE);
-	vpMatrix = projection * view;
+void Camera::updateFarPlane(float distance) {
+	FAR_PLANE = distance;
+	updateMatrix();
 }
 
 void Camera::translateAndInvertPitch(float distance) {
 	position.y += distance;
 	direction.y *= -1;
 	updateMatrix();
+}
+
+void Camera::updateMatrix() {
+	mat4 view = lookAt(position, position + direction, up);
+	mat4 projection = perspective(radians(FOV), (float)screen_width / screen_height, NEAR_PLANE, FAR_PLANE);
+	vpMatrix = projection * view;
 }
 
 void Camera::handleInputs(GLFWwindow* window) {
@@ -72,4 +78,23 @@ void Camera::handleInputs(GLFWwindow* window) {
 		first_click = true;
 	}
 	updateMatrix();
+}
+
+Frustum Camera::getFrustum() {
+	Frustum frustum;
+	const vec3 front = normalize(direction);
+	const vec3 right = normalize(cross(front, up));
+	const vec3 up = normalize(cross(right, front));
+	const vec3 frontMultFar = FAR_PLANE * front;
+	const vec3 frontMultNear = NEAR_PLANE * front;
+	const float halfVSide = FAR_PLANE * tanf(radians(FOV) * 0.5f);
+	const float halfHSide = halfVSide * (float)screen_width / screen_height;
+
+	frustum.near = Plane(position + frontMultNear, front);
+	frustum.far = Plane(position + frontMultFar, -front);
+	frustum.right = Plane(position, cross(frontMultFar - right * halfHSide, up));
+	frustum.left = Plane(position, cross(up, frontMultFar + right * halfHSide));
+	frustum.top = Plane(position, cross(right, frontMultFar - up * halfVSide));
+	frustum.bottom = Plane(position, cross(frontMultFar + up * halfVSide, right));
+	return frustum;
 }

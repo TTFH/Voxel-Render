@@ -19,8 +19,12 @@ private:
 	quat rotation = quat(1, 0, 0, 0);
 public:
 	VoxboxRender(vec3 size, vec3 color);
+	void setColor(vec3 color);
 	void setWorldTransform(vec3 position, quat rotation);
 	void draw(Shader& shader, Camera& camera);
+	vector<vec3> getWorldCorners();
+	bool isInFrustum(const Frustum& frustum);
+	void handleInputs(GLFWwindow* window);
 };
 
 #endif

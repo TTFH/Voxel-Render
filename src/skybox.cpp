@@ -6,7 +6,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-static GLfloat cube_vertices[] = {
+static const GLfloat cube_vertices[] = {
 	 1,  1,  1,
 	 1,  1, -1,
 	 1, -1,  1,
@@ -17,7 +17,7 @@ static GLfloat cube_vertices[] = {
 	-1, -1, -1,
 };
 
-static GLuint cube_indices[] = {
+static const GLuint cube_indices[] = {
 	0, 2, 6,
 	3, 7, 6,
 	4, 6, 5,

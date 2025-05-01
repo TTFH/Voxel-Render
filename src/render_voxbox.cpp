@@ -9,7 +9,7 @@
 // | 4------|-5
 // |/       |/
 // 0--------1
-static GLfloat cube_vertices[] = {
+static const GLfloat cube_vertices[] = {
 	// Position  // Normal
 	0, 0, 0,	 0,  0, -1,
 	0, 1, 0,	 0,  0, -1,
@@ -42,7 +42,7 @@ static GLfloat cube_vertices[] = {
 	1, 0, 0,	 1,  0,  0,
 };
 
-static GLuint cube_indices[] = {
+static const GLuint cube_indices[] = {
 	 0,  1,  2,
 	 2,  1,  3,
 	 4,  5,  6,
@@ -69,6 +69,10 @@ VoxboxRender::VoxboxRender(vec3 size, vec3 color) {
 	ebo.Unbind();
 }
 
+void VoxboxRender::setColor(vec3 color) {
+	this->color = color;
+}
+
 void VoxboxRender::setWorldTransform(vec3 position, quat rotation) {
 	this->position = position;
 	this->rotation = rotation;
@@ -89,4 +93,62 @@ void VoxboxRender::draw(Shader& shader, Camera& camera) {
 	vao.Bind();
 	glDrawElements(GL_TRIANGLES, sizeof(cube_indices) / sizeof(GLuint), GL_UNSIGNED_INT, 0);
 	vao.Unbind();
+}
+
+vector<vec3> VoxboxRender::getWorldCorners() {
+	vector<vec3> corners;
+	vec3 size_meters = size * 0.1f;
+	vector<vec3> localCorners = {
+		vec3(0, 0, 0),
+		vec3(size_meters.x, 0, 0),
+		vec3(size_meters.x, size_meters.y, 0),
+		vec3(0, size_meters.y, 0),
+		vec3(0, 0, size_meters.z),
+		vec3(size_meters.x, 0, size_meters.z),
+		vec3(size_meters.x, size_meters.y, size_meters.z),
+		vec3(0, size_meters.y, size_meters.z)
+	};
+	for (vector<vec3>::iterator it = localCorners.begin(); it != localCorners.end(); it++) {
+		vec3 local = *it;
+		vec3 rotated = rotation * local;
+		vec3 world = rotated + position;
+		corners.push_back(world);
+	}
+	return corners;
+}
+
+bool VoxboxRender::isInFrustum(const Frustum& frustum) {
+	vector<vec3> corners = getWorldCorners();
+	vector<Plane> planes = {
+		frustum.near, frustum.far,
+		frustum.left, frustum.right,
+		frustum.top, frustum.bottom
+	};
+	for (vector<Plane>::iterator it = planes.begin(); it != planes.end(); it++) {
+		Plane plane = *it;
+		int outsideCount = 0;
+		for (vector<vec3>::iterator it2 = corners.begin(); it2 != corners.end(); it2++) {
+			vec3 corner = *it2;
+			float dist = dot(plane.normal, corner) + plane.distance;
+			if (dist < 0) outsideCount++;
+		}
+		if (outsideCount == 8)
+			return false;
+	}
+	return true;
+}
+
+void VoxboxRender::handleInputs(GLFWwindow* window) {
+	if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
+		position.y += 0.025f;
+	if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS)
+		position.y -= 0.025f;
+	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+		position += vec3(rotation * vec4(0, 0, 0.1f, 0));
+	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+		position += vec3(rotation * vec4(0, 0, -0.05f, 0));
+	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+		rotation = angleAxis(radians(-0.5f), vec3(0, 1, 0)) * rotation;
+	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+		rotation = angleAxis(radians(0.5f), vec3(0, 1, 0)) * rotation;
 }

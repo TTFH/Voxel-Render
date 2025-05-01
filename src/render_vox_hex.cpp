@@ -13,7 +13,7 @@
 //   0         1
 // offset =  1.5 * x, sqrt(3) * y + (x % 2) * 0.5 * sqrt(3), z
 
-static GLfloat hex_prism_vertices[] = {
+static const GLfloat hex_prism_vertices[] = {
 	// Position // Normal
 	0, 0, 1, 0, 0, 1,
 	1, 0, 1, 0, 0, 1,
@@ -60,7 +60,7 @@ static GLfloat hex_prism_vertices[] = {
 	-0.5, 0.5 * sqrt(3), 0, -0.5 * sqrt(3), -0.5, 0,
 };
 
-static GLuint hex_prism_indices[] = {
+static const GLuint hex_prism_indices[] = {
 	 0,  1,  2,
 	 0,  2,  3,
 	 0,  3,  4,

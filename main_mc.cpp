@@ -35,7 +35,7 @@ using json = nlohmann::json;
 // |   x    |
 // |     \  |
 // 0--------1
-static GLfloat quad_vertices[] = {
+static const GLfloat quad_vertices[] = {
 	// pos			// uv
 	-0.5, -0.5,		0, 0,
 	 0.5, -0.5,		1, 0,
@@ -43,7 +43,7 @@ static GLfloat quad_vertices[] = {
 	 0.5,  0.5,		1, 1,
 };
 
-static GLuint quad_indices[] = {
+static const GLuint quad_indices[] = {
 	0, 1, 2,
 	1, 3, 2,
 };

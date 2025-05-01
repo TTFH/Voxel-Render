@@ -6,7 +6,7 @@
 #include "utils.h"
 #include "render_vox_rtx.h"
 
-static GLfloat cube_vertices[] = {
+static const GLfloat cube_vertices[] = {
 	0, 0, 0,
 	0, 0, 1,
 	0, 1, 0,
@@ -17,7 +17,7 @@ static GLfloat cube_vertices[] = {
 	1, 1, 1,
 };
 
-static GLuint cube_indices[] = {
+static const GLuint cube_indices[] = {
 	2, 1, 0,
 	6, 2, 0,
 	1, 4, 0,

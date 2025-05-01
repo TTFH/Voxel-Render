@@ -25,7 +25,7 @@ using namespace std;
 using namespace glm;
 
 int main(int argc, char* argv[]) {
-	GLFWwindow* window = InitOpenGL("Voxel Render");
+	GLFWwindow* window = InitOpenGL("Shadow Volume");
 
 	Shader sv_shader("debugvolume");
 	Shader voxel_rtx_shader("editorvox");
