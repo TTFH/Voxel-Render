@@ -19,21 +19,28 @@ void Camera::updateScreenSize(int width, int height) {
 	updateMatrix();
 }
 
-void Camera::updateFarPlane(float distance) {
-	FAR_PLANE = distance;
-	updateMatrix();
-}
-
-void Camera::translateAndInvertPitch(float distance) {
-	position.y += distance;
-	direction.y *= -1;
-	updateMatrix();
-}
-
 void Camera::updateMatrix() {
 	mat4 view = lookAt(position, position + direction, up);
 	mat4 projection = perspective(radians(FOV), (float)screen_width / screen_height, NEAR_PLANE, FAR_PLANE);
 	vpMatrix = projection * view;
+	updateFrustum();
+}
+
+void Camera::updateFrustum() {
+	const vec3 front = normalize(direction);
+	const vec3 right = normalize(cross(front, up));
+	const vec3 up = normalize(cross(right, front));
+	const vec3 frontMultFar = FAR_PLANE * front;
+	const vec3 frontMultNear = NEAR_PLANE * front;
+	const float halfVSide = FAR_PLANE * tanf(radians(FOV) * 0.5f);
+	const float halfHSide = halfVSide * (float)screen_width / screen_height;
+
+	frustum.near = Plane(position + frontMultNear, front);
+	frustum.far = Plane(position + frontMultFar, -front);
+	frustum.right = Plane(position, cross(frontMultFar - right * halfHSide, up));
+	frustum.left = Plane(position, cross(up, frontMultFar + right * halfHSide));
+	frustum.top = Plane(position, cross(right, frontMultFar - up * halfVSide));
+	frustum.bottom = Plane(position, cross(frontMultFar + up * halfVSide, right));
 }
 
 void Camera::handleInputs(GLFWwindow* window) {
@@ -80,21 +87,20 @@ void Camera::handleInputs(GLFWwindow* window) {
 	updateMatrix();
 }
 
-Frustum Camera::getFrustum() {
-	Frustum frustum;
-	const vec3 front = normalize(direction);
-	const vec3 right = normalize(cross(front, up));
-	const vec3 up = normalize(cross(right, front));
-	const vec3 frontMultFar = FAR_PLANE * front;
-	const vec3 frontMultNear = NEAR_PLANE * front;
-	const float halfVSide = FAR_PLANE * tanf(radians(FOV) * 0.5f);
-	const float halfHSide = halfVSide * (float)screen_width / screen_height;
-
-	frustum.near = Plane(position + frontMultNear, front);
-	frustum.far = Plane(position + frontMultFar, -front);
-	frustum.right = Plane(position, cross(frontMultFar - right * halfHSide, up));
-	frustum.left = Plane(position, cross(up, frontMultFar + right * halfHSide));
-	frustum.top = Plane(position, cross(right, frontMultFar - up * halfVSide));
-	frustum.bottom = Plane(position, cross(frontMultFar + up * halfVSide, right));
-	return frustum;
+bool Camera::isInFrustum(vector<vec3> corners) {
+	vector<Plane> planes = {
+		frustum.near, frustum.far,
+		frustum.left, frustum.right,
+		frustum.top, frustum.bottom
+	};
+	for (vector<Plane>::iterator plane = planes.begin(); plane != planes.end(); plane++) {
+		int outside_count = 0;
+		for (vector<vec3>::iterator corner = corners.begin(); corner != corners.end(); corner++) {
+			float dist = dot(plane->normal, *corner) + plane->distance;
+			if (dist < 0) outside_count++;
+		}
+		if (outside_count == 8)
+			return false;
+	}
+	return true;
 }

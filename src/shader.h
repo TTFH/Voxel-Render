@@ -1,10 +1,11 @@
 #ifndef SHADER_H
 #define SHADER_H
 
+#include <map>
+#include <string>
+
 #include "../glad/glad.h"
 #include <glm/glm.hpp>
-#include <string>
-#include <map>
 
 using namespace std;
 using namespace glm;
@@ -16,6 +17,7 @@ private:
 	const char* FRAGMENT = "#define FRAGMENT\n";
 	map<string, GLint> uniforms;
 
+	GLuint id;
 	bool unified;
 	string path1;
 	string path2;
@@ -23,10 +25,10 @@ private:
 	void Create(const char* vertex_source, const char* fragment_source);
 	GLint GetLocation(const char* uniform);
 public:
-	GLuint id;
 	Shader(const char* name);
 	Shader(const char* vertex_path, const char* fragment_path);
 	void PushInt(const char* uniform, int value);
+	void PushUInt(const char* uniform, unsigned int value);
 	void PushFloat(const char* uniform, float value);
 	void PushVec2(const char* uniform, vec2 value);
 	void PushVec3(const char* uniform, vec3 value);

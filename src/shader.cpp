@@ -89,6 +89,10 @@ void Shader::PushInt(const char* uniform, int value) {
 	glUniform1i(GetLocation(uniform), value);
 }
 
+void Shader::PushUInt(const char* uniform, unsigned int value) {
+	glUniform1ui(GetLocation(uniform), value);
+}
+
 void Shader::PushFloat(const char* uniform, float value) {
 	glUniform1f(GetLocation(uniform), value);
 }

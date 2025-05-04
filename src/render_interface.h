@@ -20,7 +20,7 @@ protected:
 
 	VAO vao;
 	int palette_id;
-	vec3 shapeSize;
+	vec3 shape_size;
 
 	float scale = 1;
 	vec3 position = vec3(0, 0, 0);
@@ -28,15 +28,18 @@ protected:
 	vec3 world_position = vec3(0, 0, 0);
 	quat world_rotation = quat(1, 0, 0, 0);
 public:
-	mat4 getVolumeMatrix();
+	mat4 volume_matrix = mat4(1.0);
+	vector<vec3> obb_corners;
+
 	void setTransform(vec3 position, quat rotation);
 	void setWorldTransform(vec3 position, quat rotation);
 	void setScale(float scale);
+	void generateMatrixAndOBB();
+
 	static int getIndex(const MV_Diffuse* palette);
 	static void saveTexture();
+
 	virtual void draw(Shader& shader, Camera& camera) = 0;
-	vector<vec3> getOBBCorners();
-	bool isInFrustum(const Frustum& frustum);
 	virtual ~VoxRender() {}
 };
 

@@ -124,8 +124,8 @@ RTX_Render::RTX_Render(const MV_Shape& shape, int palette_id) {
 	delete[] voxels_mip2;
 
 	this->palette_id = palette_id;
-	shapeSize = vec3(shape.sizex, shape.sizey, shape.sizez);
-	matrixSize = vec3(width_mip0, height_mip0, depth_mip0);
+	shape_size = vec3(shape.sizex, shape.sizey, shape.sizez);
+	matrix_size = vec3(width_mip0, height_mip0, depth_mip0);
 
 	if (!init) {
 		init = true;
@@ -145,24 +145,23 @@ void RTX_Render::DrawSimple(Shader& shader, Camera& camera) {
 
 	shader.PushFloat("uNear", camera.NEAR_PLANE);
 	shader.PushFloat("uFar", camera.FAR_PLANE);
-	glUniform1ui(glGetUniformLocation(shader.id, "uMaxValue"), 254);
+	shader.PushUInt("uMaxValue", 254);
 	shader.PushInt("uPalette", palette_id);
 	shader.PushVec4("uMultColor", vec4(1, 1, 1, 1));
 	shader.PushFloat("uVolTexelSize", 0.1f * scale);
-	shader.PushVec3("uVolResolution", matrixSize);
+	shader.PushVec3("uVolResolution", matrix_size);
 	shader.PushVec3("uCameraPos", camera.position);
 
-	mat4 scaleBox = glm::scale(mat4(1.0f), 0.1f * scale * matrixSize);
-	mat4 volMatrix = getVolumeMatrix();
-	mat4 modelMatrix = volMatrix * scaleBox;
+	mat4 scaleBox = glm::scale(mat4(1.0f), 0.1f * scale * matrix_size);
+	mat4 modelMatrix = volume_matrix * scaleBox;
 	mat4 vpMatrix = camera.vpMatrix;
 	mat4 mvpMatrix = vpMatrix * modelMatrix;
-	mat4 volMatrixInv = inverse(volMatrix);
+	mat4 volMatrixInv = inverse(volume_matrix);
 
 	shader.PushMatrix("uModelMatrix", modelMatrix);
 	shader.PushMatrix("uVpMatrix", vpMatrix);
 	shader.PushMatrix("uMvpMatrix", mvpMatrix);
-	shader.PushMatrix("uVolMatrix", volMatrix);
+	shader.PushMatrix("uVolMatrix", volume_matrix);
 	shader.PushMatrix("uVolMatrixInv", volMatrixInv);
 
 	vao.Bind();
@@ -182,8 +181,8 @@ void RTX_Render::DrawAdvanced(Shader& shader, Camera& camera) {
 	shader.PushTexture2D("uBlueNoise", blueNoise, 8);
 
 	shader.PushInt("uPalette", palette_id);
-	shader.PushVec3("uObjSize", shapeSize);
-	shader.PushVec4("uVoxelSize", vec4(matrixSize, 0.1f * scale));
+	shader.PushVec3("uObjSize", shape_size);
+	shader.PushVec4("uVoxelSize", vec4(matrix_size, 0.1f * scale));
 	shader.PushVec4("uTextureTile", texture);
 	shader.PushVec3("uTextureParams", vec3(0, 0, 0));
 	shader.PushFloat("uAlpha", 1.0f);
@@ -197,11 +196,10 @@ void RTX_Render::DrawAdvanced(Shader& shader, Camera& camera) {
 	shader.PushVec2("uPixelSize", vec2(1.0f / camera.screen_width, 1.0f / camera.screen_height));
 
 	mat4 vpMatrix = camera.vpMatrix;
-	mat4 volMatrix = getVolumeMatrix();
-	mat4 volMatrixInv = inverse(volMatrix);
+	mat4 volMatrixInv = inverse(volume_matrix);
 
 	shader.PushMatrix("uVpMatrix", vpMatrix);
-	shader.PushMatrix("uVolMatrix", volMatrix);
+	shader.PushMatrix("uVolMatrix", volume_matrix);
 	shader.PushMatrix("uVpInvMatrix", volMatrixInv);
 
 	vao.Bind();
@@ -210,8 +208,8 @@ void RTX_Render::DrawAdvanced(Shader& shader, Camera& camera) {
 }
 
 void RTX_Render::draw(Shader& shader, Camera& camera) {
-	// TODO: switch based on shader name
-	DrawSimple(shader, camera);
+	if (camera.isInFrustum(obb_corners))
+		DrawAdvanced(shader, camera);
 }
 
 void RTX_Render::setTexture(vec4 texture) {

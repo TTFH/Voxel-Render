@@ -5,6 +5,22 @@
 #include "camera.h"
 #include "shader.h"
 
+class SimpleScreen {
+private:
+	VAO vao;
+	GLuint framebuffer;
+	GLuint texture;
+	vec2 position;
+	vec2 size;
+public:
+	SimpleScreen(vec2 position, vec2 size, bool use_framebuffer);
+	void InitFrameBuffer(int width, int height);
+	void start();
+	void end();
+	void setTexture(GLuint texture);
+	void draw(Shader& shader);
+};
+
 class Screen {
 private:
 	VAO vao;

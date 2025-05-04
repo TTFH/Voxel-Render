@@ -6,7 +6,7 @@
 int VoxRender::paletteCount = 0;
 GLuint VoxRender::paletteBank = 0;
 
-mat4 VoxRender::getVolumeMatrix() {
+void VoxRender::generateMatrixAndOBB() {
 	static const mat4 toWorldCoords = mat4(vec4(1, 0, 0, 0),
 										   vec4(0, 0, -1, 0),
 										   vec4(0, 1, 0, 0),
@@ -21,8 +21,26 @@ mat4 VoxRender::getVolumeMatrix() {
 	mat4 world_pos = translate(mat4(1.0f), world_position);
 	mat4 world_rot = mat4_cast(world_rotation);
 	mat4 worldTr = world_pos * world_rot;
+	volume_matrix = worldTr * localTr;
 
-	return worldTr * localTr;
+	// ------------------------------------------------------------------------
+
+	vec3 size_meters = shape_size * scale * 0.1f;
+	vector<vec3> corners = {
+		vec3(0, 0, 0),
+		vec3(size_meters.x, 0, 0),
+		vec3(size_meters.x, size_meters.y, 0),
+		vec3(0, size_meters.y, 0),
+		vec3(0, 0, size_meters.z),
+		vec3(size_meters.x, 0, size_meters.z),
+		vec3(size_meters.x, size_meters.y, size_meters.z),
+		vec3(0, size_meters.y, size_meters.z)
+	};
+	obb_corners.clear();
+	for (vector<vec3>::iterator it = corners.begin(); it != corners.end(); it++) {
+		vec4 world = volume_matrix * vec4(*it, 1.0f);
+		obb_corners.push_back(vec3(world.x, world.y, world.z) / world.w);
+	}
 }
 
 void VoxRender::setTransform(vec3 position, quat rotation) {
@@ -60,44 +78,4 @@ int VoxRender::getIndex(const MV_Diffuse* palette) {
 
 void VoxRender::saveTexture() {
 	SaveTexture("palette.png", paletteBank);
-}
-
-vector<vec3> VoxRender::getOBBCorners() {
-	mat4 volume_matrix = getVolumeMatrix();
-	vec3 size_meters = shapeSize * scale * 0.1f;
-	vector<vec3> corners = {
-		vec3(0, 0, 0),
-		vec3(size_meters.x, 0, 0),
-		vec3(size_meters.x, size_meters.y, 0),
-		vec3(0, size_meters.y, 0),
-		vec3(0, 0, size_meters.z),
-		vec3(size_meters.x, 0, size_meters.z),
-		vec3(size_meters.x, size_meters.y, size_meters.z),
-		vec3(0, size_meters.y, size_meters.z)
-	};
-	for (vector<vec3>::iterator it = corners.begin(); it != corners.end(); it++) {
-		vec4 local = vec4(*it, 1.0f);
-		vec4 world = volume_matrix * local;
-		*it = vec3(world.x, world.y, world.z) / world.w;
-	}
-	return corners;
-}
-
-bool VoxRender::isInFrustum(const Frustum& frustum) {
-	vector<vec3> corners = getOBBCorners();
-	vector<Plane> planes = {
-		frustum.near, frustum.far,
-		frustum.left, frustum.right,
-		frustum.top, frustum.bottom
-	};
-	for (vector<Plane>::iterator plane = planes.begin(); plane != planes.end(); plane++) {
-		int outside_count = 0;
-		for (vector<vec3>::iterator corner = corners.begin(); corner != corners.end(); corner++) {
-			float dist = dot(plane->normal, *corner) + plane->distance;
-			if (dist < 0) outside_count++;
-		}
-		if (outside_count == 8)
-			return false;
-	}
-	return true;
 }

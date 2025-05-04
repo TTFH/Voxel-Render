@@ -16,6 +16,69 @@ static const GLuint screen_indices[] = {
 	1, 3, 2,
 };
 
+SimpleScreen::SimpleScreen(vec2 position, vec2 size, bool use_framebuffer) {
+	this->position = position;
+	this->size = size;
+
+	VBO vbo(screen_vertices, sizeof(screen_vertices));
+	EBO ebo(screen_indices, sizeof(screen_indices));
+	vao.LinkAttrib(0, 2, GL_FLOAT, 4 * sizeof(GLfloat), (GLvoid*)0);
+	vao.LinkAttrib(1, 2, GL_FLOAT, 4 * sizeof(GLfloat), (GLvoid*)(2 * sizeof(GLfloat)));
+	vao.Unbind();
+	vbo.Unbind();
+	ebo.Unbind();
+
+	if (use_framebuffer) InitFrameBuffer(WINDOW_WIDTH, WINDOW_HEIGHT);
+}
+
+void SimpleScreen::InitFrameBuffer(int width, int height) {
+	glGenFramebuffers(1, &framebuffer);
+	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16, width, height, 0, GL_RGB, GL_FLOAT, NULL);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0);
+
+	GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0 };
+	glDrawBuffers(1, drawBuffers);
+
+	GLenum fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	if (fboStatus != GL_FRAMEBUFFER_COMPLETE)
+		printf("[ERROR] Framebuffer failed with status %d\n", fboStatus);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void SimpleScreen::start() {
+	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+void SimpleScreen::end() {
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void SimpleScreen::setTexture(GLuint texture) {
+	this->texture = texture;
+}
+
+void SimpleScreen::draw(Shader& shader) {
+	shader.PushVec2("uPosition", position);
+	shader.PushVec2("uSize", size);
+	shader.PushTexture2D("uTexture", texture, 0);
+
+	vao.Bind();
+	glDrawElements(GL_TRIANGLES, sizeof(screen_indices) / sizeof(GLuint), GL_UNSIGNED_INT, 0);
+	vao.Unbind();
+}
+
+// ----------------------------------------------------------------------------
+
 void Screen::InitFrameBuffer(int width, int height) {
 	glGenFramebuffers(1, &framebuffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);

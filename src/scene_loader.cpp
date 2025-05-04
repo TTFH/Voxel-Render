@@ -113,6 +113,7 @@ void Scene::RecursiveLoad(XMLElement* element, vec3 parent_pos, quat parent_rot)
 			int index = it->second.shape_index;
 			const MV_Shape& shape = vox_file->shapes[index];
 			vec3 pos = it->second.rotation * vec3(-shape.sizex / 2, -shape.sizey / 2, 0);
+			quat rot = it->second.rotation;
 			if (vox.object == "ALL_SHAPES") {
 				pos.z = -shape.sizez / 2;
 				pos += it->second.position;
@@ -135,12 +136,11 @@ void Scene::RecursiveLoad(XMLElement* element, vec3 parent_pos, quat parent_rot)
 				break;
 			}
 
-			renderer->setTransform(pos, it->second.rotation);
+			renderer->setTransform(pos, rot);
 			renderer->setWorldTransform(position, rotation);
 			renderer->setScale(vox.scale);
-
-			//mat4 modelMatrix = renderer->getVolumeMatrix();
-			//shadow_volume->addShape(shape, modelMatrix);
+			renderer->generateMatrixAndOBB();
+			//shadow_volume->addShape(shape, renderer->volume_matrix);
 		}
 	} else if (strcmp(element->Name(), "voxbox") == 0) {
 		vec3 size = vec3(10, 10, 10);
