@@ -20,6 +20,7 @@ protected:
 
 	VAO vao;
 	int palette_id;
+	vec3 shapeSize;
 
 	float scale = 1;
 	vec3 position = vec3(0, 0, 0);
@@ -34,6 +35,8 @@ public:
 	static int getIndex(const MV_Diffuse* palette);
 	static void saveTexture();
 	virtual void draw(Shader& shader, Camera& camera) = 0;
+	vector<vec3> getOBBCorners();
+	bool isInFrustum(const Frustum& frustum);
 	virtual ~VoxRender() {}
 };
 

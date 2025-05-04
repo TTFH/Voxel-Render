@@ -139,6 +139,7 @@ GreedyRender::GreedyRender(const MV_Shape& shape, int palette_id) {
 	GreedyMesh mesh = generateGreedyMesh(shape);
 	this->palette_id = palette_id;
 	index_count = mesh.indices.size();
+	shapeSize = vec3(shape.sizex, shape.sizey, shape.sizez);
 
 #ifdef _BLENDER
 	SaveOBJ(shape.id + ".obj", mesh, palette_id);

@@ -22,7 +22,8 @@ public:
 	void setColor(vec3 color);
 	void setWorldTransform(vec3 position, quat rotation);
 	void draw(Shader& shader, Camera& camera);
-	vector<vec3> getWorldCorners();
+
+	vector<vec3> getOBBCorners();
 	bool isInFrustum(const Frustum& frustum);
 	void handleInputs(GLFWwindow* window);
 };

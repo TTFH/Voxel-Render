@@ -256,7 +256,6 @@ void Scene::RecursiveLoad(XMLElement* element, vec3 parent_pos, quat parent_rot)
 }
 
 Scene::Scene(string path) {
-	shadow_volume = new ShadowVolume(20, 5, 20);
 	XMLDocument xml_file;
 	if (xml_file.LoadFile(path.c_str()) != XML_SUCCESS) {
 		printf("[Warning] XML file %s not found or corrupted.\n", path.c_str());
@@ -272,6 +271,7 @@ Scene::Scene(string path) {
 	vec3 position = vec3(0, 0, 0);
 	quat rotation = quat(1, 0, 0, 0);
 	spawnpoint = { position, rotation };
+	shadow_volume = new ShadowVolume(20, 5, 20);
 	RecursiveLoad(root, position, rotation);
 	shadow_volume->updateTexture();
 }

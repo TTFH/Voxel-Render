@@ -7,10 +7,10 @@ int VoxRender::paletteCount = 0;
 GLuint VoxRender::paletteBank = 0;
 
 mat4 VoxRender::getVolumeMatrix() {
-	mat4 toWorldCoords = mat4(  vec4(1, 0, 0, 0),
-								vec4(0, 0, -1, 0),
-								vec4(0, 1, 0, 0),
-								vec4(0, 0, 0, 1));
+	static const mat4 toWorldCoords = mat4(vec4(1, 0, 0, 0),
+										   vec4(0, 0, -1, 0),
+										   vec4(0, 1, 0, 0),
+										   vec4(0, 0, 0, 1));
 
 	// Coordinate system: x right, z up, y forward, scale 10 voxels : 1 meter
 	mat4 pos = translate(mat4(1.0f), 0.1f * scale * position);
@@ -60,4 +60,44 @@ int VoxRender::getIndex(const MV_Diffuse* palette) {
 
 void VoxRender::saveTexture() {
 	SaveTexture("palette.png", paletteBank);
+}
+
+vector<vec3> VoxRender::getOBBCorners() {
+	mat4 volume_matrix = getVolumeMatrix();
+	vec3 size_meters = shapeSize * scale * 0.1f;
+	vector<vec3> corners = {
+		vec3(0, 0, 0),
+		vec3(size_meters.x, 0, 0),
+		vec3(size_meters.x, size_meters.y, 0),
+		vec3(0, size_meters.y, 0),
+		vec3(0, 0, size_meters.z),
+		vec3(size_meters.x, 0, size_meters.z),
+		vec3(size_meters.x, size_meters.y, size_meters.z),
+		vec3(0, size_meters.y, size_meters.z)
+	};
+	for (vector<vec3>::iterator it = corners.begin(); it != corners.end(); it++) {
+		vec4 local = vec4(*it, 1.0f);
+		vec4 world = volume_matrix * local;
+		*it = vec3(world.x, world.y, world.z) / world.w;
+	}
+	return corners;
+}
+
+bool VoxRender::isInFrustum(const Frustum& frustum) {
+	vector<vec3> corners = getOBBCorners();
+	vector<Plane> planes = {
+		frustum.near, frustum.far,
+		frustum.left, frustum.right,
+		frustum.top, frustum.bottom
+	};
+	for (vector<Plane>::iterator plane = planes.begin(); plane != planes.end(); plane++) {
+		int outside_count = 0;
+		for (vector<vec3>::iterator corner = corners.begin(); corner != corners.end(); corner++) {
+			float dist = dot(plane->normal, *corner) + plane->distance;
+			if (dist < 0) outside_count++;
+		}
+		if (outside_count == 8)
+			return false;
+	}
+	return true;
 }

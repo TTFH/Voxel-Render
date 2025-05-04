@@ -107,6 +107,7 @@ HexRender::HexRender(const MV_Shape& shape, int palette_id) {
 
 	this->palette_id = palette_id;
 	this->voxel_count = trimed_voxels.size();
+	shapeSize = vec3(shape.sizex, shape.sizey, shape.sizez);
 
 	VBO vbo(hex_prism_vertices, sizeof(hex_prism_vertices));
 	EBO ebo(hex_prism_indices, sizeof(hex_prism_indices));

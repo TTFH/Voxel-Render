@@ -211,7 +211,7 @@ void RTX_Render::DrawAdvanced(Shader& shader, Camera& camera) {
 
 void RTX_Render::draw(Shader& shader, Camera& camera) {
 	// TODO: switch based on shader name
-	DrawAdvanced(shader, camera);
+	DrawSimple(shader, camera);
 }
 
 void RTX_Render::setTexture(vec4 texture) {

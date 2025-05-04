@@ -134,11 +134,12 @@ vector<vec3> getFrustumCorners(const Frustum& frustum) {
 
 int main(/*int argc, char* argv[]*/) {
 	GLFWwindow* window = InitOpenGL("OpenGL Test");
+	//Shader screen_shader("screen");
+	Shader voxel_rtx_shader("editorvox");
 	Shader voxbox_shader("shaders/voxbox_vert.glsl", "shaders/voxbox_frag.glsl");
 	Shader rope_shader("shaders/rope_vert.glsl", "shaders/rope_frag.glsl");
 
-	/*Shader screen_shader("screen");
-	SimpleScreen left(vec2(-0.5, 0), vec2(0.5, 1));
+	/*SimpleScreen left(vec2(-0.5, 0), vec2(0.5, 1));
 	SimpleScreen right(vec2(0.5, 0), vec2(0.5, 1));*/
 
 	Camera camera1(vec3(0, 1.8, 10));
@@ -156,10 +157,15 @@ int main(/*int argc, char* argv[]*/) {
 	}};
 
 	Frustum frustum;
-	Light light(vec3(30, 40, 50));
 	vector<RopeRender*> debug_lines;
+	Light light(vec3(30, 40, 50));
 	VoxboxRender cube(vec3(10, 10, 10), vec3(0, 0, 1));
 	cube.setWorldTransform(vec3(-0.5, 0, -0.5), quat(1, 0, 0, 0));
+
+
+	VoxLoader vox_file("light.vox");
+	RTX_Render shape(vox_file.shapes[0], vox_file.palette_id);
+	shape.setWorldTransform(vec3(-0.5, 10, -0.5), quat(1, 0, 0, 0));
 
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_MULTISAMPLE);
@@ -174,7 +180,6 @@ int main(/*int argc, char* argv[]*/) {
 			glfwSetWindowShouldClose(window, true);
 		camera1.handleInputs(window);
 		light.handleInputs(window);
-		cube.handleInputs(window);
 
 		if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS) {
 			for (vector<RopeRender*>::iterator it = debug_lines.begin(); it != debug_lines.end(); it++)
@@ -192,10 +197,10 @@ int main(/*int argc, char* argv[]*/) {
 			}
 			camera1.updateFarPlane(500);
 
-			vector<vec3> cube_corners = cube.getWorldCorners();
+			vector<vec3> cube_corners = shape.getOBBCorners();
 			debug_lines.push_back(new RopeRender(cube_corners, vec3(1, 1, 1)));
 		}
-		if (cube.isInFrustum(frustum))
+		if (shape.isInFrustum(frustum))
 			cube.setColor(vec3(0, 1, 0));
 		else
 			cube.setColor(vec3(1, 0, 0));
@@ -222,9 +227,13 @@ int main(/*int argc, char* argv[]*/) {
 		left.draw(screen_shader);
 		right.draw(screen_shader);*/
 
+		voxel_rtx_shader.Use();
+		shape.draw(voxel_rtx_shader, camera1);
+
 		voxbox_shader.Use();
 		light.pushUniforms(voxbox_shader);
 		cube.draw(voxbox_shader, camera1);
+
 		rope_shader.Use();
 		for (vector<RopeRender*>::iterator it = debug_lines.begin(); it != debug_lines.end(); it++)
 			(*it)->draw(rope_shader, camera1);

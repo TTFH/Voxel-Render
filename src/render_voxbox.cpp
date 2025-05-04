@@ -94,11 +94,11 @@ void VoxboxRender::draw(Shader& shader, Camera& camera) {
 	glDrawElements(GL_TRIANGLES, sizeof(cube_indices) / sizeof(GLuint), GL_UNSIGNED_INT, 0);
 	vao.Unbind();
 }
-
-vector<vec3> VoxboxRender::getWorldCorners() {
+// TODO: remove
+vector<vec3> VoxboxRender::getOBBCorners() {
 	vector<vec3> corners;
 	vec3 size_meters = size * 0.1f;
-	vector<vec3> localCorners = {
+	vector<vec3> local_corners = {
 		vec3(0, 0, 0),
 		vec3(size_meters.x, 0, 0),
 		vec3(size_meters.x, size_meters.y, 0),
@@ -108,7 +108,7 @@ vector<vec3> VoxboxRender::getWorldCorners() {
 		vec3(size_meters.x, size_meters.y, size_meters.z),
 		vec3(0, size_meters.y, size_meters.z)
 	};
-	for (vector<vec3>::iterator it = localCorners.begin(); it != localCorners.end(); it++) {
+	for (vector<vec3>::iterator it = local_corners.begin(); it != local_corners.end(); it++) {
 		vec3 local = *it;
 		vec3 rotated = rotation * local;
 		vec3 world = rotated + position;
@@ -116,28 +116,26 @@ vector<vec3> VoxboxRender::getWorldCorners() {
 	}
 	return corners;
 }
-
+// TODO: remove
 bool VoxboxRender::isInFrustum(const Frustum& frustum) {
-	vector<vec3> corners = getWorldCorners();
+	vector<vec3> corners = getOBBCorners();
 	vector<Plane> planes = {
 		frustum.near, frustum.far,
 		frustum.left, frustum.right,
 		frustum.top, frustum.bottom
 	};
-	for (vector<Plane>::iterator it = planes.begin(); it != planes.end(); it++) {
-		Plane plane = *it;
-		int outsideCount = 0;
-		for (vector<vec3>::iterator it2 = corners.begin(); it2 != corners.end(); it2++) {
-			vec3 corner = *it2;
-			float dist = dot(plane.normal, corner) + plane.distance;
-			if (dist < 0) outsideCount++;
+	for (vector<Plane>::iterator plane = planes.begin(); plane != planes.end(); plane++) {
+		int outside_count = 0;
+		for (vector<vec3>::iterator corner = corners.begin(); corner != corners.end(); corner++) {
+			float dist = dot(plane->normal, *corner) + plane->distance;
+			if (dist < 0) outside_count++;
 		}
-		if (outsideCount == 8)
+		if (outside_count == 8)
 			return false;
 	}
 	return true;
 }
-
+// TODO: remove
 void VoxboxRender::handleInputs(GLFWwindow* window) {
 	if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
 		position.y += 0.025f;

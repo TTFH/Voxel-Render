@@ -6,6 +6,7 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
+// TODO: remove
 //GLuint foamTexture;
 //float time = 0.0f;
 

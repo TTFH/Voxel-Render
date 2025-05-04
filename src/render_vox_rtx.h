@@ -12,7 +12,6 @@
 
 class RTX_Render : public VoxRender {
 private:
-	vec3 shapeSize;
 	vec3 matrixSize;
 	GLuint volumeTexture;
 	vec4 texture = vec4(0, 0, 1, 1);
