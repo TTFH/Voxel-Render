@@ -16,6 +16,7 @@ class VoxRender {
 protected:
 	static int paletteCount;
 	static GLuint paletteBank;
+	static GLuint materialBank;
 	static const int MAX_PALETTES = 1024;
 
 	VAO vao;
@@ -36,7 +37,7 @@ public:
 	void setScale(float scale);
 	void generateMatrixAndOBB();
 
-	static int getIndex(const MV_Diffuse* palette);
+	static int getIndex(const MV_Diffuse* palette, const MV_Material* material);
 	static void saveTexture();
 
 	virtual void draw(Shader& shader, Camera& camera) = 0;

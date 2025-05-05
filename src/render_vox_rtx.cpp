@@ -172,7 +172,7 @@ void RTX_Render::DrawSimple(Shader& shader, Camera& camera) {
 void RTX_Render::DrawAdvanced(Shader& shader, Camera& camera) {
 	shader.PushTexture3D("uVolTex", volumeTexture, 0);
 	shader.PushTexture2D("uColor", paletteBank, 1);
-	//shader.PushTexture2D("uMaterial", materialBank, 2);
+	shader.PushTexture2D("uMaterial", materialBank, 2);
 	shader.PushTexture2D("uAlbedoMap", albedoMap, 3);
 	shader.PushTexture2D("uBlendMap", blendMap, 4);
 	shader.PushTexture2D("uNormalMap", normalMap, 5);

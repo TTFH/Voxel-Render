@@ -17,8 +17,16 @@ using namespace std;
 struct MV_Diffuse {
 	uint8_t r, g, b, a;
 };
-/*
+
+enum MV_MaterialType {
+	DIFFUSE,
+	METAL,
+	GLASS,
+	EMIT
+};
+
 struct MV_PBR {
+	MV_MaterialType type;
 	uint8_t flux;
 	float rough, sp, metal, emit;
 };
@@ -28,8 +36,11 @@ struct MV_Material {
 	float shinyness;
 	float metalness;
 	float emissive;
-}
-*/
+
+	MV_Material() {}
+	MV_Material(MV_PBR pbr);
+};
+
 struct MV_Voxel {
 	uint8_t x, y, z, index;
 };
@@ -53,6 +64,7 @@ public:
 	int palette_id;
 	vector<MV_Shape> shapes;
 	MV_Diffuse palette[256];
+	MV_Material material[256];
 	multimap<string, MV_Model> models;
 	VoxLoader(const char* filename);
 };

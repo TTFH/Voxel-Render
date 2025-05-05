@@ -5,6 +5,7 @@
 
 int VoxRender::paletteCount = 0;
 GLuint VoxRender::paletteBank = 0;
+GLuint VoxRender::materialBank = 0;
 
 void VoxRender::generateMatrixAndOBB() {
 	static const mat4 toWorldCoords = mat4(vec4(1, 0, 0, 0),
@@ -57,17 +58,27 @@ void VoxRender::setScale(float scale) {
 	this->scale = scale;
 }
 
-int VoxRender::getIndex(const MV_Diffuse* palette) {
+int VoxRender::getIndex(const MV_Diffuse* palette, const MV_Material* material) {
 	if (paletteCount == 0) { // Create texture
 		glGenTextures(1, &paletteBank);
 		glBindTexture(GL_TEXTURE_2D, paletteBank);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, MAX_PALETTES, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+
+		glGenTextures(1, &materialBank);
+		glBindTexture(GL_TEXTURE_2D, materialBank);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, MAX_PALETTES, 0, GL_RGBA, GL_FLOAT, NULL);
 	}
 	if (paletteCount < MAX_PALETTES) {
 		glBindTexture(GL_TEXTURE_2D, paletteBank);
 		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, paletteCount, 256, 1, GL_RGBA, GL_UNSIGNED_BYTE, palette);
+		glBindTexture(GL_TEXTURE_2D, 0);
+
+		glBindTexture(GL_TEXTURE_2D, materialBank);
+		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, paletteCount, 256, 1, GL_RGBA, GL_FLOAT, material);
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 	if (paletteCount == MAX_PALETTES)

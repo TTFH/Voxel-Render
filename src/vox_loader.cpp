@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdexcept>
 
 #include "vox_loader.h"
 #include "render_vox_greedy.h"
@@ -71,10 +72,52 @@ DICT ReadDict(FILE* file) {
 
 string GetDictValue(DICT& dict, string key) {
 	DICT::iterator it = dict.find(key);
-	if (it != dict.end()) {
+	if (it != dict.end())
 		return it->second;
-	}
 	return "";
+}
+
+MV_Material::MV_Material(MV_PBR pbr) {
+	reflectivity = 0.1f;
+	shinyness = 1.0f;
+	metalness = 0.0f;
+	emissive = 0.0f;
+
+	switch (pbr.type) {
+	case METAL:
+		reflectivity = pbr.sp;
+		shinyness = 1.0f - pbr.rough;
+		metalness = pbr.metal;
+		break;
+	case GLASS:
+		shinyness = 1.0f - pbr.rough;
+		break;
+	case EMIT:
+		emissive = pbr.emit * pow(10, pbr.flux);
+		break;
+	default:
+		break;
+	}
+}
+
+MV_MaterialType GetMaterialType(string type) {
+	if (type == "_glass")
+		return GLASS;
+	else if (type == "_metal")
+		return METAL;
+	else if (type == "_emit")
+		return EMIT;
+	return DIFFUSE;
+}
+
+float StringToFloat(string str) {
+	try {
+		return stof(str);
+	} catch (const invalid_argument&) {
+		return 0.0f;
+	} catch (const out_of_range&) {
+		return 0.0f;
+	}
 }
 
 int ReadHeader(FILE* file) {
@@ -202,8 +245,20 @@ VoxLoader::VoxLoader(const char* filename) {
 		case MATL: {
 				int material_id = ReadInt(file);
 				DICT mat_properties = ReadDict(file);
-				if (GetDictValue(mat_properties, "_type") == "_glass" && GetDictValue(mat_properties, "_alpha") != "1.0")
-					palette[material_id % 256].a = 0.5;
+
+				MV_PBR pbr;
+				pbr.type = GetMaterialType(GetDictValue(mat_properties, "_type"));
+				pbr.flux = StringToFloat(GetDictValue(mat_properties, "_flux"));
+				pbr.rough = StringToFloat(GetDictValue(mat_properties, "_rough"));
+				pbr.sp = StringToFloat(GetDictValue(mat_properties, "_sp"));
+				pbr.metal = StringToFloat(GetDictValue(mat_properties, "_metal"));
+				pbr.emit = StringToFloat(GetDictValue(mat_properties, "_emit"));
+
+				int index = material_id % 256;
+				bool transparent = GetDictValue(mat_properties, "_alpha") != "1.0";
+				if (pbr.type == GLASS && transparent)
+					palette[index].a = 0.5f;
+				material[index] = MV_Material(pbr);
 			}
 			break;
 		default:
@@ -213,7 +268,7 @@ VoxLoader::VoxLoader(const char* filename) {
 	}
 	fclose(file);
 
-	palette_id = VoxRender::getIndex(palette); // TODO: move to Scene, add map<filename, palette_id> as cache
+	palette_id = VoxRender::getIndex(palette, material);
 #ifdef _BLENDER
 	VoxRender::SaveTexture();
 #endif
