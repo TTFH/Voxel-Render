@@ -18,7 +18,7 @@ private:
 	VAO vao;
 	int width, height, depth;
 	GLuint volume_texture;
-	uint8_t* shadowVolume_mip0;
+	uint8_t* shadow_volume_mip0;
 
 	XMLDocument scene_xml;
 	XMLElement* scene_root = NULL;

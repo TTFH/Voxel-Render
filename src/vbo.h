@@ -21,8 +21,8 @@ public:
 	}
 	VBO(const GLfloat* vertices, GLsizeiptr size);
 	~VBO();
-	void Bind();
-	void Unbind();
+	void bind();
+	void unbind();
 };
 
 #endif

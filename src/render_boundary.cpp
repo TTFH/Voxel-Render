@@ -49,27 +49,27 @@ BoundaryRender::BoundaryRender(vector<vec2> vertices_2d) {
 	VBO vbo(vertices);
 	EBO ebo(indices);
 
-	vao.LinkAttrib(0, 3, GL_FLOAT, sizeof(BoundaryVertex), (GLvoid*)0);						// Vertex position
-	vao.LinkAttrib(1, 2, GL_FLOAT, sizeof(BoundaryVertex), (GLvoid*)(3 * sizeof(GLfloat))); // Texture coord
+	vao.linkAttrib(0, 3, GL_FLOAT, sizeof(BoundaryVertex), (GLvoid*)0);						// Vertex position
+	vao.linkAttrib(1, 2, GL_FLOAT, sizeof(BoundaryVertex), (GLvoid*)(3 * sizeof(GLfloat))); // Texture coord
 
-	vao.Unbind();
-	vbo.Unbind();
-	ebo.Unbind();
+	vao.unbind();
+	vbo.unbind();
+	ebo.unbind();
 
 	index_count = indices.size();
 	boundary_texture = LoadTexture2D("textures/boundary.png");
 }
 
 void BoundaryRender::draw(Shader& shader, Camera& camera) {
-	shader.PushMatrix("uMvpMatrix", camera.vpMatrix);
+	shader.pushMatrix("uMvpMatrix", camera.vp_matrix);
 
-	shader.PushTexture2D("uTexture", boundary_texture, 1);
-	shader.PushFloat("uVisibleDistance", 100.0f);
-	shader.PushVec4("uColor", vec4(2.0f, 1.0f, 0.0f, 1.0f));
-	shader.PushVec3("uFocus0", camera.position);
-	shader.PushFloat("uInvFar", 1.0f / camera.FAR_PLANE);
+	shader.pushTexture2D("uTexture", boundary_texture, 1);
+	shader.pushFloat("uVisibleDistance", 100.0f);
+	shader.pushVec4("uColor", vec4(2.0f, 1.0f, 0.0f, 1.0f));
+	shader.pushVec3("uFocus0", camera.position);
+	shader.pushFloat("uInvFar", 1.0f / camera.FAR_PLANE);
 
-	vao.Bind();
+	vao.bind();
 	glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_INT, 0);
-	vao.Unbind();
+	vao.unbind();
 }

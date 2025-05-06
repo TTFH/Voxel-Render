@@ -14,7 +14,7 @@ private:
 	vec2 size;
 public:
 	SimpleScreen(vec2 position, vec2 size, bool use_framebuffer);
-	void InitFrameBuffer(int width, int height);
+	void initFrameBuffer(int width, int height);
 	void start();
 	void end();
 	void setTexture(GLuint texture);
@@ -33,7 +33,7 @@ private:
 	GLuint materialTexture;
 	GLuint motionTexture;
 	GLuint depthTexture;
-	void InitFrameBuffer(int width, int height);
+	void initFrameBuffer(int width, int height);
 public:
 	Screen();
 	void start();

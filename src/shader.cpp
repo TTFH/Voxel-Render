@@ -6,45 +6,45 @@
 
 #include <glm/gtc/type_ptr.hpp>
 
-void Shader::Create(const char* vertexSource, const char* fragmentSource) {
-	GLint hasCompiled;
-	char infoLog[1024];
+void Shader::create(const char* vertex_source, const char* fragment_source) {
+	GLint has_compiled;
+	char info_log[1024];
 
-	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertexShader, 1, &vertexSource, NULL);
-	glCompileShader(vertexShader);
+	GLuint vertex_shader = glCreateShader(GL_VERTEX_SHADER);
+	glShaderSource(vertex_shader, 1, &vertex_source, NULL);
+	glCompileShader(vertex_shader);
 	
-	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &hasCompiled);
-	glGetShaderInfoLog(vertexShader, 1024, NULL, infoLog);
-	if (hasCompiled == GL_FALSE)
-		printf("[ERROR] Vertex shader %s failed to compile\n%s\n", path1.c_str(), infoLog);
-	else if (strcmp(infoLog, "") != 0)
-		printf("[Warning] Vertex shader %s compiled with warnings\n%s\n", path1.c_str(), infoLog);
+	glGetShaderiv(vertex_shader, GL_COMPILE_STATUS, &has_compiled);
+	glGetShaderInfoLog(vertex_shader, 1024, NULL, info_log);
+	if (has_compiled == GL_FALSE)
+		printf("[ERROR] Vertex shader %s failed to compile\n%s\n", path1.c_str(), info_log);
+	else if (strcmp(info_log, "") != 0)
+		printf("[Warning] Vertex shader %s compiled with warnings\n%s\n", path1.c_str(), info_log);
 
-	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragmentShader, 1, &fragmentSource, NULL);
-	glCompileShader(fragmentShader);
+	GLuint fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(fragment_shader, 1, &fragment_source, NULL);
+	glCompileShader(fragment_shader);
 
-	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &hasCompiled);
-	glGetShaderInfoLog(fragmentShader, 1024, NULL, infoLog);
-	if (hasCompiled == GL_FALSE)
-		printf("[ERROR] Fragment shader %s failed to compile\n%s\n", path2.c_str(), infoLog);
-	else if (strcmp(infoLog, "") != 0)
-		printf("[Warning] Fragment shader %s compiled with warnings\n%s\n", path2.c_str(), infoLog);
+	glGetShaderiv(fragment_shader, GL_COMPILE_STATUS, &has_compiled);
+	glGetShaderInfoLog(fragment_shader, 1024, NULL, info_log);
+	if (has_compiled == GL_FALSE)
+		printf("[ERROR] Fragment shader %s failed to compile\n%s\n", path2.c_str(), info_log);
+	else if (strcmp(info_log, "") != 0)
+		printf("[Warning] Fragment shader %s compiled with warnings\n%s\n", path2.c_str(), info_log);
 
 	id = glCreateProgram();
-	glAttachShader(id, vertexShader);
-	glAttachShader(id, fragmentShader);
+	glAttachShader(id, vertex_shader);
+	glAttachShader(id, fragment_shader);
 	glLinkProgram(id);
 
-	glGetProgramiv(id, GL_LINK_STATUS, &hasCompiled);
-	if (hasCompiled == GL_FALSE) {
+	glGetProgramiv(id, GL_LINK_STATUS, &has_compiled);
+	if (has_compiled == GL_FALSE) {
 		//glGetProgramInfoLog(id, 1024, NULL, infoLog);
 		throw runtime_error("Program linking failed");
 	}
 
-	glDeleteShader(vertexShader);
-	glDeleteShader(fragmentShader);
+	glDeleteShader(vertex_shader);
+	glDeleteShader(fragment_shader);
 }
 
 Shader::Shader(const char* name) {
@@ -52,30 +52,30 @@ Shader::Shader(const char* name) {
 	unified = true;
 	path1 = path;
 	path2 = path;
-	Load();
+	load();
 }
 
 Shader::Shader(const char* vertexPath, const char* fragmentPath) {
 	unified = false;
 	path1 = vertexPath;
 	path2 = fragmentPath;
-	Load();
+	load();
 }
 
-void Shader::Load() {
+void Shader::load() {
 	if (unified) {
-		string shaderCode = ReadFile(path1.c_str());
-		string vertexCode = string(VERSION) + VERTEX + shaderCode;
-		string fragmentCode = string(VERSION) + FRAGMENT + shaderCode;
-		Create(vertexCode.c_str(), fragmentCode.c_str());
+		string shader_code = ReadFile(path1.c_str());
+		string vertex_code = string(VERSION) + VERTEX + shader_code;
+		string fragment_code = string(VERSION) + FRAGMENT + shader_code;
+		create(vertex_code.c_str(), fragment_code.c_str());
 	} else {
-		string vertexCode = ReadFile(path1.c_str());
-		string fragmentCode = ReadFile(path2.c_str());
-		Create(vertexCode.c_str(), fragmentCode.c_str());
+		string vertex_code = ReadFile(path1.c_str());
+		string fragment_code = ReadFile(path2.c_str());
+		create(vertex_code.c_str(), fragment_code.c_str());
 	}
 }
 
-GLint Shader::GetLocation(const char* uniform) {
+GLint Shader::getLocation(const char* uniform) {
 	if (uniforms.find(uniform) == uniforms.end()) {
 		GLint location = glGetUniformLocation(id, uniform);
 		if (location == -1)
@@ -85,66 +85,66 @@ GLint Shader::GetLocation(const char* uniform) {
 	return uniforms[uniform];
 }
 
-void Shader::PushInt(const char* uniform, int value) {
-	glUniform1i(GetLocation(uniform), value);
+void Shader::pushInt(const char* uniform, int value) {
+	glUniform1i(getLocation(uniform), value);
 }
 
-void Shader::PushUInt(const char* uniform, unsigned int value) {
-	glUniform1ui(GetLocation(uniform), value);
+void Shader::pushUInt(const char* uniform, unsigned int value) {
+	glUniform1ui(getLocation(uniform), value);
 }
 
-void Shader::PushFloat(const char* uniform, float value) {
-	glUniform1f(GetLocation(uniform), value);
+void Shader::pushFloat(const char* uniform, float value) {
+	glUniform1f(getLocation(uniform), value);
 }
 
-void Shader::PushVec2(const char* uniform, vec2 value) {
-	glUniform2fv(GetLocation(uniform), 1, value_ptr(value));
+void Shader::pushVec2(const char* uniform, vec2 value) {
+	glUniform2fv(getLocation(uniform), 1, value_ptr(value));
 }
 
-void Shader::PushVec3(const char* uniform, vec3 value) {
-	glUniform3fv(GetLocation(uniform), 1, value_ptr(value));
+void Shader::pushVec3(const char* uniform, vec3 value) {
+	glUniform3fv(getLocation(uniform), 1, value_ptr(value));
 }
 
-void Shader::PushVec4(const char* uniform, vec4 value) {
-	glUniform4fv(GetLocation(uniform), 1, value_ptr(value));
+void Shader::pushVec4(const char* uniform, vec4 value) {
+	glUniform4fv(getLocation(uniform), 1, value_ptr(value));
 }
 
-void Shader::PushMatrix(const char* uniform, mat4 value) {
-	glUniformMatrix4fv(GetLocation(uniform), 1, GL_FALSE, value_ptr(value));
+void Shader::pushMatrix(const char* uniform, mat4 value) {
+	glUniformMatrix4fv(getLocation(uniform), 1, GL_FALSE, value_ptr(value));
 }
 
-void Shader::PushTexture1D(const char* uniform, GLuint texture_id, GLuint unit) {
-	glUniform1i(GetLocation(uniform), unit);
+void Shader::pushTexture1D(const char* uniform, GLuint texture_id, GLuint unit) {
+	glUniform1i(getLocation(uniform), unit);
 	glActiveTexture(GL_TEXTURE0 + unit);
 	glBindTexture(GL_TEXTURE_1D, texture_id);
 }
 
-void Shader::PushTexture2D(const char* uniform, GLuint texture_id, GLuint unit) {
-	glUniform1i(GetLocation(uniform), unit);
+void Shader::pushTexture2D(const char* uniform, GLuint texture_id, GLuint unit) {
+	glUniform1i(getLocation(uniform), unit);
 	glActiveTexture(GL_TEXTURE0 + unit);
 	glBindTexture(GL_TEXTURE_2D, texture_id);
 }
 
-void Shader::PushTexture3D(const char* uniform, GLuint texture_id, GLuint unit) {
-	glUniform1i(GetLocation(uniform), unit);
+void Shader::pushTexture3D(const char* uniform, GLuint texture_id, GLuint unit) {
+	glUniform1i(getLocation(uniform), unit);
 	glActiveTexture(GL_TEXTURE0 + unit);
 	glBindTexture(GL_TEXTURE_3D, texture_id);
 }
 
-void Shader::PushTextureCubeMap(const char* uniform, GLuint texture_id, GLuint unit) {
-	glUniform1i(GetLocation(uniform), unit);
+void Shader::pushTextureCubeMap(const char* uniform, GLuint texture_id, GLuint unit) {
+	glUniform1i(getLocation(uniform), unit);
 	glActiveTexture(GL_TEXTURE0 + unit);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, texture_id);
 }
 
-void Shader::Use() {
+void Shader::use() {
 	glUseProgram(id);
 }
 
-void Shader::Reload() {
+void Shader::reload() {
 	GLuint old_id = id;
 	try {
-		Load();
+		load();
 		uniforms.clear();
 	} catch (const runtime_error& e) {
 		printf("[Warning] Shader %s failed to reload\n", path1.c_str());

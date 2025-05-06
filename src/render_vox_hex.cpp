@@ -112,41 +112,41 @@ HexRender::HexRender(const MV_Shape& shape, int palette_id) {
 	VBO vbo(hex_prism_vertices, sizeof(hex_prism_vertices));
 	EBO ebo(hex_prism_indices, sizeof(hex_prism_indices));
 
-	vao.LinkAttrib(0, 3, GL_FLOAT, 6 * sizeof(GLfloat), (GLvoid*)0);					 // Vertex position
-	vao.LinkAttrib(1, 3, GL_FLOAT, 6 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat))); // Normal
+	vao.linkAttrib(0, 3, GL_FLOAT, 6 * sizeof(GLfloat), (GLvoid*)0);					 // Vertex position
+	vao.linkAttrib(1, 3, GL_FLOAT, 6 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat))); // Normal
 
 	VBO instaceVBO(trimed_voxels);
-	vao.LinkAttrib(2, 1, GL_UNSIGNED_BYTE, sizeof(MV_Voxel), (GLvoid*)(3 * sizeof(uint8_t))); // Palette index
-	vao.LinkAttrib(3, 3, GL_UNSIGNED_BYTE, sizeof(MV_Voxel), (GLvoid*)0);					  // Voxel position
+	vao.linkAttrib(2, 1, GL_UNSIGNED_BYTE, sizeof(MV_Voxel), (GLvoid*)(3 * sizeof(uint8_t))); // Palette index
+	vao.linkAttrib(3, 3, GL_UNSIGNED_BYTE, sizeof(MV_Voxel), (GLvoid*)0);					  // Voxel position
 	glVertexAttribDivisor(2, 1);
 	glVertexAttribDivisor(3, 1);
-	instaceVBO.Unbind();
+	instaceVBO.unbind();
 
-	vao.Unbind();
-	vbo.Unbind();
-	ebo.Unbind();
+	vao.unbind();
+	vbo.unbind();
+	ebo.unbind();
 }
 
 void HexRender::draw(Shader& shader, Camera& camera) {
-	shader.PushMatrix("camera", camera.vpMatrix);
+	shader.pushMatrix("camera", camera.vp_matrix);
 
-	shader.PushFloat("scale", scale);
-	shader.PushInt("uPalette", palette_id);
-	shader.PushVec3("size", vec3(0, 0, 0)); // SM flag not a voxagon
-	shader.PushTexture2D("uColor", paletteBank, 1); // Texture 0 is SM
+	shader.pushFloat("scale", scale);
+	shader.pushInt("uPalette", palette_id);
+	shader.pushVec3("size", vec3(0, 0, 0)); // SM flag not a voxagon
+	shader.pushTexture2D("uColor", paletteBank, 1); // Texture 0 is SM
 
 	mat4 pos = translate(mat4(1.0f), position);
 	mat4 rot = mat4_cast(rotation);
-	shader.PushMatrix("position", pos);
-	shader.PushMatrix("rotation", rot);
+	shader.pushMatrix("position", pos);
+	shader.pushMatrix("rotation", rot);
 
 	mat4 world_pos = translate(mat4(1.0f), world_position);
 	mat4 world_rot = mat4_cast(world_rotation);
-	shader.PushMatrix("world_pos", world_pos);
-	shader.PushMatrix("world_rot", world_rot);
+	shader.pushMatrix("world_pos", world_pos);
+	shader.pushMatrix("world_rot", world_rot);
 
 	// Use GL_LINES for wireframe
-	vao.Bind();
+	vao.bind();
 	glDrawElementsInstanced(GL_TRIANGLES, sizeof(hex_prism_indices) / sizeof(GLuint), GL_UNSIGNED_INT, 0, voxel_count);
-	vao.Unbind();
+	vao.unbind();
 }

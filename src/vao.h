@@ -9,9 +9,9 @@ private:
 public:
 	VAO();
 	~VAO();
-	void LinkAttrib(GLuint index, GLint size, GLenum type, GLsizeiptr stride, GLvoid* offset);
-	void Bind();
-	void Unbind();
+	void linkAttrib(GLuint index, GLint size, GLenum type, GLsizeiptr stride, GLvoid* offset);
+	void bind();
+	void unbind();
 };
 
 #endif

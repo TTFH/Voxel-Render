@@ -10,7 +10,7 @@ struct Triangle {
 	int tex_index[3];
 };
 
-void Mesh::LoadSimpleOBJ(const char* path) {
+void Mesh::loadSimpleOBJ(const char* path) {
 	vector<vec3> positions;
 	vector<vec3> normals;
 	vector<Triangle> mesh;
@@ -62,7 +62,7 @@ void Mesh::LoadSimpleOBJ(const char* path) {
 	}
 }
 
-void Mesh::LoadOBJ(const char* path) {
+void Mesh::loadOBJ(const char* path) {
 	vector<vec3> positions;
 	vector<vec3> normals;
 	vector<vec2> tex_coords;
@@ -137,7 +137,7 @@ void Mesh::LoadOBJ(const char* path) {
 	}
 }
 
-void Mesh::SaveOBJ(const char* path) {
+void Mesh::saveOBJ(const char* path) {
 	FILE* output = fopen(path, "w");
 	if (output == NULL) {
 		printf("[Warning] Could not open file %s\n", path);
@@ -155,26 +155,26 @@ void Mesh::SaveOBJ(const char* path) {
 }
 
 Mesh::Mesh(const char* path) {
-	LoadOBJ(path);
+	loadOBJ(path);
 
 	VBO vbo(vertices);
-	vao.LinkAttrib(0, 3, GL_FLOAT, sizeof(MeshVertex), (GLvoid*)0);						// Position
-	vao.LinkAttrib(1, 3, GL_FLOAT, sizeof(MeshVertex), (GLvoid*)(3 * sizeof(GLfloat))); // Normal
-	vao.LinkAttrib(2, 2, GL_FLOAT, sizeof(MeshVertex), (GLvoid*)(6 * sizeof(GLfloat))); // TexCoord
-	vao.Unbind();
-	vbo.Unbind();
+	vao.linkAttrib(0, 3, GL_FLOAT, sizeof(MeshVertex), (GLvoid*)0);						// Position
+	vao.linkAttrib(1, 3, GL_FLOAT, sizeof(MeshVertex), (GLvoid*)(3 * sizeof(GLfloat))); // Normal
+	vao.linkAttrib(2, 2, GL_FLOAT, sizeof(MeshVertex), (GLvoid*)(6 * sizeof(GLfloat))); // TexCoord
+	vao.unbind();
+	vbo.unbind();
 }
 
 Mesh::Mesh(const char* path, vec3 color) {
 	this->color = color;
-	LoadSimpleOBJ(path);
+	loadSimpleOBJ(path);
 
 	VBO vbo(vertices);
-	vao.LinkAttrib(0, 3, GL_FLOAT, sizeof(MeshVertex), (GLvoid*)0);						// Position
-	vao.LinkAttrib(1, 3, GL_FLOAT, sizeof(MeshVertex), (GLvoid*)(3 * sizeof(GLfloat))); // Normal
-	vao.LinkAttrib(2, 2, GL_FLOAT, sizeof(MeshVertex), (GLvoid*)(6 * sizeof(GLfloat))); // TexCoord
-	vao.Unbind();
-	vbo.Unbind();
+	vao.linkAttrib(0, 3, GL_FLOAT, sizeof(MeshVertex), (GLvoid*)0);						// Position
+	vao.linkAttrib(1, 3, GL_FLOAT, sizeof(MeshVertex), (GLvoid*)(3 * sizeof(GLfloat))); // Normal
+	vao.linkAttrib(2, 2, GL_FLOAT, sizeof(MeshVertex), (GLvoid*)(6 * sizeof(GLfloat))); // TexCoord
+	vao.unbind();
+	vbo.unbind();
 }
 
 void Mesh::addTexture(const char* path) {
@@ -208,25 +208,25 @@ void Mesh::setWorldTransform(vec3 position, quat rotation) {
 }
 
 void Mesh::draw(Shader& shader, Camera& camera) {
-	shader.PushMatrix("camera", camera.vpMatrix);
-	shader.PushVec3("camera_pos", camera.position);
+	shader.pushMatrix("camera", camera.vp_matrix);
+	shader.pushVec3("camera_pos", camera.position);
 
-	shader.PushFloat("scale", 0); // SM flag not a voxel
-	shader.PushVec3("size", vec3(0, 0, 0)); // SM flag not a voxagon
-	shader.PushVec3("color", color); // No texture
+	shader.pushFloat("scale", 0); // SM flag not a voxel
+	shader.pushVec3("size", vec3(0, 0, 0)); // SM flag not a voxagon
+	shader.pushVec3("color", color); // No texture
 
 	mat4 pos = translate(mat4(1.0f), position);
 	mat4 rot = mat4_cast(rotation);
-	shader.PushMatrix("position", pos);
-	shader.PushMatrix("rotation", rot);
+	shader.pushMatrix("position", pos);
+	shader.pushMatrix("rotation", rot);
 
 	for (unsigned int i = 0; i < textures.size(); i++) {
 		char name[16];
 		sprintf(name, "tex%d", i);
-		shader.PushTexture2D(name, textures[i], i + 1); // Texture 0 is SM
+		shader.pushTexture2D(name, textures[i], i + 1); // Texture 0 is SM
 	}
 
-	vao.Bind();
+	vao.bind();
 	glDrawArrays(GL_TRIANGLES, 0, vertices.size());
-	vao.Unbind();
+	vao.unbind();
 }

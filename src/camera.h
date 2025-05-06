@@ -46,7 +46,7 @@ public:
 	int screen_width, screen_height;
 	bool fullscreen = false;
 	vec3 position, direction;
-	mat4 vpMatrix = mat4(1.0);
+	mat4 vp_matrix = mat4(1.0);
 	Camera(vec3 position = vec3(0, 1.8, 0));
 	void updateScreenSize(int width, int height);
 	void handleInputs(GLFWwindow* window);

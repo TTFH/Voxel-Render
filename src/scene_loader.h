@@ -52,7 +52,7 @@ private:
 	vector<HexRender*> vox_hexagon;
 	vector<GreedyRender*> vox_greedy;
 	map<string, VoxLoader*> vox_files;
-	void RecursiveLoad(XMLElement* element, vec3 parent_pos, quat parent_rot);
+	void recursiveLoad(XMLElement* element, vec3 parent_pos, quat parent_rot);
 public:
 	Transform spawnpoint;
 	Scene(string path);

@@ -22,7 +22,7 @@ void Camera::updateScreenSize(int width, int height) {
 void Camera::updateMatrix() {
 	mat4 view = lookAt(position, position + direction, up);
 	mat4 projection = perspective(radians(FOV), (float)screen_width / screen_height, NEAR_PLANE, FAR_PLANE);
-	vpMatrix = projection * view;
+	vp_matrix = projection * view;
 	updateFrustum();
 }
 
@@ -30,17 +30,17 @@ void Camera::updateFrustum() {
 	const vec3 front = normalize(direction);
 	const vec3 right = normalize(cross(front, up));
 	const vec3 up = normalize(cross(right, front));
-	const vec3 frontMultFar = FAR_PLANE * front;
-	const vec3 frontMultNear = NEAR_PLANE * front;
-	const float halfVSide = FAR_PLANE * tanf(radians(FOV) * 0.5f);
-	const float halfHSide = halfVSide * (float)screen_width / screen_height;
+	const vec3 front_mult_far = FAR_PLANE * front;
+	const vec3 front_mult_near = NEAR_PLANE * front;
+	const float half_v_side = FAR_PLANE * tanf(radians(FOV) * 0.5f);
+	const float half_h_side = half_v_side * (float)screen_width / screen_height;
 
-	frustum.near = Plane(position + frontMultNear, front);
-	frustum.far = Plane(position + frontMultFar, -front);
-	frustum.right = Plane(position, cross(frontMultFar - right * halfHSide, up));
-	frustum.left = Plane(position, cross(up, frontMultFar + right * halfHSide));
-	frustum.top = Plane(position, cross(right, frontMultFar - up * halfVSide));
-	frustum.bottom = Plane(position, cross(frontMultFar + up * halfVSide, right));
+	frustum.near = Plane(position + front_mult_near, front);
+	frustum.far = Plane(position + front_mult_far, -front);
+	frustum.right = Plane(position, cross(front_mult_far - right * half_h_side, up));
+	frustum.left = Plane(position, cross(up, front_mult_far + right * half_h_side));
+	frustum.top = Plane(position, cross(right, front_mult_far - up * half_v_side));
+	frustum.bottom = Plane(position, cross(front_mult_far + up * half_v_side, right));
 }
 
 void Camera::handleInputs(GLFWwindow* window) {
@@ -72,13 +72,13 @@ void Camera::handleInputs(GLFWwindow* window) {
 		double mouse_x, mouse_y;
 		glfwGetCursorPos(window, &mouse_x, &mouse_y);
 		const float sensitivity = 100.0;
-		float rotX = sensitivity * (mouse_y - (screen_height / 2.0)) / screen_height;
-		float rotY = sensitivity * (mouse_x - (screen_width / 2.0)) / screen_width;
+		float rot_x = sensitivity * (mouse_y - (screen_height / 2.0)) / screen_height;
+		float rot_y = sensitivity * (mouse_x - (screen_width / 2.0)) / screen_width;
 
-		vec3 new_orientation = rotate(direction, radians(-rotX), normalize(cross(direction, up)));
+		vec3 new_orientation = rotate(direction, radians(-rot_x), normalize(cross(direction, up)));
 		if (abs(angle(new_orientation, up) - radians(90.0f)) <= radians(85.0f))
 			direction = new_orientation;
-		direction = rotate(direction, radians(-rotY), up);
+		direction = rotate(direction, radians(-rot_y), up);
 		glfwSetCursorPos(window, screen_width / 2.0, screen_height / 2.0);
 	} else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_RELEASE) {
 		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);

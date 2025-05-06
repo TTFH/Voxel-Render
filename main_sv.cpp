@@ -55,17 +55,17 @@ int main(int argc, char* argv[]) {
 		camera.handleInputs(window);
 
 		screen.start();
-		voxel_rtx_shader.Use();
+		voxel_rtx_shader.use();
 		scene.draw(voxel_rtx_shader, camera, RTX);
 		screen.end();
 
 		glClearColor(0.35, 0.54, 0.8, 1);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		screen_shader.Use();
+		screen_shader.use();
 		screen.draw(screen_shader, camera);
 
-		sv_shader.Use();
+		sv_shader.use();
 		scene.drawShadowVolume(sv_shader, camera);
 
 		glfwSwapBuffers(window);

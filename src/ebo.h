@@ -14,8 +14,8 @@ public:
 	EBO(vector<GLuint>& indices);
 	EBO(const GLuint* indices, GLsizeiptr size);
 	~EBO();
-	void Bind();
-	void Unbind();
+	void bind();
+	void unbind();
 };
 
 #endif

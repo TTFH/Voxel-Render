@@ -8,21 +8,21 @@ GLuint VoxRender::paletteBank = 0;
 GLuint VoxRender::materialBank = 0;
 
 void VoxRender::generateMatrixAndOBB() {
-	static const mat4 toWorldCoords = mat4(vec4(1, 0, 0, 0),
-										   vec4(0, 0, -1, 0),
-										   vec4(0, 1, 0, 0),
-										   vec4(0, 0, 0, 1));
+	static const mat4 to_world_coords = mat4(vec4(1, 0, 0, 0),
+											 vec4(0, 0, -1, 0),
+											 vec4(0, 1, 0, 0),
+											 vec4(0, 0, 0, 1));
 
 	// Coordinate system: x right, z up, y forward, scale 10 voxels : 1 meter
 	mat4 pos = translate(mat4(1.0f), 0.1f * scale * position);
 	mat4 rot = mat4_cast(rotation);
-	mat4 localTr = toWorldCoords * pos * rot;
+	mat4 local_tr = to_world_coords * pos * rot;
 
 	// Coordinate system: x right, y up, -z forward, scale 1:1 (in meters)
 	mat4 world_pos = translate(mat4(1.0f), world_position);
 	mat4 world_rot = mat4_cast(world_rotation);
-	mat4 worldTr = world_pos * world_rot;
-	volume_matrix = worldTr * localTr;
+	mat4 world_tr = world_pos * world_rot;
+	volume_matrix = world_tr * local_tr;
 
 	// ------------------------------------------------------------------------
 

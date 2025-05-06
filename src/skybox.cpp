@@ -32,7 +32,7 @@ static const GLuint cube_indices[] = {
 	5, 6, 7,
 };
 
-void Skybox::ReloadTexture(const char* name) {
+void Skybox::reloadTexture(const char* name) {
 	if (texture != 0)
 		glDeleteTextures(1, &texture);
 
@@ -68,23 +68,23 @@ void Skybox::ReloadTexture(const char* name) {
 Skybox::Skybox(const char* name) {
 	VBO vbo(cube_vertices, sizeof(cube_vertices));
 	EBO ebo(cube_indices, sizeof(cube_indices));
-	vao.LinkAttrib(0, 3, GL_FLOAT, 3 * sizeof(GLfloat), (GLvoid*)0);
-	vao.Unbind();
-	vbo.Unbind();
-	ebo.Unbind();
-	ReloadTexture(name);
+	vao.linkAttrib(0, 3, GL_FLOAT, 3 * sizeof(GLfloat), (GLvoid*)0);
+	vao.unbind();
+	vbo.unbind();
+	ebo.unbind();
+	reloadTexture(name);
 }
 
 void Skybox::draw(Shader& shader, Camera& camera) {
 	mat4 view = mat4(mat3(lookAt(camera.position, camera.position + camera.direction, camera.up)));
 	mat4 projection = perspective(radians(camera.FOV), (float)camera.screen_width / camera.screen_height, camera.NEAR_PLANE, camera.FAR_PLANE);
-	shader.PushMatrix("vpMatrix", projection * view);
+	shader.pushMatrix("vpMatrix", projection * view);
 
 	glDepthFunc(GL_LEQUAL);
-	shader.PushTextureCubeMap("skybox", texture, 0);
-	vao.Bind();
+	shader.pushTextureCubeMap("skybox", texture, 0);
+	vao.bind();
 	glDrawElements(GL_TRIANGLES, sizeof(cube_indices) / sizeof(GLuint), GL_UNSIGNED_INT, 0);
-	vao.Unbind();
+	vao.unbind();
 	glDepthFunc(GL_LESS);
 }
 

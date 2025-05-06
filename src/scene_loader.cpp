@@ -37,7 +37,7 @@ void iterate_xml(XMLElement* root, int depth) {
 	printf("</%s>\n", root->Name());
 }
 
-void Scene::RecursiveLoad(XMLElement* element, vec3 parent_pos, quat parent_rot) {
+void Scene::recursiveLoad(XMLElement* element, vec3 parent_pos, quat parent_rot) {
 	vec3 position = vec3(0, 0, 0);
 	const char* pos = element->Attribute("pos");
 	if (pos != NULL) {
@@ -249,10 +249,10 @@ void Scene::RecursiveLoad(XMLElement* element, vec3 parent_pos, quat parent_rot)
 			return;
 		}
 		XMLElement* instance_root = instance_file.RootElement();
-		RecursiveLoad(instance_root, position, rotation);
+		recursiveLoad(instance_root, position, rotation);
 	}
 	for (XMLElement* child = element->FirstChildElement(); child != NULL; child = child->NextSiblingElement())
-		RecursiveLoad(child, position, rotation);
+		recursiveLoad(child, position, rotation);
 }
 
 Scene::Scene(string path) {
@@ -272,7 +272,7 @@ Scene::Scene(string path) {
 	quat rotation = quat(1, 0, 0, 0);
 	spawnpoint = { position, rotation };
 	shadow_volume = new ShadowVolume(20, 5, 20);
-	RecursiveLoad(root, position, rotation);
+	recursiveLoad(root, position, rotation);
 	shadow_volume->updateTexture();
 }
 

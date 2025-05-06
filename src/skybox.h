@@ -13,7 +13,7 @@ private:
 	GLuint texture = 0;
 public:
 	Skybox(const char* name);
-	void ReloadTexture(const char* name);
+	void reloadTexture(const char* name);
 	void draw(Shader& shader, Camera& camera);
 	~Skybox();
 };

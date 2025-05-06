@@ -13,11 +13,11 @@ EBO::EBO(const GLuint* indices, GLsizeiptr size) {
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, indices, GL_STATIC_DRAW);
 }
 
-void EBO::Bind() {
+void EBO::bind() {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
 }
 
-void EBO::Unbind() {
+void EBO::unbind() {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 

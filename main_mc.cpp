@@ -67,11 +67,11 @@ public:
 		this->texture = texture;
 		/*VBO vbo(quad_vertices, sizeof(quad_vertices));
 		EBO ebo(quad_indices, sizeof(quad_indices));
-		vao.LinkAttrib(0, 2, GL_FLOAT, 4 * sizeof(GLfloat), (GLvoid*)0);
-		vao.LinkAttrib(1, 2, GL_FLOAT, 4 * sizeof(GLfloat), (GLvoid*)(2 * sizeof(GLfloat)));
-		vao.Unbind();
-		vbo.Unbind();
-		ebo.Unbind();*/
+		vao.linkAttrib(0, 2, GL_FLOAT, 4 * sizeof(GLfloat), (GLvoid*)0);
+		vao.linkAttrib(1, 2, GL_FLOAT, 4 * sizeof(GLfloat), (GLvoid*)(2 * sizeof(GLfloat)));
+		vao.unbind();
+		vbo.unbind();
+		ebo.unbind();*/
 	}
 	void setSize(vec2 size) {
 		this->size = size;
@@ -95,26 +95,26 @@ public:
 		tint_color = color;
 	}
 	void draw(Shader& shader, Camera& camera) {
-		shader.PushMatrix("camera", camera.vpMatrix);
-		shader.PushTexture2D("diffuse", texture, 0);
-		shader.PushVec2("size", size);
-		shader.PushVec4("tint_color", tint_color);
-		shader.PushVec2("uv_min", uv_min);
-		shader.PushVec2("uv_max", uv_max);
-		shader.PushInt("tex_rot", texture_rotation);
+		shader.pushMatrix("camera", camera.vp_matrix);
+		shader.pushTexture2D("diffuse", texture, 0);
+		shader.pushVec2("size", size);
+		shader.pushVec4("tint_color", tint_color);
+		shader.pushVec2("uv_min", uv_min);
+		shader.pushVec2("uv_max", uv_max);
+		shader.pushInt("tex_rot", texture_rotation);
 
 		mat4 pos = translate(mat4(1.0f), position);
 		mat4 rot = mat4_cast(rotation);
 		mat4 w_pos = translate(mat4(1.0f), world_position);
 		mat4 w_rot = mat4_cast(world_rotation);
-		shader.PushMatrix("position", pos);
-		shader.PushMatrix("rotation", rot);
-		shader.PushMatrix("world_pos", w_pos);
-		shader.PushMatrix("world_rot", w_rot);
+		shader.pushMatrix("position", pos);
+		shader.pushMatrix("rotation", rot);
+		shader.pushMatrix("world_pos", w_pos);
+		shader.pushMatrix("world_rot", w_rot);
 
-		//vao.Bind();
+		//vao.bind();
 		glDrawElements(GL_TRIANGLES, sizeof(quad_indices) / sizeof(GLuint), GL_UNSIGNED_INT, 0);
-		//vao.Unbind();
+		//vao.unbind();
 	}
 };
 
@@ -454,13 +454,13 @@ int main(/*int argc, char* argv[]*/) {
 	VAO vao;
 	VBO vbo(quad_vertices, sizeof(quad_vertices));
 	EBO ebo(quad_indices, sizeof(quad_indices));
-	vao.LinkAttrib(0, 2, GL_FLOAT, 4 * sizeof(GLfloat), (GLvoid*)0);
-	vao.LinkAttrib(1, 2, GL_FLOAT, 4 * sizeof(GLfloat), (GLvoid*)(2 * sizeof(GLfloat)));
-	vao.Unbind();
-	vbo.Unbind();
-	ebo.Unbind();
+	vao.linkAttrib(0, 2, GL_FLOAT, 4 * sizeof(GLfloat), (GLvoid*)0);
+	vao.linkAttrib(1, 2, GL_FLOAT, 4 * sizeof(GLfloat), (GLvoid*)(2 * sizeof(GLfloat)));
+	vao.unbind();
+	vbo.unbind();
+	ebo.unbind();
 
-	vao.Bind();
+	vao.bind();
 
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_MULTISAMPLE);
@@ -479,7 +479,7 @@ int main(/*int argc, char* argv[]*/) {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glEnable(GL_BLEND);
-		mc_shader.Use();
+		mc_shader.use();
 		unsigned int i = 0;
 		const int WIDTH = 64;
 		for (vector<BlockVariant*>::iterator it = block_variants.begin(); it != block_variants.end(); it++) {

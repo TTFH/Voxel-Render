@@ -76,7 +76,7 @@ Overlay::Overlay(GLFWwindow* window, const Camera& camera, const Light& light, S
 	ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 3.0f);
 }
 
-void Overlay::Frame() {
+void Overlay::frame() {
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
@@ -113,14 +113,14 @@ void Overlay::Frame() {
 		}
 		ImGui::SameLine();
 		if (ImGui::Button("Reload") && selected_shader != NULL)
-			shaders.at(selected_shader)->Reload();
+			shaders.at(selected_shader)->reload();
 
 		if (ImGui::BeginCombo("##combosk", selected_skybox)) {
 			for (vector<const char*>::iterator it = skyboxes.begin(); it != skyboxes.end(); it++) {
 				bool is_selected = strcmp(selected_skybox, *it) == 0;
 				if (ImGui::Selectable(*it, is_selected)) {
 					selected_skybox = *it;
-					skybox.ReloadTexture(selected_skybox);
+					skybox.reloadTexture(selected_skybox);
 				}
 				if (is_selected)
 					ImGui::SetItemDefaultFocus();
@@ -138,7 +138,7 @@ void Overlay::Frame() {
 	glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
 }
 
-void Overlay::Render() {
+void Overlay::render() {
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }

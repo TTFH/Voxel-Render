@@ -32,8 +32,8 @@ typedef map<string, string> DICT;
 
 struct Chunk {
 	int id;
-	int contentSize;
-	int childrenSize;
+	int content_size;
+	int children_size;
 	long int end;
 };
 
@@ -45,9 +45,9 @@ int ReadInt(FILE* file) {
 
 void ReadChunk(FILE* file, Chunk& chunk) {
 	chunk.id = ReadInt(file);
-	chunk.contentSize = ReadInt(file);
-	chunk.childrenSize = ReadInt(file);
-	chunk.end = ftell(file) + chunk.contentSize + chunk.childrenSize;
+	chunk.content_size = ReadInt(file);
+	chunk.children_size = ReadInt(file);
+	chunk.end = ftell(file) + chunk.content_size + chunk.children_size;
 }
 
 string ReadString(FILE* file) {
@@ -139,7 +139,7 @@ int ReadHeader(FILE* file) {
 		printf("[ERROR] MV Main chunk not found.\n");
 		exit(EXIT_FAILURE);
 	}
-	if (mainChunk.contentSize != 0) {
+	if (mainChunk.content_size != 0) {
 		printf("[ERROR] MV Main chunk content size is not zero.\n");
 		exit(EXIT_FAILURE);
 	}
@@ -190,13 +190,13 @@ VoxLoader::VoxLoader(const char* filename) {
 				int node_id = ReadInt(file);
 				if (node_id == 0)
 					break;
-				vec3 position = { 0, 0, 0 };
-				mat3 rot_matrix = mat3(1.0f);
+				vec3 position = vec3(0, 0, 0);
+				quat rotation = quat(1, 0, 0, 0);
 				string shape_name = "";
 
-				DICT nodeAttribs = ReadDict(file);
-				if (nodeAttribs.find("_name") != nodeAttribs.end())
-					shape_name = nodeAttribs["_name"];
+				DICT node_attribs = ReadDict(file);
+				if (node_attribs.find("_name") != node_attribs.end())
+					shape_name = node_attribs["_name"];
 
 				ReadInt(file); ReadInt(file); ReadInt(file);
 				int num_frames = ReadInt(file);
@@ -215,10 +215,11 @@ VoxLoader::VoxLoader(const char* filename) {
 							int x = (v >> 0) & 3;
 							int y = (v >> 2) & 3;
 							int z = 3 - x - y;
-							rot_matrix = mat3(0.0f);
+							mat3 rot_matrix = mat3(0.0f);
 							rot_matrix[x][0] = (v >> 4) & 1 ? -1 : 1;
 							rot_matrix[y][1] = (v >> 5) & 1 ? -1 : 1;
 							rot_matrix[z][2] = (v >> 6) & 1 ? -1 : 1;
+							rotation = quat(rot_matrix);
 							/*printf("Rot byte: 0x%02X\n", v);
 							printf("    [%2d %2d %2d]\nR = [%2d %2d %2d]\n    [%2d %2d %2d]\n\n",
 								(int)rot_matrix[0][0], (int)rot_matrix[0][1], (int)rot_matrix[0][2],
@@ -227,7 +228,7 @@ VoxLoader::VoxLoader(const char* filename) {
 						}
 					}
 				}
-				MV_Model data = { ref_model_id, position, quat_cast(rot_matrix) };
+				MV_Model data = { ref_model_id, position, rotation };
 				last_inserted = models.emplace_hint(last_inserted, shape_name, data);
 			}
 			break;

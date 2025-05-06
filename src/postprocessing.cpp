@@ -22,16 +22,16 @@ SimpleScreen::SimpleScreen(vec2 position, vec2 size, bool use_framebuffer) {
 
 	VBO vbo(screen_vertices, sizeof(screen_vertices));
 	EBO ebo(screen_indices, sizeof(screen_indices));
-	vao.LinkAttrib(0, 2, GL_FLOAT, 4 * sizeof(GLfloat), (GLvoid*)0);
-	vao.LinkAttrib(1, 2, GL_FLOAT, 4 * sizeof(GLfloat), (GLvoid*)(2 * sizeof(GLfloat)));
-	vao.Unbind();
-	vbo.Unbind();
-	ebo.Unbind();
+	vao.linkAttrib(0, 2, GL_FLOAT, 4 * sizeof(GLfloat), (GLvoid*)0);
+	vao.linkAttrib(1, 2, GL_FLOAT, 4 * sizeof(GLfloat), (GLvoid*)(2 * sizeof(GLfloat)));
+	vao.unbind();
+	vbo.unbind();
+	ebo.unbind();
 
-	if (use_framebuffer) InitFrameBuffer(WINDOW_WIDTH, WINDOW_HEIGHT);
+	if (use_framebuffer) initFrameBuffer(WINDOW_WIDTH, WINDOW_HEIGHT);
 }
 
-void SimpleScreen::InitFrameBuffer(int width, int height) {
+void SimpleScreen::initFrameBuffer(int width, int height) {
 	glGenFramebuffers(1, &framebuffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
 
@@ -47,9 +47,6 @@ void SimpleScreen::InitFrameBuffer(int width, int height) {
 	GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0 };
 	glDrawBuffers(1, drawBuffers);
 
-	GLenum fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-	if (fboStatus != GL_FRAMEBUFFER_COMPLETE)
-		printf("[ERROR] Framebuffer failed with status %d\n", fboStatus);
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
@@ -68,18 +65,18 @@ void SimpleScreen::setTexture(GLuint texture) {
 }
 
 void SimpleScreen::draw(Shader& shader) {
-	shader.PushVec2("uPosition", position);
-	shader.PushVec2("uSize", size);
-	shader.PushTexture2D("uTexture", texture, 0);
+	shader.pushVec2("uPosition", position);
+	shader.pushVec2("uSize", size);
+	shader.pushTexture2D("uTexture", texture, 0);
 
-	vao.Bind();
+	vao.bind();
 	glDrawElements(GL_TRIANGLES, sizeof(screen_indices) / sizeof(GLuint), GL_UNSIGNED_INT, 0);
-	vao.Unbind();
+	vao.unbind();
 }
 
 // ----------------------------------------------------------------------------
 
-void Screen::InitFrameBuffer(int width, int height) {
+void Screen::initFrameBuffer(int width, int height) {
 	glGenFramebuffers(1, &framebuffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
 
@@ -143,9 +140,6 @@ void Screen::InitFrameBuffer(int width, int height) {
 	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT32, width, height);
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthBuffer);
 
-	GLenum fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-	if (fboStatus != GL_FRAMEBUFFER_COMPLETE)
-		printf("[ERROR] Framebuffer failed with status %d\n", fboStatus);
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
@@ -153,13 +147,13 @@ void Screen::InitFrameBuffer(int width, int height) {
 Screen::Screen() {
 	VBO vbo(screen_vertices, sizeof(screen_vertices));
 	EBO ebo(screen_indices, sizeof(screen_indices));
-	vao.LinkAttrib(0, 2, GL_FLOAT, 4 * sizeof(GLfloat), (GLvoid*)0);
-	vao.LinkAttrib(1, 2, GL_FLOAT, 4 * sizeof(GLfloat), (GLvoid*)(2 * sizeof(GLfloat)));
-	vao.Unbind();
-	vbo.Unbind();
-	ebo.Unbind();
+	vao.linkAttrib(0, 2, GL_FLOAT, 4 * sizeof(GLfloat), (GLvoid*)0);
+	vao.linkAttrib(1, 2, GL_FLOAT, 4 * sizeof(GLfloat), (GLvoid*)(2 * sizeof(GLfloat)));
+	vao.unbind();
+	vbo.unbind();
+	ebo.unbind();
 
-	InitFrameBuffer(WINDOW_WIDTH, WINDOW_HEIGHT);
+	initFrameBuffer(WINDOW_WIDTH, WINDOW_HEIGHT);
 	bluenoise = LoadTexture2D("textures/bluenoise512rgb.png");
 }
 
@@ -173,27 +167,27 @@ void Screen::end() {
 }
 
 void Screen::draw(Shader& shader, Camera& camera) {
-	shader.PushFloat("uNear", camera.NEAR_PLANE);
-	shader.PushFloat("uFar", camera.FAR_PLANE);
-	shader.PushVec2("uPixelSize", vec2(1.0f / WINDOW_WIDTH, 1.0f / WINDOW_HEIGHT));
-	shader.PushVec3("uLightDir", vec3(0.38f, -0.76f, 0.53f));
-	shader.PushVec3("uCameraPos", camera.position);
+	shader.pushFloat("uNear", camera.NEAR_PLANE);
+	shader.pushFloat("uFar", camera.FAR_PLANE);
+	shader.pushVec2("uPixelSize", vec2(1.0f / WINDOW_WIDTH, 1.0f / WINDOW_HEIGHT));
+	shader.pushVec3("uLightDir", vec3(0.38f, -0.76f, 0.53f));
+	shader.pushVec3("uCameraPos", camera.position);
 
-	shader.PushMatrix("uVpMatrix", camera.vpMatrix);
-	shader.PushMatrix("uVpInvMatrix", inverse(camera.vpMatrix));
+	shader.pushMatrix("uVpMatrix", camera.vp_matrix);
+	shader.pushMatrix("uVpInvMatrix", inverse(camera.vp_matrix));
 
-	shader.PushTexture2D("uTexture", colorTexture, 0);
-	shader.PushTexture2D("uNormal", normalTexture, 1);
-	shader.PushTexture2D("uDepth", depthTexture, 2);
-	shader.PushTexture2D("uBlueNoise", bluenoise, 3);
+	shader.pushTexture2D("uTexture", colorTexture, 0);
+	shader.pushTexture2D("uNormal", normalTexture, 1);
+	shader.pushTexture2D("uDepth", depthTexture, 2);
+	shader.pushTexture2D("uBlueNoise", bluenoise, 3);
 
-	vao.Bind();
+	vao.bind();
 	glDrawElements(GL_TRIANGLES, sizeof(screen_indices) / sizeof(GLuint), GL_UNSIGNED_INT, 0);
-	vao.Unbind();
+	vao.unbind();
 }
 
 void Screen::pushUniforms(Shader& shader) {
-	shader.PushTexture2D("uColor", colorTexture, 1);
-	shader.PushTexture2D("uDepth", depthTexture, 2);
-	shader.PushTexture2D("uBlueNoise", bluenoise, 3);
+	shader.pushTexture2D("uColor", colorTexture, 1);
+	shader.pushTexture2D("uDepth", depthTexture, 2);
+	shader.pushTexture2D("uBlueNoise", bluenoise, 3);
 }

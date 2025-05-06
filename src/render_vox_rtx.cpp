@@ -33,20 +33,20 @@ static const GLuint cube_indices[] = {
 };
 
 bool init = false;
-GLuint albedoMap;
-GLuint blendMap;
-GLuint normalMap;
-GLuint windowAlbedo;
-GLuint windowNormal;
-GLuint blueNoise;
+GLuint albedo_map = 0;
+GLuint blend_map = 0;
+GLuint normal_map = 0;
+GLuint window_albedo = 0;
+GLuint window_normal = 0;
+GLuint bluenoise = 0;
 
 RTX_Render::RTX_Render(const MV_Shape& shape, int palette_id) {
 	VBO vbo(cube_vertices, sizeof(cube_vertices));
 	EBO ebo(cube_indices, sizeof(cube_indices));
-	vao.LinkAttrib(0, 3, GL_FLOAT, 3 * sizeof(GLfloat), (GLvoid*)0);
-	vao.Unbind();
-	vbo.Unbind();
-	ebo.Unbind();
+	vao.linkAttrib(0, 3, GL_FLOAT, 3 * sizeof(GLfloat), (GLvoid*)0);
+	vao.unbind();
+	vbo.unbind();
+	ebo.unbind();
 
 	int width_mip0 = CeilExp2(shape.sizex, 2);
 	int height_mip0 = CeilExp2(shape.sizey, 2);
@@ -129,82 +129,80 @@ RTX_Render::RTX_Render(const MV_Shape& shape, int palette_id) {
 
 	if (!init) {
 		init = true;
-		albedoMap = LoadTexture2D("textures/albedo.png");
-		blendMap = LoadTexture2D("textures/blend.png");
-		normalMap = LoadTexture2D("textures/normal.png");
-		windowAlbedo = LoadTexture2D("textures/window.png");
-		windowNormal = LoadTexture2D("textures/window_normal.png");
-		blueNoise = LoadTexture2D("textures/bluenoise512rgb.png");
+		albedo_map = LoadTexture2D("textures/albedo.png");
+		blend_map = LoadTexture2D("textures/blend.png");
+		normal_map = LoadTexture2D("textures/normal.png");
+		window_albedo = LoadTexture2D("textures/window.png");
+		window_normal = LoadTexture2D("textures/window_normal.png");
+		bluenoise = LoadTexture2D("textures/bluenoise512rgb.png");
 	}
 }
 
 // Simple shader, from the Teardown editor
 void RTX_Render::DrawSimple(Shader& shader, Camera& camera) {
-	shader.PushTexture3D("uVolTex", volumeTexture, 0);
-	shader.PushTexture2D("uColor", paletteBank, 1);
+	shader.pushTexture3D("uVolTex", volumeTexture, 0);
+	shader.pushTexture2D("uColor", paletteBank, 1);
 
-	shader.PushFloat("uNear", camera.NEAR_PLANE);
-	shader.PushFloat("uFar", camera.FAR_PLANE);
-	shader.PushUInt("uMaxValue", 254);
-	shader.PushInt("uPalette", palette_id);
-	shader.PushVec4("uMultColor", vec4(1, 1, 1, 1));
-	shader.PushFloat("uVolTexelSize", 0.1f * scale);
-	shader.PushVec3("uVolResolution", matrix_size);
-	shader.PushVec3("uCameraPos", camera.position);
+	shader.pushFloat("uNear", camera.NEAR_PLANE);
+	shader.pushFloat("uFar", camera.FAR_PLANE);
+	shader.pushUInt("uMaxValue", 254);
+	shader.pushInt("uPalette", palette_id);
+	shader.pushVec4("uMultColor", vec4(1, 1, 1, 1));
+	shader.pushFloat("uVolTexelSize", 0.1f * scale);
+	shader.pushVec3("uVolResolution", matrix_size);
+	shader.pushVec3("uCameraPos", camera.position);
 
-	mat4 scaleBox = glm::scale(mat4(1.0f), 0.1f * scale * matrix_size);
-	mat4 modelMatrix = volume_matrix * scaleBox;
-	mat4 vpMatrix = camera.vpMatrix;
-	mat4 mvpMatrix = vpMatrix * modelMatrix;
-	mat4 volMatrixInv = inverse(volume_matrix);
+	mat4 scale_box = glm::scale(mat4(1.0f), 0.1f * scale * matrix_size);
+	mat4 model_matrix = volume_matrix * scale_box;
+	mat4 mvp_matrix = camera.vp_matrix * model_matrix;
+	mat4 vol_matrix_inv = inverse(volume_matrix);
 
-	shader.PushMatrix("uModelMatrix", modelMatrix);
-	shader.PushMatrix("uVpMatrix", vpMatrix);
-	shader.PushMatrix("uMvpMatrix", mvpMatrix);
-	shader.PushMatrix("uVolMatrix", volume_matrix);
-	shader.PushMatrix("uVolMatrixInv", volMatrixInv);
+	shader.pushMatrix("uModelMatrix", model_matrix);
+	shader.pushMatrix("uVpMatrix", camera.vp_matrix);
+	shader.pushMatrix("uMvpMatrix", mvp_matrix);
+	shader.pushMatrix("uVolMatrix", volume_matrix);
+	shader.pushMatrix("uVolMatrixInv", vol_matrix_inv);
 
-	vao.Bind();
+	vao.bind();
 	glDrawElements(GL_TRIANGLES, sizeof(cube_indices) / sizeof(GLuint), GL_UNSIGNED_INT, 0);
-	vao.Unbind();
+	vao.unbind();
 }
 
 void RTX_Render::DrawAdvanced(Shader& shader, Camera& camera) {
-	shader.PushTexture3D("uVolTex", volumeTexture, 0);
-	shader.PushTexture2D("uColor", paletteBank, 1);
-	shader.PushTexture2D("uMaterial", materialBank, 2);
-	shader.PushTexture2D("uAlbedoMap", albedoMap, 3);
-	shader.PushTexture2D("uBlendMap", blendMap, 4);
-	shader.PushTexture2D("uNormalMap", normalMap, 5);
-	shader.PushTexture2D("uWindowAlbedo", windowAlbedo, 6);
-	shader.PushTexture2D("uWindowNormal", windowNormal, 7);
-	shader.PushTexture2D("uBlueNoise", blueNoise, 8);
+	shader.pushTexture3D("uVolTex", volumeTexture, 0);
+	shader.pushTexture2D("uColor", paletteBank, 1);
+	shader.pushTexture2D("uMaterial", materialBank, 2);
+	shader.pushTexture2D("uAlbedoMap", albedo_map, 3);
+	shader.pushTexture2D("uBlendMap", blend_map, 4);
+	shader.pushTexture2D("uNormalMap", normal_map, 5);
+	shader.pushTexture2D("uWindowAlbedo", window_albedo, 6);
+	shader.pushTexture2D("uWindowNormal", window_normal, 7);
+	shader.pushTexture2D("uBlueNoise", bluenoise, 8);
 
-	shader.PushInt("uPalette", palette_id);
-	shader.PushVec3("uObjSize", shape_size);
-	shader.PushVec4("uVoxelSize", vec4(matrix_size, 0.1f * scale));
-	shader.PushVec4("uTextureTile", texture);
-	shader.PushVec3("uTextureParams", vec3(0, 0, 0));
-	shader.PushFloat("uAlpha", 1.0f);
-	shader.PushFloat("uHighlight", 0.0f);
+	shader.pushInt("uPalette", palette_id);
+	shader.pushVec3("uObjSize", shape_size);
+	shader.pushVec4("uVoxelSize", vec4(matrix_size, 0.1f * scale));
+	shader.pushVec4("uTextureTile", texture);
+	shader.pushVec3("uTextureParams", vec3(0, 0, 0));
+	shader.pushFloat("uAlpha", 1.0f);
+	shader.pushFloat("uHighlight", 0.0f);
 
-	shader.PushFloat("uRndFrame", 0.0f);
-	shader.PushFloat("uNear", camera.NEAR_PLANE);
-	shader.PushFloat("uFar", camera.FAR_PLANE);
-	shader.PushFloat("uInvFar", 1.0f / camera.FAR_PLANE);
-	shader.PushVec3("uCameraPos", camera.position);
-	shader.PushVec2("uPixelSize", vec2(1.0f / camera.screen_width, 1.0f / camera.screen_height));
+	shader.pushFloat("uRndFrame", 0.0f);
+	shader.pushFloat("uNear", camera.NEAR_PLANE);
+	shader.pushFloat("uFar", camera.FAR_PLANE);
+	shader.pushFloat("uInvFar", 1.0f / camera.FAR_PLANE);
+	shader.pushVec3("uCameraPos", camera.position);
+	shader.pushVec2("uPixelSize", vec2(1.0f / camera.screen_width, 1.0f / camera.screen_height));
 
-	mat4 vpMatrix = camera.vpMatrix;
-	mat4 volMatrixInv = inverse(volume_matrix);
+	mat4 vol_matrix_inv = inverse(volume_matrix);
 
-	shader.PushMatrix("uVpMatrix", vpMatrix);
-	shader.PushMatrix("uVolMatrix", volume_matrix);
-	shader.PushMatrix("uVpInvMatrix", volMatrixInv);
+	shader.pushMatrix("uVpMatrix", camera.vp_matrix);
+	shader.pushMatrix("uVolMatrix", volume_matrix);
+	shader.pushMatrix("uVpInvMatrix", vol_matrix_inv);
 
-	vao.Bind();
+	vao.bind();
 	glDrawElements(GL_TRIANGLES, sizeof(cube_indices) / sizeof(GLuint), GL_UNSIGNED_INT, 0);
-	vao.Unbind();
+	vao.unbind();
 }
 
 void RTX_Render::draw(Shader& shader, Camera& camera) {

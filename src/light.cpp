@@ -9,7 +9,7 @@ void Light::updatePos(float altitude, float radius, float azimuth) {
 void Light::updateMatrix() {
 	mat4 view = lookAt(position, vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
 	mat4 projection = ortho(-90.0f, 90.0f, -90.0f, 90.0f, 0.1f, 500.0f);
-	vpMatrix = projection * view;
+	vp_matrix = projection * view;
 }
 
 Light::Light(vec3 pos) {
@@ -57,19 +57,17 @@ void Light::initShadowMap() {
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, shadow_map_texture, 0);
 	glDrawBuffer(GL_NONE);
 	glReadBuffer(GL_NONE);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	GLenum fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-	if (fboStatus != GL_FRAMEBUFFER_COMPLETE)
-		printf("[ERROR] Shadow Map framebuffer failed with status %d\n", fboStatus);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void Light::bindShadowMap(Shader& shader) {
 	glBindFramebuffer(GL_FRAMEBUFFER, shadow_map_fbo);
 	glViewport(0, 0, WIDTH, HEIGHT);
 	glClear(GL_DEPTH_BUFFER_BIT);
-	shader.Use();
-	shader.PushMatrix("lightMatrix", vpMatrix);
+	shader.use();
+	shader.pushMatrix("lightMatrix", vp_matrix);
 }
 
 void Light::unbindShadowMap(Camera& camera) {
@@ -78,9 +76,9 @@ void Light::unbindShadowMap(Camera& camera) {
 }
 
 void Light::pushUniforms(Shader& shader) {
-	shader.PushVec3("light_pos", position);
-	shader.PushMatrix("lightMatrix", vpMatrix);
-	shader.PushTexture2D("shadowMap", shadow_map_texture, 0);
+	shader.pushVec3("light_pos", position);
+	shader.pushMatrix("lightMatrix", vp_matrix);
+	shader.pushTexture2D("shadowMap", shadow_map_texture, 0);
 }
 
 Light::~Light() {

@@ -24,19 +24,19 @@ static const GLuint screen_indices[] = {
 ShadowVolume::ShadowVolume(float width_m, float height_m, float depth_m) {
 	VBO vbo(screen_vertices, sizeof(screen_vertices));
 	EBO ebo(screen_indices, sizeof(screen_indices));
-	vao.LinkAttrib(0, 2, GL_FLOAT, 4 * sizeof(GLfloat), (GLvoid*)0);
-	vao.LinkAttrib(1, 2, GL_FLOAT, 4 * sizeof(GLfloat), (GLvoid*)(2 * sizeof(GLfloat)));
-	vao.Unbind();
-	vbo.Unbind();
-	ebo.Unbind();
+	vao.linkAttrib(0, 2, GL_FLOAT, 4 * sizeof(GLfloat), (GLvoid*)0);
+	vao.linkAttrib(1, 2, GL_FLOAT, 4 * sizeof(GLfloat), (GLvoid*)(2 * sizeof(GLfloat)));
+	vao.unbind();
+	vbo.unbind();
+	ebo.unbind();
 
 	width = CeilExp2(10.0f * width_m, 2);
 	height = CeilExp2(10.0f * height_m, 2);
 	depth = CeilExp2(10.0f * depth_m, 2);
 
 	int volume = width * height * depth;
-	shadowVolume_mip0 = new uint8_t[volume];
-	memset(shadowVolume_mip0, 0, volume);
+	shadow_volume_mip0 = new uint8_t[volume];
+	memset(shadow_volume_mip0, 0, volume);
 
 	glGenTextures(1, &volume_texture);
 	glBindTexture(GL_TEXTURE_3D, volume_texture);
@@ -97,7 +97,7 @@ void ShadowVolume::addShape(const MV_Shape& shape, mat4 model_matrix) {
 
 		// Up to 8 voxels share the same index
 		int index = (x / 2) + width * ((y / 2) + height * (z / 2));
-		shadowVolume_mip0[index] += 1 << ((x % 2) + 2 * (y % 2) + 4 * (z % 2));
+		shadow_volume_mip0[index] += 1 << ((x % 2) + 2 * (y % 2) + 4 * (z % 2));
 	}
 }
 
@@ -110,8 +110,8 @@ void ShadowVolume::updateTexture() {
 	int height_mip1 = height / 2;
 	int depth_mip1 = depth / 2;
 	int volume_mip1 = width_mip1 * height_mip1 * depth_mip1;
-	uint8_t* shadowVolume_mip1 = new uint8_t[volume_mip1];
-	memset(shadowVolume_mip1, 0, volume_mip1);
+	uint8_t* shadow_volume_mip1 = new uint8_t[volume_mip1];
+	memset(shadow_volume_mip1, 0, volume_mip1);
 
 	for (int i = 0; i < width; i++) {
 		for (int j = 0; j < height; j++) {
@@ -119,7 +119,7 @@ void ShadowVolume::updateTexture() {
 				int index = i + width * (j + height * k);
 				int index_mip1 = (i / 2) + width_mip1 * ((j / 2) + height_mip1 * (k / 2));
 				if (index_mip1 < volume_mip1)
-					shadowVolume_mip1[index_mip1] |= shadowVolume_mip0[index];
+					shadow_volume_mip1[index_mip1] |= shadow_volume_mip0[index];
 			}
 		}
 	}
@@ -128,8 +128,8 @@ void ShadowVolume::updateTexture() {
 	int height_mip2 = height_mip1 / 2;
 	int depth_mip2 = depth_mip1 / 2;
 	int volume_mip2 = width_mip2 * height_mip2 * depth_mip2;
-	uint8_t* shadowVolume_mip2 = new uint8_t[volume_mip2];
-	memset(shadowVolume_mip2, 0, volume_mip2);
+	uint8_t* shadow_volume_mip2 = new uint8_t[volume_mip2];
+	memset(shadow_volume_mip2, 0, volume_mip2);
 
 	for (int i = 0; i < width_mip1; i++) {
 		for (int j = 0; j < height_mip1; j++) {
@@ -137,40 +137,40 @@ void ShadowVolume::updateTexture() {
 				int index = i + width_mip1 * (j + height_mip1 * k);
 				int index_mip2 = (i / 2) + width_mip2 * ((j / 2) + height_mip2 * (k / 2));
 				if (index_mip2 < volume_mip2)
-					shadowVolume_mip2[index_mip2] |= shadowVolume_mip1[index];
+					shadow_volume_mip2[index_mip2] |= shadow_volume_mip1[index];
 			}
 		}
 	}
 
 	glBindTexture(GL_TEXTURE_3D, volume_texture);
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	glTexSubImage3D(GL_TEXTURE_3D, 0, 0, 0, 0, width, height, depth, GL_RED_INTEGER, GL_UNSIGNED_BYTE, shadowVolume_mip0);
-	glTexSubImage3D(GL_TEXTURE_3D, 1, 0, 0, 0, width_mip1, height_mip1, depth_mip1, GL_RED_INTEGER, GL_UNSIGNED_BYTE, shadowVolume_mip1);
-	glTexSubImage3D(GL_TEXTURE_3D, 2, 0, 0, 0, width_mip2, height_mip2, depth_mip2, GL_RED_INTEGER, GL_UNSIGNED_BYTE, shadowVolume_mip2);
+	glTexSubImage3D(GL_TEXTURE_3D, 0, 0, 0, 0, width, height, depth, GL_RED_INTEGER, GL_UNSIGNED_BYTE, shadow_volume_mip0);
+	glTexSubImage3D(GL_TEXTURE_3D, 1, 0, 0, 0, width_mip1, height_mip1, depth_mip1, GL_RED_INTEGER, GL_UNSIGNED_BYTE, shadow_volume_mip1);
+	glTexSubImage3D(GL_TEXTURE_3D, 2, 0, 0, 0, width_mip2, height_mip2, depth_mip2, GL_RED_INTEGER, GL_UNSIGNED_BYTE, shadow_volume_mip2);
 	glBindTexture(GL_TEXTURE_3D, 0);
 
-	delete[] shadowVolume_mip1;
-	delete[] shadowVolume_mip2;
+	delete[] shadow_volume_mip1;
+	delete[] shadow_volume_mip2;
 }
 
 void ShadowVolume::draw(Shader& shader, Camera& camera) {
-	shader.PushFloat("uVolTexelSize", 0.2f);
-	shader.PushVec3("uCameraPos", camera.position);
-	shader.PushVec3("uVolOffset", vec3(-width / 20.0f, 0.0f, -depth / 20.0f));
-	shader.PushVec3("uVolResolution", vec3(width, height, depth));
-	shader.PushMatrix("uVpInvMatrix", inverse(camera.vpMatrix));
-	shader.PushTexture3D("uVolTex", volume_texture, 0);
+	shader.pushFloat("uVolTexelSize", 0.2f);
+	shader.pushVec3("uCameraPos", camera.position);
+	shader.pushVec3("uVolOffset", vec3(-width / 20.0f, 0.0f, -depth / 20.0f));
+	shader.pushVec3("uVolResolution", vec3(width, height, depth));
+	shader.pushMatrix("uVpInvMatrix", inverse(camera.vp_matrix));
+	shader.pushTexture3D("uVolTex", volume_texture, 0);
 
-	shader.PushFloat("uNear", camera.NEAR_PLANE);
-	shader.PushFloat("uFar", camera.FAR_PLANE);
-	shader.PushMatrix("uVpMatrix", camera.vpMatrix);
+	shader.pushFloat("uNear", camera.NEAR_PLANE);
+	shader.pushFloat("uFar", camera.FAR_PLANE);
+	shader.pushMatrix("uVpMatrix", camera.vp_matrix);
 
-	vao.Bind();
+	vao.bind();
 	glDrawElements(GL_TRIANGLES, sizeof(screen_indices) / sizeof(GLuint), GL_UNSIGNED_INT, 0);
-	vao.Unbind();
+	vao.unbind();
 }
 
 ShadowVolume::~ShadowVolume() {
 	glDeleteTextures(1, &volume_texture);
-	delete[] shadowVolume_mip0;
+	delete[] shadow_volume_mip0;
 }

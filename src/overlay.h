@@ -36,8 +36,8 @@ public:
 	int hex_orientation = 1;
 
 	Overlay(GLFWwindow* window, const Camera& camera, const Light& light, Skybox& skybox, const map<const char*, Shader*>& shaders);
-	void Frame();
-	void Render();
+	void frame();
+	void render();
 };
 
 #endif

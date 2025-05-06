@@ -26,9 +26,9 @@ private:
 	vector<MeshVertex> vertices;
 	vector<GLuint> textures;
 	vec3 color;
-	void LoadOBJ(const char* path);
-	void SaveOBJ(const char* path);
-	void LoadSimpleOBJ(const char* path); // No texture
+	void loadOBJ(const char* path);
+	void saveOBJ(const char* path);
+	void loadSimpleOBJ(const char* path); // No texture
 public:
 	vec3 position = vec3(0, 0, 0);
 	quat rotation = quat(1, 0, 0, 0);

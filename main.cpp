@@ -38,6 +38,7 @@ int main(int argc, char* argv[]) {
 	Shader voxel_hex_shader("shaders/voxel_hex_vert.glsl", "shaders/voxel_frag.glsl");
 	Shader voxel_rtx_shader("gbuffervox");
 	Shader water_shader("shaders/water_vert.glsl", "shaders/water_frag.glsl");
+	//Shader water_shader("gbufferwater");
 
 	map<const char*, Shader*> shaders = {
 		{"boundary_shader", &boundary_shader},
@@ -122,11 +123,11 @@ int main(int argc, char* argv[]) {
 			glass.rotation = model.rotation;
 		}
 
-		overlay.Frame();
+		overlay.frame();
 		// Shadows
 		light.bindShadowMap(shadowmap_shader);
 		scene.draw(shadowmap_shader, camera, GREEDY);
-		shadowmap_shader.PushInt("side", overlay.hex_orientation);
+		shadowmap_shader.pushInt("side", overlay.hex_orientation);
 		scene.draw(shadowmap_shader, camera, HEXAGON);
 		scene.drawVoxbox(shadowmap_shader, camera);
 		scene.drawMesh(shadowmap_shader, camera);
@@ -134,50 +135,50 @@ int main(int argc, char* argv[]) {
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		voxel_rtx_shader.Use();
+		voxel_rtx_shader.use();
 		scene.draw(voxel_rtx_shader, camera, RTX);
 
-		voxel_gm_shader.Use();
-		voxel_gm_shader.PushInt("transparent_glass", overlay.transparent_glass);
+		voxel_gm_shader.use();
+		voxel_gm_shader.pushInt("transparent_glass", overlay.transparent_glass);
 		light.pushUniforms(voxel_gm_shader);
 		scene.draw(voxel_gm_shader, camera, GREEDY);
 
-		voxel_hex_shader.Use();
-		voxel_hex_shader.PushInt("side", overlay.hex_orientation);
+		voxel_hex_shader.use();
+		voxel_hex_shader.pushInt("side", overlay.hex_orientation);
 		light.pushUniforms(voxel_hex_shader);
 		scene.draw(voxel_hex_shader, camera, HEXAGON);
 
-		voxbox_shader.Use();
+		voxbox_shader.use();
 		light.pushUniforms(voxbox_shader);
 		scene.drawVoxbox(voxbox_shader, camera);
 
-		mesh_shader.Use();
+		mesh_shader.use();
 		light.pushUniforms(mesh_shader);
 		scene.drawMesh(mesh_shader, camera);
 
 		glEnable(GL_BLEND);
-		water_shader.Use();
+		water_shader.use();
 		scene.drawWater(water_shader, camera);
 
 		if (overlay.transparent_glass) {
-			voxel_glass_shader.Use();
-			voxel_glass_shader.PushVec3("light_pos", light.position);
+			voxel_glass_shader.use();
+			voxel_glass_shader.pushVec3("light_pos", light.position);
 			scene.draw(voxel_glass_shader, camera, GREEDY);
 		}
 		glDisable(GL_BLEND);
 
-		rope_shader.Use();
+		rope_shader.use();
 		scene.drawRope(rope_shader, camera);
 
-		skybox_shader.Use();
+		skybox_shader.use();
 		skybox.draw(skybox_shader, camera);
 
 		glEnable(GL_BLEND);
-		boundary_shader.Use();
+		boundary_shader.use();
 		scene.drawBoundary(boundary_shader, camera);
 		glDisable(GL_BLEND);
 
-		overlay.Render();
+		overlay.render();
 		glfwSwapBuffers(window);
 	}
 

@@ -12,7 +12,7 @@ private:
 	float altitude;
 	float radius;
 	float azimuth;
-	mat4 vpMatrix;
+	mat4 vp_matrix;
 
 	GLuint shadow_map_fbo;
 	GLuint shadow_map_texture;
