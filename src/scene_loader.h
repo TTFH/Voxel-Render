@@ -57,7 +57,6 @@ public:
 	Transform spawnpoint;
 	Scene(string path);
 	~Scene();
-	void addMesh(Mesh* mesh);
 	void draw(Shader& shader, Camera& camera, RenderMethod method);
 	void drawVoxbox(Shader& shader, Camera& camera);
 	void drawMesh(Shader& shader, Camera& camera);

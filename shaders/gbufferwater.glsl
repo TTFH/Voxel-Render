@@ -212,6 +212,7 @@ void main() {
 	foam *= texture(uFoamTexture, remappedXy*0.009).r;
 	foam *= (uFoam*0.1);
 	outputColor += vec4(foam);
+	outputColor.rgb = pow(outputColor.rgb, vec3(1/2.2));
 
 	outputMaterial = vec4(0.02, 1.0, 0.0, 0.0);
 	//outputNormal = n;

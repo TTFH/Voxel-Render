@@ -32,13 +32,23 @@ static const GLuint cube_indices[] = {
 	7, 6, 5,
 };
 
-bool init = false;
-GLuint albedo_map = 0;
-GLuint blend_map = 0;
-GLuint normal_map = 0;
-GLuint window_albedo = 0;
-GLuint window_normal = 0;
-GLuint bluenoise = 0;
+GLuint RTX_Render::albedo_map = 0;
+GLuint RTX_Render::blend_map = 0;
+GLuint RTX_Render::normal_map = 0;
+GLuint RTX_Render::window_albedo = 0;
+GLuint RTX_Render::window_normal = 0;
+GLuint RTX_Render::bluenoise = 0;
+GLuint RTX_Render::foam_texture = 0;
+
+void RTX_Render::initTextures() {
+	albedo_map = LoadTexture2D("textures/albedo.png");
+	blend_map = LoadTexture2D("textures/blend.png");
+	normal_map = LoadTexture2D("textures/normal.png");
+	window_albedo = LoadTexture2D("textures/window.png");
+	window_normal = LoadTexture2D("textures/window_normal.png");
+	bluenoise = LoadTexture2D("textures/bluenoise512rgb.png");
+	foam_texture = LoadTexture2D("textures/foam.png");
+}
 
 RTX_Render::RTX_Render(const MV_Shape& shape, int palette_id) {
 	VBO vbo(cube_vertices, sizeof(cube_vertices));
@@ -126,16 +136,6 @@ RTX_Render::RTX_Render(const MV_Shape& shape, int palette_id) {
 	this->palette_id = palette_id;
 	shape_size = vec3(shape.sizex, shape.sizey, shape.sizez);
 	matrix_size = vec3(width_mip0, height_mip0, depth_mip0);
-
-	if (!init) {
-		init = true;
-		albedo_map = LoadTexture2D("textures/albedo.png");
-		blend_map = LoadTexture2D("textures/blend.png");
-		normal_map = LoadTexture2D("textures/normal.png");
-		window_albedo = LoadTexture2D("textures/window.png");
-		window_normal = LoadTexture2D("textures/window_normal.png");
-		bluenoise = LoadTexture2D("textures/bluenoise512rgb.png");
-	}
 }
 
 // Simple shader, from the Teardown editor
@@ -195,7 +195,6 @@ void RTX_Render::DrawAdvanced(Shader& shader, Camera& camera) {
 	shader.pushVec2("uPixelSize", vec2(1.0f / camera.screen_width, 1.0f / camera.screen_height));
 
 	mat4 vol_matrix_inv = inverse(volume_matrix);
-
 	shader.pushMatrix("uVpMatrix", camera.vp_matrix);
 	shader.pushMatrix("uVolMatrix", volume_matrix);
 	shader.pushMatrix("uVpInvMatrix", vol_matrix_inv);

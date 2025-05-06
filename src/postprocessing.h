@@ -12,9 +12,9 @@ private:
 	GLuint texture;
 	vec2 position;
 	vec2 size;
+	void initFrameBuffer(int width, int height);
 public:
 	SimpleScreen(vec2 position, vec2 size, bool use_framebuffer);
-	void initFrameBuffer(int width, int height);
 	void start();
 	void end();
 	void setTexture(GLuint texture);
@@ -25,7 +25,6 @@ class Screen {
 private:
 	VAO vao;
 	GLuint sampler;
-	GLuint bluenoise;
 	GLuint framebuffer;
 
 	GLuint colorTexture;

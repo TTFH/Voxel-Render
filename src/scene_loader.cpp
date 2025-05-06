@@ -276,10 +276,6 @@ Scene::Scene(string path) {
 	shadow_volume->updateTexture();
 }
 
-void Scene::addMesh(Mesh* mesh) {
-	meshes.push_back(mesh);
-}
-
 void Scene::draw(Shader& shader, Camera& camera, RenderMethod method) {
 	switch (method) {
 	case RTX:

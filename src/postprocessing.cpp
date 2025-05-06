@@ -2,6 +2,7 @@
 #include "vbo.h"
 #include "utils.h"
 #include "postprocessing.h"
+#include "render_vox_rtx.h"
 
 static const GLfloat screen_vertices[] = {
 	// pos  uv
@@ -154,7 +155,6 @@ Screen::Screen() {
 	ebo.unbind();
 
 	initFrameBuffer(WINDOW_WIDTH, WINDOW_HEIGHT);
-	bluenoise = LoadTexture2D("textures/bluenoise512rgb.png");
 }
 
 void Screen::start() {
@@ -179,7 +179,7 @@ void Screen::draw(Shader& shader, Camera& camera) {
 	shader.pushTexture2D("uTexture", colorTexture, 0);
 	shader.pushTexture2D("uNormal", normalTexture, 1);
 	shader.pushTexture2D("uDepth", depthTexture, 2);
-	shader.pushTexture2D("uBlueNoise", bluenoise, 3);
+	shader.pushTexture2D("uBlueNoise", RTX_Render::bluenoise, 3);
 
 	vao.bind();
 	glDrawElements(GL_TRIANGLES, sizeof(screen_indices) / sizeof(GLuint), GL_UNSIGNED_INT, 0);
@@ -189,5 +189,5 @@ void Screen::draw(Shader& shader, Camera& camera) {
 void Screen::pushUniforms(Shader& shader) {
 	shader.pushTexture2D("uColor", colorTexture, 1);
 	shader.pushTexture2D("uDepth", depthTexture, 2);
-	shader.pushTexture2D("uBlueNoise", bluenoise, 3);
+	shader.pushTexture2D("uBlueNoise", RTX_Render::bluenoise, 3);
 }

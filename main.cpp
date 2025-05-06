@@ -28,6 +28,7 @@ using namespace glm;
 int main(int argc, char* argv[]) {
 	GLFWwindow* window = InitOpenGL("Voxel Render");
 	Shader boundary_shader("boundary");
+	Shader screen_shader("editorlighting");
 	Shader mesh_shader("shaders/mesh_vert.glsl", "shaders/mesh_frag.glsl");
 	Shader rope_shader("shaders/rope_vert.glsl", "shaders/rope_frag.glsl");
 	Shader shadowmap_shader("shaders/shadowmap_vert.glsl", "shaders/shadowmap_frag.glsl");
@@ -37,13 +38,14 @@ int main(int argc, char* argv[]) {
 	Shader voxel_gm_shader("shaders/voxel_gm_vert.glsl", "shaders/voxel_frag.glsl");
 	Shader voxel_hex_shader("shaders/voxel_hex_vert.glsl", "shaders/voxel_frag.glsl");
 	Shader voxel_rtx_shader("gbuffervox");
-	Shader water_shader("shaders/water_vert.glsl", "shaders/water_frag.glsl");
-	//Shader water_shader("gbufferwater");
+	//Shader water_shader("shaders/water_vert.glsl", "shaders/water_frag.glsl");
+	Shader water_shader("gbufferwater");
 
 	map<const char*, Shader*> shaders = {
 		{"boundary_shader", &boundary_shader},
 		{"mesh_shader", &mesh_shader},
 		{"rope_shader", &rope_shader},
+		{"screen_shader", &screen_shader},
 		{"shadowmap_shader", &shadowmap_shader},
 		{"skybox_shader", &skybox_shader},
 		{"voxbox_shader", &voxbox_shader},
@@ -54,6 +56,7 @@ int main(int argc, char* argv[]) {
 		{"water_shader", &water_shader},
 	};
 
+	Screen screen;
 	Skybox skybox("day");
 	Camera camera(vec3(0, 2.5, 10));
 	Light light(vec3(-35, 130, -132));
@@ -62,6 +65,7 @@ int main(int argc, char* argv[]) {
 	camera.position.y += 1.8;
 	camera.direction = scene.spawnpoint.rot * vec3(0, 0, 1);
 	Overlay overlay(window, camera, light, skybox, shaders);
+	RTX_Render::initTextures();
 
 #ifdef _BLENDER
 	ShadowVolume shadow_volume(40, 10, 40);
@@ -74,9 +78,7 @@ int main(int argc, char* argv[]) {
 	model.addTexture("meshes/LTM1300_specular.png");
 	model.addTexture("meshes/LTM1300_normal.png");
 	Mesh glass("meshes/LTM1300_glass.obj");
-	glass.addTexture("textures/glass.png");
-	scene.addMesh(&model);
-	scene.addMesh(&glass);
+	glass.addTexture("meshes/glass.png");
 
 	// FPS counter
 	double dt = 0;
@@ -131,12 +133,17 @@ int main(int argc, char* argv[]) {
 		scene.draw(shadowmap_shader, camera, HEXAGON);
 		scene.drawVoxbox(shadowmap_shader, camera);
 		scene.drawMesh(shadowmap_shader, camera);
+		model.draw(shadowmap_shader, camera);
+		glass.draw(shadowmap_shader, camera);
 		light.unbindShadowMap(camera);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		screen.start();
 		voxel_rtx_shader.use();
 		scene.draw(voxel_rtx_shader, camera, RTX);
+		screen.end();
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		voxel_gm_shader.use();
 		voxel_gm_shader.pushInt("transparent_glass", overlay.transparent_glass);
@@ -155,9 +162,12 @@ int main(int argc, char* argv[]) {
 		mesh_shader.use();
 		light.pushUniforms(mesh_shader);
 		scene.drawMesh(mesh_shader, camera);
+		model.draw(mesh_shader, camera);
+		glass.draw(mesh_shader, camera);
 
 		glEnable(GL_BLEND);
 		water_shader.use();
+		screen.pushUniforms(water_shader);
 		scene.drawWater(water_shader, camera);
 
 		if (overlay.transparent_glass) {
@@ -166,6 +176,9 @@ int main(int argc, char* argv[]) {
 			scene.draw(voxel_glass_shader, camera, GREEDY);
 		}
 		glDisable(GL_BLEND);
+
+		screen_shader.use();
+		screen.draw(screen_shader, camera);
 
 		rope_shader.use();
 		scene.drawRope(rope_shader, camera);

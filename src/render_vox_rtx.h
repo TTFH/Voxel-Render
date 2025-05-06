@@ -12,12 +12,22 @@
 
 class RTX_Render : public VoxRender {
 private:
+	static GLuint albedo_map;
+	static GLuint blend_map;
+	static GLuint normal_map;
+	static GLuint window_albedo;
+	static GLuint window_normal;
+
 	vec3 matrix_size;
 	GLuint volumeTexture;
 	vec4 texture = vec4(0, 0, 1, 1);
 	void DrawSimple(Shader& shader, Camera& camera);
 	void DrawAdvanced(Shader& shader, Camera& camera);
 public:
+	static GLuint bluenoise;
+	static GLuint foam_texture;
+	static void initTextures();
+
 	RTX_Render(const MV_Shape& shape, int palette_id);
 	void draw(Shader& shader, Camera& camera) override;
 	void setTexture(vec4 texture);
