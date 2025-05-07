@@ -2,7 +2,6 @@ TARGET = vox_render
 
 CXX = g++
 CXXFLAGS = -Wall -Wextra -Werror -Wpedantic -O3 #-g -D_BLENDER
-CXXFLAGS += -Iimgui
 CXXFLAGS += -Wno-missing-field-initializers
 CXXFLAGS += `pkg-config --cflags glfw3`
 LIBS = `pkg-config --libs glfw3 --static`

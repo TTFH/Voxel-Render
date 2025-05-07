@@ -45,8 +45,8 @@ void SimpleScreen::initFrameBuffer(int width, int height) {
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16, width, height, 0, GL_RGB, GL_FLOAT, NULL);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0);
 
-	GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0 };
-	glDrawBuffers(1, drawBuffers);
+	GLenum draw_buffers[] = { GL_COLOR_ATTACHMENT0 };
+	glDrawBuffers(1, draw_buffers);
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -87,59 +87,59 @@ void Screen::initFrameBuffer(int width, int height) {
 	glSamplerParameteri(sampler, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glSamplerParameteri(sampler, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-	glGenTextures(1, &colorTexture);
-	glBindTexture(GL_TEXTURE_2D, colorTexture);
-	glTextureParameteri(colorTexture, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTextureParameteri(colorTexture, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTextureParameteri(colorTexture, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTextureParameteri(colorTexture, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glGenTextures(1, &color_texture);
+	glBindTexture(GL_TEXTURE_2D, color_texture);
+	glTextureParameteri(color_texture, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTextureParameteri(color_texture, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTextureParameteri(color_texture, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTextureParameteri(color_texture, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16, width, height, 0, GL_RGB, GL_FLOAT, NULL);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorTexture, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, color_texture, 0);
 
-	glGenTextures(1, &normalTexture);
-	glBindTexture(GL_TEXTURE_2D, normalTexture);
-	glTextureParameteri(normalTexture, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTextureParameteri(normalTexture, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTextureParameteri(normalTexture, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTextureParameteri(normalTexture, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glGenTextures(1, &normal_texture);
+	glBindTexture(GL_TEXTURE_2D, normal_texture);
+	glTextureParameteri(normal_texture, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTextureParameteri(normal_texture, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTextureParameteri(normal_texture, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTextureParameteri(normal_texture, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8_SNORM, width, height, 0, GL_RGB, GL_FLOAT, NULL);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, normalTexture, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, normal_texture, 0);
 	
-	glGenTextures(1, &materialTexture);
-	glBindTexture(GL_TEXTURE_2D, materialTexture);
-	glTextureParameteri(materialTexture, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTextureParameteri(materialTexture, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTextureParameteri(materialTexture, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTextureParameteri(materialTexture, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glGenTextures(1, &material_texture);
+	glBindTexture(GL_TEXTURE_2D, material_texture);
+	glTextureParameteri(material_texture, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTextureParameteri(material_texture, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTextureParameteri(material_texture, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTextureParameteri(material_texture, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, materialTexture, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, material_texture, 0);
 
-	glGenTextures(1, &motionTexture);
-	glBindTexture(GL_TEXTURE_2D, motionTexture);
-	glTextureParameteri(motionTexture, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTextureParameteri(motionTexture, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTextureParameteri(motionTexture, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTextureParameteri(motionTexture, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glGenTextures(1, &motion_texture);
+	glBindTexture(GL_TEXTURE_2D, motion_texture);
+	glTextureParameteri(motion_texture, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTextureParameteri(motion_texture, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTextureParameteri(motion_texture, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTextureParameteri(motion_texture, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGB, GL_FLOAT, NULL);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, motionTexture, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, motion_texture, 0);
 
-	glGenTextures(1, &depthTexture);
-	glBindTexture(GL_TEXTURE_2D, depthTexture);
-	glTextureParameteri(depthTexture, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTextureParameteri(depthTexture, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTextureParameteri(depthTexture, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTextureParameteri(depthTexture, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glGenTextures(1, &depth_texture);
+	glBindTexture(GL_TEXTURE_2D, depth_texture);
+	glTextureParameteri(depth_texture, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTextureParameteri(depth_texture, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTextureParameteri(depth_texture, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTextureParameteri(depth_texture, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_R16, width, height, 0, GL_RED, GL_FLOAT, NULL);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT4, GL_TEXTURE_2D, depthTexture, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT4, GL_TEXTURE_2D, depth_texture, 0);
 
-	GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT4 };
-	glDrawBuffers(5, drawBuffers);
+	GLenum draw_buffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT4 };
+	glDrawBuffers(5, draw_buffers);
 
-	GLuint depthBuffer;
-	glGenRenderbuffers(1, &depthBuffer);
-	glBindRenderbuffer(GL_RENDERBUFFER, depthBuffer);
+	GLuint depth_buffer;
+	glGenRenderbuffers(1, &depth_buffer);
+	glBindRenderbuffer(GL_RENDERBUFFER, depth_buffer);
 	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT32, width, height);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthBuffer);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depth_buffer);
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -176,9 +176,9 @@ void Screen::draw(Shader& shader, Camera& camera) {
 	shader.pushMatrix("uVpMatrix", camera.vp_matrix);
 	shader.pushMatrix("uVpInvMatrix", inverse(camera.vp_matrix));
 
-	shader.pushTexture2D("uTexture", colorTexture, 0);
-	shader.pushTexture2D("uNormal", normalTexture, 1);
-	shader.pushTexture2D("uDepth", depthTexture, 2);
+	shader.pushTexture2D("uTexture", color_texture, 0);
+	shader.pushTexture2D("uNormal", normal_texture, 1);
+	shader.pushTexture2D("uDepth", depth_texture, 2);
 	shader.pushTexture2D("uBlueNoise", RTX_Render::bluenoise, 3);
 
 	vao.bind();
@@ -187,7 +187,7 @@ void Screen::draw(Shader& shader, Camera& camera) {
 }
 
 void Screen::pushUniforms(Shader& shader) {
-	shader.pushTexture2D("uColor", colorTexture, 1);
-	shader.pushTexture2D("uDepth", depthTexture, 2);
+	shader.pushTexture2D("uColor", color_texture, 1);
+	shader.pushTexture2D("uDepth", depth_texture, 2);
 	shader.pushTexture2D("uBlueNoise", RTX_Render::bluenoise, 3);
 }

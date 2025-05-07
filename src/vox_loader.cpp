@@ -133,17 +133,17 @@ int ReadHeader(FILE* file) {
 		exit(EXIT_FAILURE);
 	}
 
-	Chunk mainChunk;
-	ReadChunk(file, mainChunk);
-	if (mainChunk.id != MAIN) {
+	Chunk main_chunk;
+	ReadChunk(file, main_chunk);
+	if (main_chunk.id != MAIN) {
 		printf("[ERROR] MV Main chunk not found.\n");
 		exit(EXIT_FAILURE);
 	}
-	if (mainChunk.content_size != 0) {
+	if (main_chunk.content_size != 0) {
 		printf("[ERROR] MV Main chunk content size is not zero.\n");
 		exit(EXIT_FAILURE);
 	}
-	return mainChunk.end;
+	return main_chunk.end;
 }
 
 VoxLoader::VoxLoader(const char* filename) {

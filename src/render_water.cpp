@@ -7,8 +7,6 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
-static float time = 0.0f;
-
 WaterRender::WaterRender(vector<vec2> vertices) {
 	/*vertex_count = vertices.size();
 	VBO vbo(vertices);
@@ -36,15 +34,13 @@ void WaterRender::draw(Shader& shader, Camera& camera) {
 	shader.pushMatrix("position", pos);*/
 
 	mat4 mvp_matrix = camera.vp_matrix * translate(mat4(1.0f), position);
-	time += 1.0 / 60.0;
 
 	shader.pushFloat("uFar", camera.FAR_PLANE);
 	shader.pushFloat("uFoam", 0.5f);
 	shader.pushFloat("uInvFar", 1.0f / camera.FAR_PLANE);
 	shader.pushFloat("uMotion", 0.5f);
 	shader.pushFloat("uRipple", 0.5f);
-	shader.pushFloat("uRndFrame", 0.1f * rand() / (float)RAND_MAX);
-	shader.pushFloat("uTime", time);
+	shader.pushFloat("uRndFrame", (int)(5.0f * rand() / (float)RAND_MAX));
 	shader.pushFloat("uVisibility", 3.6f);
 	shader.pushFloat("uWave", 0.5f);
 	shader.pushInt("uRingCount", 0);

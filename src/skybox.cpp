@@ -36,7 +36,7 @@ void Skybox::reloadTexture(const char* name) {
 	if (texture != 0)
 		glDeleteTextures(1, &texture);
 
-	string facesCubemap[6] = {
+	string faces_cubemap[6] = {
 		"skyboxes/" + string(name) + "/right.png",
 		"skyboxes/" + string(name) + "/left.png",
 		"skyboxes/" + string(name) + "/top.png",
@@ -56,12 +56,12 @@ void Skybox::reloadTexture(const char* name) {
 	for (unsigned int i = 0; i < 6; i++) {
 		int width, height, channels;
 		stbi_set_flip_vertically_on_load(false);
-		uint8_t* data = stbi_load(facesCubemap[i].c_str(), &width, &height, &channels, STBI_rgb);
+		uint8_t* data = stbi_load(faces_cubemap[i].c_str(), &width, &height, &channels, STBI_rgb);
 		if (data != NULL) {
 			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 			stbi_image_free(data);
 		} else
-			printf("[ERROR] Failed to load texture: %s\n", facesCubemap[i].c_str());
+			printf("[Warning] Failed to load texture: %s\n", faces_cubemap[i].c_str());
 	}
 }
 

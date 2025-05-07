@@ -27,11 +27,11 @@ private:
 	GLuint sampler;
 	GLuint framebuffer;
 
-	GLuint colorTexture;
-	GLuint normalTexture;
-	GLuint materialTexture;
-	GLuint motionTexture;
-	GLuint depthTexture;
+	GLuint color_texture;
+	GLuint normal_texture;
+	GLuint material_texture;
+	GLuint motion_texture;
+	GLuint depth_texture;
 	void initFrameBuffer(int width, int height);
 public:
 	Screen();

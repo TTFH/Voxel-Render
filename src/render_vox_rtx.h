@@ -19,10 +19,10 @@ private:
 	static GLuint window_normal;
 
 	vec3 matrix_size;
-	GLuint volumeTexture;
+	GLuint volume_texture;
 	vec4 texture = vec4(0, 0, 1, 1);
-	void DrawSimple(Shader& shader, Camera& camera);
-	void DrawAdvanced(Shader& shader, Camera& camera);
+	void drawSimple(Shader& shader, Camera& camera);
+	void drawAdvanced(Shader& shader, Camera& camera);
 public:
 	static GLuint bluenoise;
 	static GLuint foam_texture;

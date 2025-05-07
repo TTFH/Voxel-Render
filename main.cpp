@@ -1,5 +1,6 @@
 #include <map>
 #include <vector>
+#include <math.h>
 #include <stdint.h>
 #include <string.h>
 
@@ -103,9 +104,9 @@ int main(int argc, char* argv[]) {
 		actual_time = glfwGetTime();
 		dt = actual_time - prev_time;
 		counter++;
-		if (dt >= 1.0) {
-			int fps = (1.0 / dt) * counter;
-			float ms = dt / counter * 1000;
+		if (dt >= 1.0f) {
+			int fps = ceil((1.0f / dt) * counter);
+			float ms = dt / counter * 1000.0f;
 			char window_title[128];
 			sprintf(window_title, "OpenGL %s | FPS: %d | %.1f ms", glGetString(GL_VERSION), fps, ms);
 			glfwSetWindowTitle(window, window_title);
@@ -137,8 +138,6 @@ int main(int argc, char* argv[]) {
 		glass.draw(shadowmap_shader, camera);
 		light.unbindShadowMap(camera);
 
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 		screen.start();
 		voxel_rtx_shader.use();
 		scene.draw(voxel_rtx_shader, camera, RTX);
@@ -167,6 +166,7 @@ int main(int argc, char* argv[]) {
 
 		glEnable(GL_BLEND);
 		water_shader.use();
+		water_shader.pushFloat("uTime", actual_time);
 		screen.pushUniforms(water_shader);
 		scene.drawWater(water_shader, camera);
 

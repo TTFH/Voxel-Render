@@ -111,8 +111,8 @@ RTX_Render::RTX_Render(const MV_Shape& shape, int palette_id) {
 		}
 	}
 
-	glGenTextures(1, &volumeTexture);
-	glBindTexture(GL_TEXTURE_3D, volumeTexture);
+	glGenTextures(1, &volume_texture);
+	glBindTexture(GL_TEXTURE_3D, volume_texture);
 
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -139,8 +139,8 @@ RTX_Render::RTX_Render(const MV_Shape& shape, int palette_id) {
 }
 
 // Simple shader, from the Teardown editor
-void RTX_Render::DrawSimple(Shader& shader, Camera& camera) {
-	shader.pushTexture3D("uVolTex", volumeTexture, 0);
+void RTX_Render::drawSimple(Shader& shader, Camera& camera) {
+	shader.pushTexture3D("uVolTex", volume_texture, 0);
 	shader.pushTexture2D("uColor", paletteBank, 1);
 
 	shader.pushFloat("uNear", camera.NEAR_PLANE);
@@ -168,8 +168,8 @@ void RTX_Render::DrawSimple(Shader& shader, Camera& camera) {
 	vao.unbind();
 }
 
-void RTX_Render::DrawAdvanced(Shader& shader, Camera& camera) {
-	shader.pushTexture3D("uVolTex", volumeTexture, 0);
+void RTX_Render::drawAdvanced(Shader& shader, Camera& camera) {
+	shader.pushTexture3D("uVolTex", volume_texture, 0);
 	shader.pushTexture2D("uColor", paletteBank, 1);
 	shader.pushTexture2D("uMaterial", materialBank, 2);
 	shader.pushTexture2D("uAlbedoMap", albedo_map, 3);
@@ -206,7 +206,7 @@ void RTX_Render::DrawAdvanced(Shader& shader, Camera& camera) {
 
 void RTX_Render::draw(Shader& shader, Camera& camera) {
 	if (camera.isInFrustum(obb_corners))
-		DrawAdvanced(shader, camera);
+		drawAdvanced(shader, camera);
 }
 
 void RTX_Render::setTexture(vec4 texture) {
@@ -214,5 +214,5 @@ void RTX_Render::setTexture(vec4 texture) {
 }
 
 RTX_Render::~RTX_Render() {
-	glDeleteTextures(1, &volumeTexture);
+	glDeleteTextures(1, &volume_texture);
 }

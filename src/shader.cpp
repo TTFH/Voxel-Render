@@ -55,10 +55,10 @@ Shader::Shader(const char* name) {
 	load();
 }
 
-Shader::Shader(const char* vertexPath, const char* fragmentPath) {
+Shader::Shader(const char* vertex_path, const char* fragment_path) {
 	unified = false;
-	path1 = vertexPath;
-	path2 = fragmentPath;
+	path1 = vertex_path;
+	path2 = fragment_path;
 	load();
 }
 
