@@ -68,12 +68,6 @@ int main(int argc, char* argv[]) {
 	Overlay overlay(window, camera, light, skybox, shaders);
 	RTX_Render::initTextures();
 
-#ifdef _BLENDER
-	ShadowVolume shadow_volume(40, 10, 40);
-	scene.push(shadow_volume);
-	shadow_volume.updateTexture();
-#endif
-
 	Mesh model("meshes/LTM1300.obj");
 	model.addTexture("meshes/LTM1300.png");
 	model.addTexture("meshes/LTM1300_specular.png");

@@ -48,6 +48,12 @@ void SimpleScreen::initFrameBuffer(int width, int height) {
 	GLenum draw_buffers[] = { GL_COLOR_ATTACHMENT0 };
 	glDrawBuffers(1, draw_buffers);
 
+	GLuint depth_buffer;
+	glGenRenderbuffers(1, &depth_buffer);
+	glBindRenderbuffer(GL_RENDERBUFFER, depth_buffer);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT32, width, height);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depth_buffer);
+
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
@@ -65,7 +71,8 @@ void SimpleScreen::setTexture(GLuint texture) {
 	this->texture = texture;
 }
 
-void SimpleScreen::draw(Shader& shader) {
+void SimpleScreen::draw(Shader& shader, Camera& camera) {
+	(void)camera;
 	shader.pushVec2("uPosition", position);
 	shader.pushVec2("uSize", size);
 	shader.pushTexture2D("uTexture", texture, 0);

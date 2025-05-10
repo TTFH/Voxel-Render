@@ -104,6 +104,7 @@ void ShadowVolume::addShape(const MV_Shape& shape, mat4 model_matrix) {
 void ShadowVolume::updateTexture() {
 #ifdef _BLENDER
 	scene_xml.SaveFile("scene.xml");
+	VoxRender::SaveTexture();
 #endif
 
 	int width_mip1 = width / 2;

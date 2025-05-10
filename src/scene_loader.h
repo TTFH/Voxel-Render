@@ -27,10 +27,10 @@ enum RenderMethod : uint8_t {
 	HEXAGON,
 };
 
-#ifndef _BLENDER
-#define DEFAULT_METHOD RTX
-#else
+#ifdef _BLENDER
 #define DEFAULT_METHOD GREEDY
+#else
+#define DEFAULT_METHOD RTX
 #endif
 
 struct Transform {

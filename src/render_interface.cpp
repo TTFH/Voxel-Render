@@ -89,4 +89,5 @@ int VoxRender::getIndex(const MV_Diffuse* palette, const MV_Material* material) 
 
 void VoxRender::saveTexture() {
 	SaveTexture("palette.png", paletteBank);
+	SaveTexture("material.png", materialBank);
 }

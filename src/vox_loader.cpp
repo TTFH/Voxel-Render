@@ -37,20 +37,20 @@ struct Chunk {
 	long int end;
 };
 
-int ReadInt(FILE* file) {
+static int ReadInt(FILE* file) {
 	int val = 0;
 	fread(&val, sizeof(int), 1, file);
 	return val;
 }
 
-void ReadChunk(FILE* file, Chunk& chunk) {
+static void ReadChunk(FILE* file, Chunk& chunk) {
 	chunk.id = ReadInt(file);
 	chunk.content_size = ReadInt(file);
 	chunk.children_size = ReadInt(file);
 	chunk.end = ftell(file) + chunk.content_size + chunk.children_size;
 }
 
-string ReadString(FILE* file) {
+static string ReadString(FILE* file) {
 	int size = ReadInt(file);
 	char* buffer = new char[size];
 	fread(buffer, sizeof(uint8_t), size, file);
@@ -59,7 +59,7 @@ string ReadString(FILE* file) {
 	return res;
 }
 
-DICT ReadDict(FILE* file) {
+static DICT ReadDict(FILE* file) {
 	DICT dict;
 	int dict_entries = ReadInt(file);
 	for (int i = 0; i < dict_entries; i++) {
@@ -70,37 +70,34 @@ DICT ReadDict(FILE* file) {
 	return dict;
 }
 
-string GetDictValue(DICT& dict, string key) {
+static string GetDictValue(DICT& dict, string key) {
 	DICT::iterator it = dict.find(key);
 	if (it != dict.end())
 		return it->second;
 	return "";
 }
 
-MV_Material::MV_Material(MV_PBR pbr) {
-	reflectivity = 0.1f;
-	shinyness = 1.0f;
-	metalness = 0.0f;
-	emissive = 0.0f;
-
+static MV_Material Convert(const MV_PBR &pbr) {
+	MV_Material material;
 	switch (pbr.type) {
 	case METAL:
-		reflectivity = pbr.sp;
-		shinyness = 1.0f - pbr.rough;
-		metalness = pbr.metal;
+		material.reflectivity = pbr.sp - 1.0f;
+		material.shinyness = 1.0f - pbr.rough;
+		material.metalness = pbr.metal;
 		break;
 	case GLASS:
-		shinyness = 1.0f - pbr.rough;
+		material.shinyness = 1.0f - pbr.rough;
 		break;
 	case EMIT:
-		emissive = pbr.emit * pow(10, pbr.flux);
+		material.emissive = pbr.emit * pow(10, pbr.flux);
 		break;
 	default:
 		break;
 	}
+	return material;
 }
 
-MV_MaterialType GetMaterialType(string type) {
+static MV_MaterialType GetMaterialType(string type) {
 	if (type == "_glass")
 		return GLASS;
 	else if (type == "_metal")
@@ -110,17 +107,15 @@ MV_MaterialType GetMaterialType(string type) {
 	return DIFFUSE;
 }
 
-float StringToFloat(string str) {
+static float StringToFloat(string str, float default_value) {
 	try {
 		return stof(str);
-	} catch (const invalid_argument&) {
-		return 0.0f;
-	} catch (const out_of_range&) {
-		return 0.0f;
+	} catch (exception& e) {
+		return default_value;
 	}
 }
 
-int ReadHeader(FILE* file) {
+static int ReadHeader(FILE* file) {
 	int magic = ReadInt(file);
 	if (magic != VOX) {
 		printf("[ERROR] Invalid .vox file format.\n");
@@ -171,14 +166,14 @@ VoxLoader::VoxLoader(const char* filename) {
 			break;
 		case XYZI: {
 				int voxels_count = ReadInt(file);
+				vector<MV_Voxel> voxels;
 				if (voxels_count > 0) {
-					vector<MV_Voxel> voxels;
 					voxels.resize(voxels_count);
 					fread(voxels.data(), sizeof(MV_Voxel), voxels_count, file);
-					string id = RemoveExtension(filename) + "_" + to_string(shapes.size());
-					MV_Shape shape = { id, sizex, sizey, sizez, voxels };
-					shapes.push_back(shape);
 				}
+				string id = RemoveExtension(filename) + "_" + to_string(shapes.size());
+				MV_Shape shape = { id, sizex, sizey, sizez, voxels };
+				shapes.push_back(shape);
 				//printf("XYZI shape[%d]: %5d voxels, size = [%3d %3d %3d]\n", (int)shapes.size() - 1, voxels_count, sizex, sizey, sizez);
 			}
 			break;
@@ -192,11 +187,8 @@ VoxLoader::VoxLoader(const char* filename) {
 					break;
 				vec3 position = vec3(0, 0, 0);
 				quat rotation = quat(1, 0, 0, 0);
-				string shape_name = "";
-
 				DICT node_attribs = ReadDict(file);
-				if (node_attribs.find("_name") != node_attribs.end())
-					shape_name = node_attribs["_name"];
+				string shape_name = GetDictValue(node_attribs, "_name");
 
 				ReadInt(file); ReadInt(file); ReadInt(file);
 				int num_frames = ReadInt(file);
@@ -219,7 +211,7 @@ VoxLoader::VoxLoader(const char* filename) {
 							rot_matrix[x][0] = (v >> 4) & 1 ? -1 : 1;
 							rot_matrix[y][1] = (v >> 5) & 1 ? -1 : 1;
 							rot_matrix[z][2] = (v >> 6) & 1 ? -1 : 1;
-							rotation = quat(rot_matrix);
+							rotation = quat_cast(rot_matrix);
 							/*printf("Rot byte: 0x%02X\n", v);
 							printf("    [%2d %2d %2d]\nR = [%2d %2d %2d]\n    [%2d %2d %2d]\n\n",
 								(int)rot_matrix[0][0], (int)rot_matrix[0][1], (int)rot_matrix[0][2],
@@ -249,17 +241,17 @@ VoxLoader::VoxLoader(const char* filename) {
 
 				MV_PBR pbr;
 				pbr.type = GetMaterialType(GetDictValue(mat_properties, "_type"));
-				pbr.flux = StringToFloat(GetDictValue(mat_properties, "_flux"));
-				pbr.rough = StringToFloat(GetDictValue(mat_properties, "_rough"));
-				pbr.sp = StringToFloat(GetDictValue(mat_properties, "_sp"));
-				pbr.metal = StringToFloat(GetDictValue(mat_properties, "_metal"));
-				pbr.emit = StringToFloat(GetDictValue(mat_properties, "_emit"));
+				pbr.flux = StringToFloat(GetDictValue(mat_properties, "_flux"), 0);
+				pbr.rough = StringToFloat(GetDictValue(mat_properties, "_rough"), 1);
+				pbr.sp = StringToFloat(GetDictValue(mat_properties, "_sp"), 1);
+				pbr.metal = StringToFloat(GetDictValue(mat_properties, "_metal"), 0);
+				pbr.emit = StringToFloat(GetDictValue(mat_properties, "_emit"), 0);
 
 				int index = material_id % 256;
-				bool transparent = GetDictValue(mat_properties, "_alpha") != "1.0";
-				if (pbr.type == GLASS && transparent)
+				float alpha = StringToFloat(GetDictValue(mat_properties, "_alpha"), 1);
+				if (pbr.type == GLASS && alpha < 1.0f)
 					palette[index].a = 0.5f;
-				material[index] = MV_Material(pbr);
+				material[index] = Convert(pbr);
 			}
 			break;
 		default:
@@ -270,7 +262,4 @@ VoxLoader::VoxLoader(const char* filename) {
 	fclose(file);
 
 	palette_id = VoxRender::getIndex(palette, material);
-#ifdef _BLENDER
-	VoxRender::SaveTexture();
-#endif
 }

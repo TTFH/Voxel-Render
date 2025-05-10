@@ -37,8 +37,12 @@ struct MV_Material {
 	float metalness;
 	float emissive;
 
-	MV_Material() {}
-	MV_Material(MV_PBR pbr);
+	MV_Material() {
+		reflectivity = 0.1f;
+		shinyness = 1.0f;
+		metalness = 0.0f;
+		emissive = 0.0f;
+	}
 };
 
 struct MV_Voxel {

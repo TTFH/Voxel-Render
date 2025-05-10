@@ -18,7 +18,7 @@ public:
 	void start();
 	void end();
 	void setTexture(GLuint texture);
-	void draw(Shader& shader);
+	void draw(Shader& shader, Camera& camera);
 };
 
 class Screen {
@@ -26,14 +26,14 @@ private:
 	VAO vao;
 	GLuint sampler;
 	GLuint framebuffer;
-
+public:
 	GLuint color_texture;
 	GLuint normal_texture;
 	GLuint material_texture;
 	GLuint motion_texture;
 	GLuint depth_texture;
 	void initFrameBuffer(int width, int height);
-public:
+
 	Screen();
 	void start();
 	void end();

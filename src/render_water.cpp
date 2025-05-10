@@ -1,5 +1,3 @@
-#include <stdlib.h>
-
 #include "vbo.h"
 #include "utils.h"
 #include "render_water.h"
@@ -40,7 +38,7 @@ void WaterRender::draw(Shader& shader, Camera& camera) {
 	shader.pushFloat("uInvFar", 1.0f / camera.FAR_PLANE);
 	shader.pushFloat("uMotion", 0.5f);
 	shader.pushFloat("uRipple", 0.5f);
-	shader.pushFloat("uRndFrame", (int)(5.0f * rand() / (float)RAND_MAX));
+	shader.pushFloat("uRndFrame", 0.0f);
 	shader.pushFloat("uVisibility", 3.6f);
 	shader.pushFloat("uWave", 0.5f);
 	shader.pushInt("uRingCount", 0);

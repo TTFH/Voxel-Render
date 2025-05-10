@@ -26,17 +26,26 @@ using namespace glm;
 
 int main(int argc, char* argv[]) {
 	GLFWwindow* window = InitOpenGL("Shadow Volume");
+	Shader voxel_rtx_shader("gbuffervox");
+	Shader lighting_shader("editorlighting");
+	Shader screen_shader("screen");
 
-	Shader sv_shader("debugvolume");
-	Shader voxel_rtx_shader("editorvox");
-	Shader screen_shader("editorlighting");
-
-	Screen screen;
 	Camera camera;
+	Screen framebuffer;
+	RTX_Render::initTextures();
 	Scene scene(GetScenePath(argc, argv));
 	camera.position = scene.spawnpoint.pos;
 	camera.position.y += 1.8;
 	camera.direction = scene.spawnpoint.rot * vec3(0, 0, 1);
+
+	SimpleScreen screen1(vec2(0.75, 0.75), vec2(0.25, 0.25), false);
+	screen1.setTexture(framebuffer.color_texture);
+	SimpleScreen screen2(vec2(0.75, 0.25), vec2(0.25, 0.25), false);
+	screen2.setTexture(framebuffer.normal_texture);
+	SimpleScreen screen3(vec2(0.75, -0.25), vec2(0.25, 0.25), false);
+	screen3.setTexture(framebuffer.material_texture);
+	SimpleScreen screen4(vec2(0.75, -0.75), vec2(0.25, 0.25), false);
+	screen4.setTexture(framebuffer.depth_texture);
 
 	glfwSetWindowUserPointer(window, &camera);
 	glfwSetKeyCallback(window, key_press_callback);
@@ -54,19 +63,22 @@ int main(int argc, char* argv[]) {
 			glfwSetWindowShouldClose(window, true);
 		camera.handleInputs(window);
 
-		screen.start();
+		framebuffer.start();
 		voxel_rtx_shader.use();
 		scene.draw(voxel_rtx_shader, camera, RTX);
-		screen.end();
+		framebuffer.end();
 
 		glClearColor(0.35, 0.54, 0.8, 1);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		screen_shader.use();
-		screen.draw(screen_shader, camera);
+		lighting_shader.use();
+		framebuffer.draw(lighting_shader, camera);
 
-		sv_shader.use();
-		scene.drawShadowVolume(sv_shader, camera);
+		screen_shader.use();
+		screen1.draw(screen_shader, camera);
+		screen2.draw(screen_shader, camera);
+		screen3.draw(screen_shader, camera);
+		screen4.draw(screen_shader, camera);
 
 		glfwSwapBuffers(window);
 	}
