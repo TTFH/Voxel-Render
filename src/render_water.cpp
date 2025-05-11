@@ -33,6 +33,7 @@ void WaterRender::draw(Shader& shader, Camera& camera) {
 
 	mat4 mvp_matrix = camera.vp_matrix * translate(mat4(1.0f), position);
 
+	shader.pushFloat("uNear", camera.NEAR_PLANE);
 	shader.pushFloat("uFar", camera.FAR_PLANE);
 	shader.pushFloat("uFoam", 0.5f);
 	shader.pushFloat("uInvFar", 1.0f / camera.FAR_PLANE);

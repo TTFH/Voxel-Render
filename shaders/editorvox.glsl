@@ -17,12 +17,12 @@ uniform float uVolTexelSize;
 uniform vec3 uVolResolution;
 uniform usampler3D uVolTex;
 
-varying vec3 vWorldPos;
-varying vec3 vLocalPos;
-varying vec3 vLocalCameraPos;
-
 #ifdef VERTEX
-attribute vec3 aPosition;
+layout(location = 0) in vec3 aPosition;
+
+out vec3 vWorldPos;
+out vec3 vLocalPos;
+out vec3 vLocalCameraPos;
 
 void main() {
 	vWorldPos = (uModelMatrix * vec4(aPosition, 1.0)).xyz;
@@ -37,6 +37,10 @@ layout(location = 0) out vec3 outputColor;
 layout(location = 1) out vec3 outputNormal;
 layout(location = 4) out float outputDepth;
 
+in vec3 vWorldPos;
+in vec3 vLocalPos;
+in vec3 vLocalCameraPos;
+
 float raycastVolume(vec3 origin, vec3 dir, float dist, int mip, out int normal, out uint value) {
 	float mipScale = float(1 << mip);
 	float texelSize = uVolTexelSize * mipScale;
@@ -47,21 +51,20 @@ float raycastVolume(vec3 origin, vec3 dir, float dist, int mip, out int normal, 
 	vec3 tStep = sign(dir);
 	vec3 tDelta = vec3(1.0) / (abs(dir) + vec3(0.00001));
 	vec3 tDist;
-	tDist.x = tStep.x > 0 ? ti.x + 1.0 - tPos.x : tPos.x - ti.x;
-	tDist.y = tStep.y > 0 ? ti.y + 1.0 - tPos.y : tPos.y - ti.y;
-	tDist.z = tStep.z > 0 ? ti.z + 1.0 - tPos.z : tPos.z - ti.z;
+	tDist.x = tStep.x > 0.0 ? ti.x + 1.0 - tPos.x : tPos.x - ti.x;
+	tDist.y = tStep.y > 0.0 ? ti.y + 1.0 - tPos.y : tPos.y - ti.y;
+	tDist.z = tStep.z > 0.0 ? ti.z + 1.0 - tPos.z : tPos.z - ti.z;
 	vec3 tMax = tDelta * tDist;
 
 	tStep /= resolution;
 	ti /= resolution;
-
-	// Offset half a voxel to avoid rounding errors in texel fetch
 	ti += 0.5 / resolution;
 
 	float t = 0.0;
 	float tLength = dist / texelSize;
 	normal = 0;
 	int iter = 0;
+
 	while (t < tLength) {
 		if (iter++ > 200)
 			return -1.0;
@@ -124,7 +127,10 @@ float distanceToBox(vec3 origin, vec3 dir, vec3 size) {
 	if (clamp(origin, vec3(0.0), size) == origin)
 		return 0.0;
 
-	vec3 invDir = vec3(1.0) / dir;
+	vec3 invDir;
+	invDir.x = dir.x == 0.0 ? 0.0 : 1.0 / dir.x;
+	invDir.y = dir.y == 0.0 ? 0.0 : 1.0 / dir.y;
+	invDir.z = dir.z == 0.0 ? 0.0 : 1.0 / dir.z;
 	vec3 sgn = step(dir, vec3(0.0));
 
 	vec3 tmin = (sgn * size - origin) * invDir;
@@ -139,24 +145,25 @@ void main() {
 	vec3 localPos = vLocalCameraPos;
 	vec3 localDir = (vLocalPos - vLocalCameraPos) / maxDist;
 
+	int normal = 0;
+	uint value = 0u;
 	float minDist = distanceToBox(localPos, localDir, uVolResolution * uVolTexelSize);
-	int n;
-	uint value;
-	float hitDist = raycast(localPos, localDir, minDist, maxDist, 2, n, value);
+	float hitDist = raycast(localPos, localDir, minDist, maxDist, 2, normal, value);
 	if (hitDist != -1.0)
-		hitDist = raycast(localPos, localDir, hitDist, maxDist, 0, n, value);
+		hitDist = raycast(localPos, localDir, hitDist, maxDist, 0, normal, value);
 
-	if (hitDist != -1) {
+	if (hitDist != -1.0) {
 		vec4 localNormal = vec4(0.0);
-		localNormal[n] = -sign(localDir[n]);
+		localNormal[normal] = -sign(localDir[normal]);
 		vec3 hitNormal = (uVolMatrix * localNormal).xyz;
 
 		vec4 hitPos = vec4(uCameraPos + away * hitDist, 1.0);
 		vec4 hpos = uVpMatrix * hitPos;
 
-		vec4 c = texelFetch(uColor, ivec2(value, uPalette), 0);
-		c *= uMultColor;
-		outputColor = c.rgb;
+		vec4 color = texelFetch(uColor, ivec2(value, uPalette), 0);
+		color *= uMultColor;
+
+		outputColor = color.rgb;
 		outputNormal = hitNormal;
 		outputDepth = hpos.w / uFar;
 		gl_FragDepth = (1.0 / hpos.w - 1.0 / uNear) / (1.0 / uFar - 1.0 / uNear);

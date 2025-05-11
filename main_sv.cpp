@@ -26,9 +26,10 @@ using namespace glm;
 
 int main(int argc, char* argv[]) {
 	GLFWwindow* window = InitOpenGL("Shadow Volume");
+	Shader sv_shader("debugvolume");
+	Shader screen_shader("screen");
 	Shader voxel_rtx_shader("gbuffervox");
 	Shader lighting_shader("editorlighting");
-	Shader screen_shader("screen");
 
 	Camera camera;
 	Screen framebuffer;
@@ -71,8 +72,11 @@ int main(int argc, char* argv[]) {
 		glClearColor(0.35, 0.54, 0.8, 1);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		lighting_shader.use();
-		framebuffer.draw(lighting_shader, camera);
+		//lighting_shader.use();
+		//framebuffer.draw(lighting_shader, camera);
+
+		sv_shader.use();
+		scene.drawShadowVolume(sv_shader, camera);
 
 		screen_shader.use();
 		screen1.draw(screen_shader, camera);

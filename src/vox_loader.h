@@ -38,10 +38,10 @@ struct MV_Material {
 	float emissive;
 
 	MV_Material() {
-		reflectivity = 0.1f;
-		shinyness = 1.0f;
-		metalness = 0.0f;
-		emissive = 0.0f;
+		reflectivity = 0;
+		shinyness = 0;
+		metalness = 0;
+		emissive = 0;
 	}
 };
 

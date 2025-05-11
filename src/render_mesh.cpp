@@ -107,8 +107,8 @@ void Mesh::loadOBJ(const char* path) {
 	} while (!feof(file));
 	fclose(file);
 
-	printf("Loaded %d vertices, %d normals, %d tex_coords, %d triangles\n",
-		(int)positions.size() - 1, (int)normals.size() - 1, (int)tex_coords.size() - 1, (int)mesh.size());
+	//printf("Loaded %d vertices, %d normals, %d tex_coords, %d triangles\n",
+	//	(int)positions.size() - 1, (int)normals.size() - 1, (int)tex_coords.size() - 1, (int)mesh.size());
 
 	// Convert negative indices to positive
 	for (unsigned int t = 0; t < mesh.size(); t++) {

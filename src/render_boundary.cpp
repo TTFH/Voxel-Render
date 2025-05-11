@@ -65,9 +65,8 @@ void BoundaryRender::draw(Shader& shader, Camera& camera) {
 
 	shader.pushTexture2D("uTexture", boundary_texture, 1);
 	shader.pushFloat("uVisibleDistance", 100.0f);
-	shader.pushVec4("uColor", vec4(2.0f, 1.0f, 0.0f, 1.0f));
-	shader.pushVec3("uFocus0", camera.position);
-	shader.pushFloat("uInvFar", 1.0f / camera.FAR_PLANE);
+	shader.pushVec4("uBoundaryColor", vec4(2.0f, 1.0f, 0.0f, 1.0f));
+	shader.pushVec3("uPlayerPos", camera.position);
 
 	vao.bind();
 	glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_INT, 0);

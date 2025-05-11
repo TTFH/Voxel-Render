@@ -9,11 +9,11 @@ uniform float uNear;
 uniform float uFar;
 uniform mat4 uVpMatrix;
 
-varying vec3 vFarVec;
-
 #ifdef VERTEX
-attribute vec2 aPosition;
-attribute vec2 aTexCoord;
+layout(location = 0) in vec2 aPosition;
+layout(location = 1) in vec2 aTexCoord;
+
+out vec3 vFarVec;
 
 vec3 computeFarVec(vec2 texCoord) {
 	vec4 aa = vec4(texCoord * 2.0 - vec2(1.0), 1.0, 1.0);
@@ -31,6 +31,8 @@ void main() {
 layout(location = 0) out vec3 outputColor;
 layout(location = 1) out vec3 outputNormal;
 layout(location = 2) out float outputDepth;
+
+in vec3 vFarVec;
 
 float raycastShadowVolume(vec3 origin, vec3 dir, float dist, out int normal) {
 	origin -= uVolOffset;

@@ -49,12 +49,12 @@ uniform bool uHasAlpha;
 uniform float uHighlight;
 uniform float uAlpha;
 
-varying vec4 vHPos;
-varying vec3 vLocalCameraPos;
-varying vec3 vLocalPos;
-
 #ifdef VERTEX
-attribute vec3 aPosition;
+layout(location = 0) in vec3 aPosition;
+
+out vec4 vHPos;
+out vec3 vLocalCameraPos;
+out vec3 vLocalPos;
 
 void main() {
 	vec4 worldPos = uVolMatrix * vec4(aPosition * uObjSize.xyz * uVoxelSize.w, 1.0);
@@ -71,6 +71,10 @@ layout(location = 0) out vec4 outputColor;
 layout(location = 1) out vec3 outputNormal;
 layout(location = 2) out vec4 outputMaterial;
 layout(location = 4) out float outputDepth;
+
+in vec4 vHPos;
+in vec3 vLocalCameraPos;
+in vec3 vLocalPos;
 
 vec3 computeFarVec(vec2 texCoord) {
 	vec4 aa = vec4(texCoord * 2.0 - vec2(1.0), 1.0, 1.0);

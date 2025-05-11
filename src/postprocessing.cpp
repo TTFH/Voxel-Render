@@ -176,7 +176,7 @@ void Screen::end() {
 void Screen::draw(Shader& shader, Camera& camera) {
 	shader.pushFloat("uNear", camera.NEAR_PLANE);
 	shader.pushFloat("uFar", camera.FAR_PLANE);
-	shader.pushVec2("uPixelSize", vec2(1.0f / WINDOW_WIDTH, 1.0f / WINDOW_HEIGHT));
+	shader.pushVec2("uPixelSize", vec2(1.0f / camera.screen_width, 1.0f / camera.screen_height));
 	shader.pushVec3("uLightDir", vec3(0.38f, -0.76f, 0.53f));
 	shader.pushVec3("uCameraPos", camera.position);
 
