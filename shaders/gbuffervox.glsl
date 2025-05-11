@@ -52,17 +52,15 @@ uniform float uAlpha;
 #ifdef VERTEX
 layout(location = 0) in vec3 aPosition;
 
-out vec4 vHPos;
 out vec3 vLocalCameraPos;
 out vec3 vLocalPos;
 
 void main() {
-	vec4 worldPos = uVolMatrix * vec4(aPosition * uObjSize.xyz * uVoxelSize.w, 1.0);
+	vec4 worldPos = uVolMatrix * vec4(aPosition * uObjSize * uVoxelSize.w, 1.0);
 	mat3 volMatrixInv = transpose(mat3(uVolMatrix));
 	vLocalCameraPos = volMatrixInv * (uCameraPos - uVolMatrix[3].xyz);
 	vLocalPos = volMatrixInv * (worldPos.xyz - uVolMatrix[3].xyz);
-	vHPos = uVpMatrix * worldPos;
-	gl_Position = vHPos;
+	gl_Position = uVpMatrix * worldPos;
 }
 #endif
 
@@ -72,11 +70,10 @@ layout(location = 1) out vec3 outputNormal;
 layout(location = 2) out vec4 outputMaterial;
 layout(location = 4) out float outputDepth;
 
-in vec4 vHPos;
 in vec3 vLocalCameraPos;
 in vec3 vLocalPos;
 
-vec3 computeFarVec(vec2 texCoord) {
+vec3 computePixelDir(vec2 texCoord) {
 	vec4 aa = vec4(texCoord * 2.0 - vec2(1.0), 1.0, 1.0);
 	aa = uVpInvMatrix * aa;
 	return aa.xyz / aa.w - uCameraPos;
@@ -121,7 +118,7 @@ float raycastVolume(vec3 origin, vec3 dir, float dist, out uint index, out vec3 
 				ti += tStep * cmp;
 			}
 		} else {
-			float dist2 = (mip == 1 ? min(dist, t + voxSize * 5.0) : dist);
+			float dist2 = mip == 1 ? min(dist, t + voxSize * 5.0) : dist;
 			mip++;
 			while (t < dist2) {
 				uint a = textureLod(uVolTex, ti, mip - 1).x;
@@ -157,7 +154,7 @@ vec2 getTile(vec2 tc, float tile, vec2 tileCount) {
 }
 
 void main() {
-	vec2 tc = (vHPos.xy / vHPos.w) * 0.5 + vec2(0.5);
+	vec2 tc = gl_FragCoord.xy * uPixelSize.rg;
 
 	if (uAlpha < 1.0) {
 		blueNoiseInit(tc);
@@ -165,15 +162,18 @@ void main() {
 			discard;
 	}
 
-	vec3 fv = computeFarVec(tc);
+	vec3 pixDir = computePixelDir(tc);
 	float depth = 500; //texture(uDepth, tc).r;
-	float currentMinDepth = length(fv * depth);
+	float currentMinDepth = length(pixDir * depth * uFar);
 
 	vec3 localPos = vLocalCameraPos;
 	vec3 localDir = vLocalPos - vLocalCameraPos;
 	float maxDist = length(localDir);
+	if (maxDist < 1e-06f)
+		discard;
+
 	localDir /= maxDist;
-	float minDist = distanceToBox(localPos, localDir, uObjSize.xyz * uVoxelSize.w);
+	float minDist = distanceToBox(localPos, localDir, uObjSize * uVoxelSize.w);
 
 	if (minDist > currentMinDepth)
 		discard;
@@ -182,28 +182,36 @@ void main() {
 
 	vec3 or = localPos + localDir * (minDist - 0.001);
 	float rmd = maxDist - minDist;
-	uint index;
-	vec3 coord;
-	int n;
-	float hitDist = raycastVolume(or, localDir, rmd, index, coord, n, outputColor);
+
+	uint index = 0u;
+	vec3 coord = vec3(0.0);
+	int n = 0;
+	vec4 color = vec4(0.0);
+	vec4 material = vec4(0.0);
+
+	float hitDist = raycastVolume(or, localDir, rmd, index, coord, n, color);
 	if (hitDist == rmd)
 		hitDist = maxDist;
 	else
 		hitDist += minDist;
 	if (hitDist < maxDist) {
-		outputMaterial = texelFetch(uMaterial, ivec2(index, uPalette), 0);
-		outputColor.rgb = pow(outputColor.rgb, vec3(2.2));
+		material = texelFetch(uMaterial, ivec2(index, uPalette), 0);
+		float emissiveMaterial = material.w;
+		color.rgb = pow(color.rgb, vec3(2.2));
 		vec3 localPos = vLocalCameraPos + localDir * hitDist;
 		vec3 localNormal = vec3(0.0);
 		localNormal[n] = -sign(localDir[n]);
 
-		outputMaterial.w *= 32.0 * uEmissive;
+		emissiveMaterial *= 32.0 * uEmissive;
+		vec4 tt = index == 254u ? vec4(12.0, 0.0, 1.0, 0.0) : uTextureTile;
 
-		vec4 tt = (index == 254u ? vec4(12.0, 0.0, 1.0, 0.0) : uTextureTile);
-		if (outputColor.a < 1.0) {
-			vec3 noiseNormal;
+		vec4 worldPos4 = uVolMatrix * vec4(localPos, 1.0);
+		vec2 depth = (uVpMatrix * worldPos4).zw;
 
-			vec2 ntc;
+		if (color.a < 1.0) {
+			vec3 noiseNormal = vec3(0.0);
+			vec2 ntc = vec2(0.0);
+
 			if (n == 0) {
 				ntc = localPos.yz;
 				noiseNormal = texture(uWindowNormal, ntc * 0.2).zxy - vec3(0.5);
@@ -215,61 +223,60 @@ void main() {
 				noiseNormal = texture(uWindowNormal, ntc * 0.2).xyz - vec3(0.5);
 			}
 
-			localNormal += noiseNormal * 0.2;
+			const float noiseNormalMaxDist = 64.0f;
+			localNormal += noiseNormal * 0.2 * smoothstep(0.0f, uVoxelSize.w * noiseNormalMaxDist, depth.y);
 			localNormal = normalize(localNormal);
 
 			vec3 noise = texture(uWindowAlbedo, ntc * 0.2).xyz - vec3(0.5);
-			outputColor.rgb += noise * 0.2;
-			outputMaterial.x = 0.1;
-			outputMaterial.y = 1.0;
+			color.rgb += noise * 0.2;
+
+			material.x = 0.1;
+			material.y = 1.0;
 		} else {
 			vec2 tc;
-			tc.x = (n == 0 ? coord.y + uTextureParams.y : coord.x + uTextureParams.x);
-			tc.y = (n == 2 ? coord.y + uTextureParams.y : coord.z + uTextureParams.z);
+			tc.x = n == 0 ? coord.y + uTextureParams.y : coord.x + uTextureParams.x;
+			tc.y = n == 2 ? coord.y + uTextureParams.y : coord.z + uTextureParams.z;
 			tc = floor(tc) / 256.0;
 
-			if (tt.x != 0) {
+			if (tt.x != 0.0) {
 				vec2 tcTile = getTile(tc, tt.x, vec2(4.0, 8.0));
 
-				if (outputMaterial.w == 0.0f) {
+				if (emissiveMaterial == 0.0f) {
 					vec4 albedoTex = texture(uAlbedoMap, tcTile);
 					albedoTex = mix(vec4(1.0), albedoTex, tt.z);
-					outputColor *= albedoTex;
-					outputMaterial.y *= clamp((albedoTex.r - 0.5) * 2.0, 0.0, 1.0);
+					color *= albedoTex;
+					material.y *= clamp((albedoTex.r - 0.5) * 2.0, 0.0, 1.0);
 				}
 
 				vec2 normalTex = mix(vec2(0.5), texture(uNormalMap, tcTile).xy, tt.z);
 				normalTex = (normalTex.xy * 2.0 - vec2(1.0)) * 0.2;
 
-				localNormal.yz += (n == 0 ? vec2(0.0) : normalTex);
-				localNormal.xz += (n == 1 ? vec2(0.0) : normalTex);
-				localNormal.xy += (n == 2 ? vec2(0.0) : normalTex);
+				localNormal.yz += n == 0 ? vec2(0.0) : normalTex;
+				localNormal.xz += n == 1 ? vec2(0.0) : normalTex;
+				localNormal.xy += n == 2 ? vec2(0.0) : normalTex;
 				localNormal = normalize(localNormal);
 			}
-			if (tt.y != 0) {
+			if (tt.y != 0.0) {
 				vec2 tcTile = getTile(tc, tt.y, vec2(4.0, 4.0));
-
 				vec4 blendTex = texture(uBlendMap, tcTile);
 				blendTex.rgb = pow(blendTex.rgb, vec3(2.2));
 				blendTex.a *= tt.w;
-				outputColor.rgb = mix(outputColor.rgb, blendTex.rgb, blendTex.a);
-				outputMaterial.y = min(outputMaterial.y, 1.0 - blendTex.a);
+				color.rgb = mix(color.rgb, blendTex.rgb, blendTex.a);
+				material.y = min(material.y, 1.0 - blendTex.a);
 			}
 		}
 
-		outputColor.rgb += vec3(uHighlight) * 0.3;
-		outputMaterial.w += uHighlight * 0.3;
+		color.rgb += vec3(uHighlight) * 0.3;
+		emissiveMaterial += uHighlight * 0.3;
 
-		vec4 worldPos4 = uVolMatrix * vec4(localPos, 1.0);
 		vec4 worldNormal4 = uVolMatrix * vec4(localNormal, 0.0);
 		float linearDepth = (uVpMatrix * worldPos4).w;
 
+		outputColor = vec4(pow(color.rgb, vec3(1 / 2.2)), 1.0);
 		outputNormal = worldNormal4.xyz;
+		outputMaterial = vec4(material.xyz, emissiveMaterial / 32.0);
 		outputDepth = linearDepth * uInvFar;
-
-		outputColor.rgb = pow(outputColor.rgb, vec3(1/2.2));
-		outputColor = clamp(outputColor, vec4(0.0), vec4(1.0));
-		gl_FragDepth = (1.0 / (linearDepth + 0.001) - 1.0 / uNear) / (1.0 / uFar - 1.0 / uNear);
+		gl_FragDepth = depth.x / depth.y * 0.5f + 0.5f;
 	} else
 		discard;
 }

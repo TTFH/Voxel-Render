@@ -51,12 +51,12 @@ uniform float uVisibility;
 uniform vec4 uRings[64];
 uniform int uRingCount;
 
-varying vec4 vCurrentPos;
-varying vec4 vOldPos;
-varying vec3 vPosition;
-
 #ifdef VERTEX
 layout(location = 0) in vec3 aPosition;
+
+out vec4 vCurrentPos;
+out vec4 vOldPos;
+out vec3 vPosition;
 
 void main() {
 	gl_Position = uMvpMatrix * vec4(aPosition, 1.0);
@@ -74,17 +74,18 @@ layout(location = 1) out vec3 outputNormal;
 layout(location = 2) out vec4 outputMaterial;
 layout(location = 3) out vec3 outputMotion;
 
+in vec4 vCurrentPos;
+in vec4 vOldPos;
+in vec3 vPosition;
+
 float ring(vec2 ringPos, float radius, vec2 pos) {
 	vec2 dir = ringPos - pos;
 	float dist = dot(dir, dir);
 	if (dist > radius * radius)
 		return 0.0;
-
 	dist = sqrt(dist);
 	dir /= dist + 0.01;
-
 	float ripple = sin((radius - dist) * WAVE_FREQ - 1.57) * 0.5 + 0.5;
-
 	float amp = dist / radius;
 	ripple *= amp * amp;
 	return ripple;
@@ -122,19 +123,15 @@ float pNoise(vec2 p, int res, float time) {
 
 float getHeight(vec2 orgp, vec2 p, float time, vec3 dir) {
 	float h = pNoise(p * 0.15, 2, time * 1.0) * uWave;
-
 	for (int i = 0; i < uRingCount; i++) {
 		vec4 ringData = uRings[i];
 		float life = ringData.z;
 		float age = ringData.w;
 		float size = (age + 0.2) * WAVE_SPEED;
-
 		float scale = 1.0 - clamp(age / life, 0.0, 1.0);
 		scale *= scale;
-
 		h += ring(ringData.xy, size, orgp) * scale * WAVE_SCALE;
 	}
-
 	p -= (dir * h * 1.0).xz;
 	h += pNoise(p * 1.0, 5, time * (0.5 + uRipple * 5.0)) * (uRipple * 0.2);
 	return h;
@@ -146,7 +143,6 @@ void main() {
 	vec2 tcOld = vOldPos.xy / vOldPos.w * 0.5 + vec2(0.5);
 
 	vec2 xy = vPosition.xz;
-
 	float dx2 = pNoise(xy * 0.07, 1, uTime * 0.4);
 	float dy2 = pNoise(xy * 0.09, 1, uTime * 0.3);
 	xy += vec2(dx2, dy2) * (uMotion * 2.0);
@@ -156,7 +152,6 @@ void main() {
 
 	vec3 surfacePos = vPosition;
 	vec4 surfaceHPos = uMvpMatrix * vec4(surfacePos, 1.0);
-
 	float newZ = surfaceHPos.w * uInvFar;
 	float depth = texture(uDepth, texCoord).r;
 	vec3 hitPos = vPosition + vec3(0, -h, 0);
@@ -166,7 +161,6 @@ void main() {
 
 	vec3 normal = vec3(0.0, 0.1, 0.0);
 	vec4 color = vec4(0.0);
-
 	float fade = max(0.0, 1.0 - abs(dy) * 20.0);
 	fade *= fade * fade;
 	normal.xz += vec2(dx, dy) * fade;
@@ -178,7 +172,6 @@ void main() {
 	vec2 distort = normal.xz * 0.003 / depth;
 	vec2 orgTc = texCoord;
 	texCoord += distort + (blueNoise2() - vec2(0.5)) * 0.002 * min(uVisibility, waterDepth);
-
 	float ddepth = texture(uDepth, texCoord).r;
 	if (ddepth < newZ) {
 		texCoord = orgTc;
@@ -191,7 +184,6 @@ void main() {
 
 	float depthFraction = min(1.0, 0.1 * waterDepth / uVisibility);
 	depthFraction = sqrt(depthFraction);
-
 	if (blueNoise() > depthFraction)
 		color = mix(texture(uColor, texCoord) * 0.7, uWaterColor, depthFraction);
 	else
