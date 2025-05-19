@@ -39,6 +39,7 @@ GLuint RTX_Render::window_albedo = 0;
 GLuint RTX_Render::window_normal = 0;
 GLuint RTX_Render::bluenoise = 0;
 GLuint RTX_Render::foam_texture = 0;
+int RTX_Render::random_frame = 0;
 
 void RTX_Render::initTextures() {
 	albedo_map = LoadTexture2D("textures/albedo.png");
@@ -187,8 +188,7 @@ void RTX_Render::drawAdvanced(Shader& shader, Camera& camera) {
 	shader.pushFloat("uAlpha", 1.0f);
 	shader.pushFloat("uHighlight", 0.0f);
 
-	shader.pushFloat("uRndFrame", 0.0f);
-	shader.pushFloat("uNear", camera.NEAR_PLANE);
+	shader.pushFloat("uRndFrame", random_frame);
 	shader.pushFloat("uFar", camera.FAR_PLANE);
 	shader.pushFloat("uInvFar", 1.0f / camera.FAR_PLANE);
 	shader.pushVec3("uCameraPos", camera.position);

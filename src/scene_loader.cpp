@@ -140,7 +140,7 @@ void Scene::recursiveLoad(XMLElement* element, vec3 parent_pos, quat parent_rot)
 			renderer->setWorldTransform(position, rotation);
 			renderer->setScale(vox.scale);
 			renderer->generateMatrixAndOBB();
-			//shadow_volume->addShape(shape, renderer->volume_matrix);
+			shadow_volume->addShape(shape, renderer->volume_matrix);
 		}
 	} else if (strcmp(element->Name(), "voxbox") == 0) {
 		vec3 size = vec3(10, 10, 10);

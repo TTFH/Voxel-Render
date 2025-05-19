@@ -133,8 +133,8 @@ int main(int argc, char* argv[]) {
 		light.unbindShadowMap(camera);
 
 		screen.start();
-		voxel_rtx_shader.use();
-		scene.draw(voxel_rtx_shader, camera, RTX);
+		//voxel_rtx_shader.use();
+		//scene.draw(voxel_rtx_shader, camera, RTX);
 		screen.end();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -171,8 +171,10 @@ int main(int argc, char* argv[]) {
 		}
 		glDisable(GL_BLEND);
 
-		screen_shader.use();
-		screen.draw(screen_shader, camera);
+		//screen_shader.use();
+		//screen.draw(screen_shader, camera);
+		voxel_rtx_shader.use();
+		scene.draw(voxel_rtx_shader, camera, RTX);
 
 		rope_shader.use();
 		scene.drawRope(rope_shader, camera);

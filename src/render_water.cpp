@@ -33,20 +33,20 @@ void WaterRender::draw(Shader& shader, Camera& camera) {
 
 	mat4 mvp_matrix = camera.vp_matrix * translate(mat4(1.0f), position);
 
-	shader.pushFloat("uNear", camera.NEAR_PLANE);
 	shader.pushFloat("uFar", camera.FAR_PLANE);
 	shader.pushFloat("uFoam", 0.5f);
 	shader.pushFloat("uInvFar", 1.0f / camera.FAR_PLANE);
 	shader.pushFloat("uMotion", 0.5f);
+	shader.pushFloat("uNear", camera.NEAR_PLANE);
 	shader.pushFloat("uRipple", 0.5f);
-	shader.pushFloat("uRndFrame", 0.0f);
+	shader.pushFloat("uRndFrame", RTX_Render::random_frame);
 	shader.pushFloat("uVisibility", 3.6f);
 	shader.pushFloat("uWave", 0.5f);
 	shader.pushInt("uRingCount", 0);
 	shader.pushMatrix("uMvpMatrix", mvp_matrix);
 	shader.pushMatrix("uOldStableVpMatrix", camera.vp_matrix);
 	shader.pushMatrix("uStableVpMatrix", camera.vp_matrix);
-	shader.pushTexture2D("uFoamTexture", RTX_Render::foam_texture, 4);
+	shader.pushTexture2D("uFoamTexture", RTX_Render::foam_texture, 5);
 	shader.pushVec2("uPixelSize", vec2(1.0f / camera.screen_width, 1.0f / camera.screen_height));
 	shader.pushVec3("uCameraPos", camera.position);
 	shader.pushVec4("uRings", vec4(0, 0, 0, 0));

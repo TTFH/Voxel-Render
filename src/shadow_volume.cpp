@@ -7,6 +7,7 @@
 #include "vbo.h"
 #include "utils.h"
 #include "shadow_volume.h"
+#include "render_vox_rtx.h"
 
 static const GLfloat screen_vertices[] = {
 	// pos  uv
@@ -155,16 +156,18 @@ void ShadowVolume::updateTexture() {
 }
 
 void ShadowVolume::draw(Shader& shader, Camera& camera) {
+	shader.pushFloat("uFar", camera.FAR_PLANE);
+	shader.pushFloat("uNear", camera.NEAR_PLANE);
 	shader.pushFloat("uVolTexelSize", 0.2f);
+	shader.pushMatrix("uVpInvMatrix", inverse(camera.vp_matrix));
+	shader.pushMatrix("uVpMatrix", camera.vp_matrix);
+	shader.pushTexture3D("uShadowVolume", volume_texture, 0);
 	shader.pushVec3("uCameraPos", camera.position);
 	shader.pushVec3("uVolOffset", vec3(-width / 20.0f, 0.0f, -depth / 20.0f));
 	shader.pushVec3("uVolResolution", vec3(width, height, depth));
-	shader.pushMatrix("uVpInvMatrix", inverse(camera.vp_matrix));
-	shader.pushTexture3D("uVolTex", volume_texture, 0);
 
-	shader.pushFloat("uNear", camera.NEAR_PLANE);
-	shader.pushFloat("uFar", camera.FAR_PLANE);
-	shader.pushMatrix("uVpMatrix", camera.vp_matrix);
+	shader.pushFloat("uRndFrame", RTX_Render::random_frame);
+	shader.pushVec2("uPixelSize", vec2(1.0f / camera.screen_width, 1.0f / camera.screen_height));
 
 	vao.bind();
 	glDrawElements(GL_TRIANGLES, sizeof(screen_indices) / sizeof(GLuint), GL_UNSIGNED_INT, 0);

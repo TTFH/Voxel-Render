@@ -39,7 +39,6 @@ out vec4 FragColor;
 void main() {
 	float depth = texture(uDepth, vTexCoord).r;
 	vec3 normal = texture(uNormal, vTexCoord).xyz;
-
 	vec3 pos = uCameraPos + vFarVec * depth;
 	vec4 hpos = uVpMatrix * vec4(pos, 1.0);
 

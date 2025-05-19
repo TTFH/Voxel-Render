@@ -26,6 +26,7 @@ private:
 public:
 	static GLuint bluenoise;
 	static GLuint foam_texture;
+	static int random_frame;
 	static void initTextures();
 
 	RTX_Render(const MV_Shape& shape, int palette_id);

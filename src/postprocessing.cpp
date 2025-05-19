@@ -20,6 +20,7 @@ static const GLuint screen_indices[] = {
 SimpleScreen::SimpleScreen(vec2 position, vec2 size, bool use_framebuffer) {
 	this->position = position;
 	this->size = size;
+	this->channels = 3;
 
 	VBO vbo(screen_vertices, sizeof(screen_vertices));
 	EBO ebo(screen_indices, sizeof(screen_indices));
@@ -42,7 +43,7 @@ void SimpleScreen::initFrameBuffer(int width, int height) {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16, width, height, 0, GL_RGB, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0);
 
 	GLenum draw_buffers[] = { GL_COLOR_ATTACHMENT0 };
@@ -67,14 +68,20 @@ void SimpleScreen::end() {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void SimpleScreen::setTexture(GLuint texture) {
+void SimpleScreen::setTexture(GLuint texture, int channels) {
 	this->texture = texture;
+	this->channels = channels;
+}
+
+GLuint SimpleScreen::getTexture() {
+	return texture;
 }
 
 void SimpleScreen::draw(Shader& shader, Camera& camera) {
 	(void)camera;
 	shader.pushVec2("uPosition", position);
 	shader.pushVec2("uSize", size);
+	shader.pushInt("uChannels", channels);
 	shader.pushTexture2D("uTexture", texture, 0);
 
 	vao.bind();
@@ -88,6 +95,7 @@ void Screen::initFrameBuffer(int width, int height) {
 	glGenFramebuffers(1, &framebuffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
 
+	GLuint sampler;
 	glGenSamplers(1, &sampler);
 	glSamplerParameteri(sampler, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glSamplerParameteri(sampler, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -100,7 +108,7 @@ void Screen::initFrameBuffer(int width, int height) {
 	glTextureParameteri(color_texture, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTextureParameteri(color_texture, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTextureParameteri(color_texture, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16, width, height, 0, GL_RGB, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_FLOAT, NULL);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, color_texture, 0);
 
 	glGenTextures(1, &normal_texture);
@@ -118,7 +126,7 @@ void Screen::initFrameBuffer(int width, int height) {
 	glTextureParameteri(material_texture, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTextureParameteri(material_texture, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTextureParameteri(material_texture, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, material_texture, 0);
 
 	glGenTextures(1, &motion_texture);
@@ -127,7 +135,7 @@ void Screen::initFrameBuffer(int width, int height) {
 	glTextureParameteri(motion_texture, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTextureParameteri(motion_texture, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTextureParameteri(motion_texture, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGB, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, width, height, 0, GL_RG, GL_FLOAT, NULL);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, motion_texture, 0);
 
 	glGenTextures(1, &depth_texture);
@@ -183,10 +191,10 @@ void Screen::draw(Shader& shader, Camera& camera) {
 	shader.pushMatrix("uVpMatrix", camera.vp_matrix);
 	shader.pushMatrix("uVpInvMatrix", inverse(camera.vp_matrix));
 
-	shader.pushTexture2D("uTexture", color_texture, 0);
-	shader.pushTexture2D("uNormal", normal_texture, 1);
-	shader.pushTexture2D("uDepth", depth_texture, 2);
-	shader.pushTexture2D("uBlueNoise", RTX_Render::bluenoise, 3);
+	shader.pushTexture2D("uTexture", color_texture, 1);
+	shader.pushTexture2D("uNormal", normal_texture, 2);
+	shader.pushTexture2D("uDepth", depth_texture, 3);
+	shader.pushTexture2D("uBlueNoise", RTX_Render::bluenoise, 4);
 
 	vao.bind();
 	glDrawElements(GL_TRIANGLES, sizeof(screen_indices) / sizeof(GLuint), GL_UNSIGNED_INT, 0);
@@ -194,7 +202,10 @@ void Screen::draw(Shader& shader, Camera& camera) {
 }
 
 void Screen::pushUniforms(Shader& shader) {
+	// uShadowVolume @0
 	shader.pushTexture2D("uColor", color_texture, 1);
-	shader.pushTexture2D("uDepth", depth_texture, 2);
-	shader.pushTexture2D("uBlueNoise", RTX_Render::bluenoise, 3);
+	shader.pushTexture2D("uNormal", normal_texture, 2);
+	shader.pushTexture2D("uDepth", depth_texture, 3);
+	shader.pushTexture2D("uBlueNoise", RTX_Render::bluenoise, 4);
+	// uFoamTexture @5
 }

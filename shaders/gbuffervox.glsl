@@ -1,4 +1,3 @@
-uniform float uNear;
 uniform float uFar;
 uniform float uInvFar;
 
@@ -273,6 +272,7 @@ void main() {
 		float linearDepth = (uVpMatrix * worldPos4).w;
 
 		outputColor = vec4(pow(color.rgb, vec3(1 / 2.2)), 1.0);
+		//outputNormal = worldNormal4.xyz * 0.5 + vec3(0.5);
 		outputNormal = worldNormal4.xyz;
 		outputMaterial = vec4(material.xyz, emissiveMaterial / 32.0);
 		outputDepth = linearDepth * uInvFar;

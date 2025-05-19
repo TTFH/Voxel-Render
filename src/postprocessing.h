@@ -12,19 +12,20 @@ private:
 	GLuint texture;
 	vec2 position;
 	vec2 size;
+	int channels;
 	void initFrameBuffer(int width, int height);
 public:
 	SimpleScreen(vec2 position, vec2 size, bool use_framebuffer);
 	void start();
 	void end();
-	void setTexture(GLuint texture);
+	void setTexture(GLuint texture, int channels = 3);
+	GLuint getTexture();
 	void draw(Shader& shader, Camera& camera);
 };
 
 class Screen {
 private:
 	VAO vao;
-	GLuint sampler;
 	GLuint framebuffer;
 public:
 	GLuint color_texture;

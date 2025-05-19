@@ -30,6 +30,9 @@ int main(int argc, char* argv[]) {
 	Shader screen_shader("screen");
 	Shader voxel_rtx_shader("gbuffervox");
 	Shader lighting_shader("editorlighting");
+	Shader ambient_light_shader("ambientlight");
+	Shader voxbox_shader("shaders/voxbox_vert.glsl", "shaders/voxbox_frag.glsl");
+	Shader denoise_shader("denoise");
 
 	Camera camera;
 	Screen framebuffer;
@@ -46,7 +49,18 @@ int main(int argc, char* argv[]) {
 	SimpleScreen screen3(vec2(0.75, -0.25), vec2(0.25, 0.25), false);
 	screen3.setTexture(framebuffer.material_texture);
 	SimpleScreen screen4(vec2(0.75, -0.75), vec2(0.25, 0.25), false);
-	screen4.setTexture(framebuffer.depth_texture);
+	screen4.setTexture(framebuffer.depth_texture, 1);
+
+	SimpleScreen fb_light(vec2(0, 0), vec2(1, 1), true);
+	SimpleScreen fb_denoise(vec2(0, 0), vec2(1, 1), true);
+	GLuint old_texture;
+	glGenTextures(1, &old_texture);
+	glBindTexture(GL_TEXTURE_2D, old_texture);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, WINDOW_WIDTH, WINDOW_HEIGHT, 0, GL_RGB, GL_FLOAT, NULL);
 
 	glfwSetWindowUserPointer(window, &camera);
 	glfwSetKeyCallback(window, key_press_callback);
@@ -64,25 +78,51 @@ int main(int argc, char* argv[]) {
 			glfwSetWindowShouldClose(window, true);
 		camera.handleInputs(window);
 
+		RTX_Render::random_frame++;
+		RTX_Render::random_frame %= 5;
+
+		//glClearColor(0.35, 0.54, 0.8, 1);
+		glClearColor(0, 0, 0, 1);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 		framebuffer.start();
 		voxel_rtx_shader.use();
 		scene.draw(voxel_rtx_shader, camera, RTX);
-		framebuffer.end();
 
-		glClearColor(0.35, 0.54, 0.8, 1);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		voxbox_shader.use();
+		scene.drawVoxbox(voxbox_shader, camera);
+		framebuffer.end();
 
 		//lighting_shader.use();
 		//framebuffer.draw(lighting_shader, camera);
 
-		sv_shader.use();
-		scene.drawShadowVolume(sv_shader, camera);
+		glCopyImageSubData(fb_denoise.getTexture(), GL_TEXTURE_2D, 0, 0, 0, 0,
+			old_texture, GL_TEXTURE_2D, 0, 0, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, 1);
 
+		fb_light.start();
+		ambient_light_shader.use();
+		framebuffer.pushUniforms(ambient_light_shader);
+		scene.drawShadowVolume(ambient_light_shader, camera);
+		fb_light.end();
+
+		fb_denoise.start();
+		denoise_shader.use();
+		denoise_shader.pushTexture2D("uNew", fb_light.getTexture(), 5);
+		denoise_shader.pushTexture2D("uOld", old_texture, 6);
+		framebuffer.pushUniforms(denoise_shader);
+		scene.drawShadowVolume(denoise_shader, camera);
+		fb_denoise.end();
+
+		screen_shader.use();
+		fb_denoise.draw(screen_shader, camera);
+
+		glDisable(GL_DEPTH_TEST);
 		screen_shader.use();
 		screen1.draw(screen_shader, camera);
 		screen2.draw(screen_shader, camera);
 		screen3.draw(screen_shader, camera);
 		screen4.draw(screen_shader, camera);
+		glEnable(GL_DEPTH_TEST);
 
 		glfwSwapBuffers(window);
 	}

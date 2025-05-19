@@ -3,7 +3,7 @@ uniform vec3 uCameraPos;
 uniform vec3 uVolOffset;
 uniform vec3 uVolResolution;
 uniform mat4 uVpInvMatrix;
-uniform usampler3D uVolTex;
+uniform usampler3D uShadowVolume;
 
 uniform float uNear;
 uniform float uFar;
@@ -60,7 +60,7 @@ float raycastShadowVolume(vec3 origin, vec3 dir, float dist, out int normal) {
 
 			int c = 0;
 			while (t < dist && c++ < 8) {
-				uint a = textureLod(uVolTex, ti, 0).x;
+				uint a = textureLod(uShadowVolume, ti, 0).x;
 				if (a != 0u) {
 					uint bit = 0u;
 					bit += mod(ti.x, invRes.x) > halfInvRes.x ? 1u : 0u;
@@ -105,7 +105,7 @@ float raycastShadowVolume(vec3 origin, vec3 dir, float dist, out int normal) {
 					mip++;
 					break;
 				}
-				uint a = textureLod(uVolTex, ti, mip).x;
+				uint a = textureLod(uShadowVolume, ti, mip).x;
 				if (a != 0u) {
 					mip--;
 					break;

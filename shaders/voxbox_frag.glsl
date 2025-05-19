@@ -6,7 +6,11 @@ uniform sampler2D shadowMap;
 in vec3 vNormal;
 in vec4 vFragPosLight;
 
-out vec4 FragColor;
+//out vec4 FragColor;
+layout(location = 0) out vec4 outputColor;
+layout(location = 1) out vec3 outputNormal;
+layout(location = 2) out vec4 outputMaterial;
+layout(location = 4) out float outputDepth;
 
 float calculateShadow() {
 	float shadow = 0.0f;
@@ -31,10 +35,22 @@ float calculateShadow() {
 	return shadow;
 }
 
+float uNear = 0.1f;
+float uFar = 500.0f;
+
+float getLinearDepth(float depth) {
+    float z = depth * 2.0 - 1.0; // Convert [0,1] to NDC [-1,1]
+    return (2.0 * uNear * uFar) / (uFar + uNear - z * (uFar - uNear));
+}
+
 void main() {
 	float shadow = calculateShadow();
 	float l = 0.6f + 0.4f * max(0.0f, dot(vNormal, normalize(light_pos)));
-	FragColor = vec4(color * l * (1.0f - shadow), 1.0f);
+
+	outputColor = vec4(color * l * (1.0f - shadow), 1.0f);
+	outputNormal = vNormal;
+	outputDepth = getLinearDepth(gl_FragCoord.z) / uFar;
+	outputMaterial = vec4(0.0f);
 
 	// Debug normals
 	//FragColor = vec4((vNormal + 1.0f) / 2.0f, 1.0f);
