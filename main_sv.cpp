@@ -79,7 +79,7 @@ int main(int argc, char* argv[]) {
 		camera.handleInputs(window);
 
 		RTX_Render::random_frame++;
-		RTX_Render::random_frame %= 5;
+		RTX_Render::random_frame %= 60;
 
 		//glClearColor(0.35, 0.54, 0.8, 1);
 		glClearColor(0, 0, 0, 1);

@@ -117,13 +117,13 @@ void main() {
 	new /= tot;
 
 	vec4 colOld = texture(uOld, vTexCoord - motion);
-	colOld = clamp(colOld, mi, ma);
+	//colOld = clamp(colOld, mi, ma);
 
-	float blendFactor = 0.5f;
+	float blendFactor = 0.95f;
 	float maxVel = calculatePixelMaxVelocity(uPixelSize);
 	float currVel = length(motion / uPixelSize);
 	float velFactor = min(currVel, maxVel) / maxVel;
-	blendFactor = mix(blendFactor, 0.1f, velFactor);
+	//blendFactor = mix(blendFactor, 0.1f, velFactor);
 
 	FragColor = mix(new, colOld, blendFactor);
 }
