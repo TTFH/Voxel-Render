@@ -58,7 +58,7 @@ void VoxRender::setScale(float scale) {
 	this->scale = scale;
 }
 
-int VoxRender::getIndex(const MV_Diffuse* palette, const MV_Material* material) {
+int VoxRender::getIndex(const MV_Color* palette, const TD_Material* material) {
 	if (paletteCount == 0) { // Create texture
 		glGenTextures(1, &paletteBank);
 		glBindTexture(GL_TEXTURE_2D, paletteBank);

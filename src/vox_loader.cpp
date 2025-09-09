@@ -77,8 +77,8 @@ static string GetDictValue(DICT& dict, string key) {
 	return "";
 }
 
-static MV_Material Convert(const MV_PBR &pbr) {
-	MV_Material material;
+static TD_Material Convert(const MV_Material& pbr) {
+	TD_Material material;
 	switch (pbr.type) {
 	case METAL:
 		material.reflectivity = pbr.sp - 1.0f;
@@ -97,7 +97,7 @@ static MV_Material Convert(const MV_PBR &pbr) {
 	return material;
 }
 
-static MV_MaterialType GetMaterialType(string type) {
+static MV_MatType GetMaterialType(string type) {
 	if (type == "_glass")
 		return GLASS;
 	else if (type == "_metal")
@@ -178,8 +178,8 @@ VoxLoader::VoxLoader(const char* filename) {
 			}
 			break;
 		case RGBA:
-			fread(palette + 1, sizeof(MV_Diffuse), 255, file);
-			fread(&palette, sizeof(MV_Diffuse), 1, file);
+			fread(palette + 1, sizeof(MV_Color), 255, file);
+			fread(&palette, sizeof(MV_Color), 1, file);
 			break;
 		case nTRN: {
 				int node_id = ReadInt(file);
@@ -239,7 +239,7 @@ VoxLoader::VoxLoader(const char* filename) {
 				int material_id = ReadInt(file);
 				DICT mat_properties = ReadDict(file);
 
-				MV_PBR pbr;
+				MV_Material pbr;
 				pbr.type = GetMaterialType(GetDictValue(mat_properties, "_type"));
 				pbr.flux = StringToFloat(GetDictValue(mat_properties, "_flux"), 0);
 				pbr.rough = StringToFloat(GetDictValue(mat_properties, "_rough"), 1);

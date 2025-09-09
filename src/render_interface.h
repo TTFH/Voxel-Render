@@ -10,14 +10,13 @@
 
 using namespace glm;
 
-struct MV_Diffuse;
+struct MV_Color;
 
 class VoxRender {
 protected:
 	static int paletteCount;
 	static GLuint paletteBank;
 	static GLuint materialBank;
-	static const int MAX_PALETTES = 1024;
 
 	VAO vao;
 	int palette_id;
@@ -29,15 +28,16 @@ protected:
 	vec3 world_position = vec3(0, 0, 0);
 	quat world_rotation = quat(1, 0, 0, 0);
 public:
-	mat4 volume_matrix = mat4(1.0);
 	vector<vec3> obb_corners;
+	mat4 volume_matrix = mat4(1.0);
+	static const int MAX_PALETTES = 1024;
 
 	void setTransform(vec3 position, quat rotation);
 	void setWorldTransform(vec3 position, quat rotation);
 	void setScale(float scale);
 	void generateMatrixAndOBB();
 
-	static int getIndex(const MV_Diffuse* palette, const MV_Material* material);
+	static int getIndex(const MV_Color* palette, const TD_Material* material);
 	static void saveTexture();
 
 	virtual void draw(Shader& shader, Camera& camera) = 0;

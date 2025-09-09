@@ -11,7 +11,7 @@ class EBO {
 private:
 	GLuint ebo;
 public:
-	EBO(vector<GLuint>& indices);
+	EBO(const vector<GLuint>& indices);
 	EBO(const GLuint* indices, GLsizeiptr size);
 	~EBO();
 	void bind();

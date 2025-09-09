@@ -11,17 +11,6 @@
 #include "shader.h"
 #include "render_interface.h"
 
-struct GM_Vertex {
-	vec3 position;
-	vec3 normal;
-	uint8_t index;
-};
-
-struct GreedyMesh {
-	vector<GM_Vertex> vertices;
-	vector<GLuint> indices;
-};
-
 class GreedyRender : public VoxRender {
 private:
 	GLsizei index_count = 0;

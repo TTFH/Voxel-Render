@@ -1,3 +1,5 @@
+#include <unordered_set>
+
 #include "ebo.h"
 #include "vbo.h"
 #include "utils.h"
@@ -90,23 +92,49 @@ static const GLuint hex_prism_indices[] = {
 	32, 34, 35,
 };
 
-HexRender::HexRender(const MV_Shape& shape, int palette_id) {
-	uint8_t*** voxels = MatrixInit(shape);
-	TrimShape(voxels, shape.sizex, shape.sizey, shape.sizez);
+static void TrimVoxels(const vector<MV_Voxel>& voxels, vector<MV_Voxel>& trimmed) {
+	unordered_set<tuple<uint8_t, uint8_t, uint8_t>, VoxelHash> positions;
+	for (vector<MV_Voxel>::const_iterator it = voxels.begin(); it != voxels.end(); it++) {
+		const MV_Voxel& voxel = *it;
+		if (voxel.index != HOLE_INDEX)
+			positions.insert({ voxel.x, voxel.y, voxel.z });
+	}
 
-	vector<MV_Voxel> trimed_voxels;
-	trimed_voxels.reserve(shape.voxels.size());
-	for (int i = 0; i < shape.sizex; i++)
-		for (int j = 0; j < shape.sizey; j++)
-			for (int k = 0; k < shape.sizez; k++)
-				if (voxels[i][j][k] != 0) {
-					MV_Voxel voxel = { (uint8_t)i, (uint8_t)j, (uint8_t)k, voxels[i][j][k] };
-					trimed_voxels.push_back(voxel);
-				}
-	MatrixDelete(voxels, shape);
+	for (vector<MV_Voxel>::const_iterator it = voxels.begin(); it != voxels.end(); it++) {
+		bool is_exposed = false;
+		const MV_Voxel& voxel = *it;
+		if (voxel.index == HOLE_INDEX)
+			continue;
+
+		int dx[] = { -1, 1, 0, 0, 0, 0 };
+		int dy[] = { 0, 0, -1, 1, 0, 0 };
+		int dz[] = { 0, 0, 0, 0, -1, 1 };
+
+		for (int i = 0; i < 6; i++) {
+			int nx = voxel.x + dx[i];
+			int ny = voxel.y + dy[i];
+			int nz = voxel.z + dz[i];
+			if (nx < 0 || ny < 0 || nz < 0 || nx > 255 || ny > 255 || nz > 255) {
+				is_exposed = true;
+				break;
+			}
+			const tuple<uint8_t, uint8_t, uint8_t> neighbor_pos = make_tuple(nx, ny, nz);
+			if (positions.find(neighbor_pos) == positions.end()) {
+				is_exposed = true;
+				break;
+			}
+		}
+		if (is_exposed)
+			trimmed.push_back(voxel);
+	}
+}
+
+HexRender::HexRender(const MV_Shape& shape, int palette_id) {
+	vector<MV_Voxel> trimmed;
+	TrimVoxels(shape.voxels, trimmed);
 
 	this->palette_id = palette_id;
-	this->voxel_count = trimed_voxels.size();
+	this->voxel_count = trimmed.size();
 	shape_size = vec3(shape.sizex, shape.sizey, shape.sizez);
 
 	VBO vbo(hex_prism_vertices, sizeof(hex_prism_vertices));
@@ -115,7 +143,7 @@ HexRender::HexRender(const MV_Shape& shape, int palette_id) {
 	vao.linkAttrib(0, 3, GL_FLOAT, 6 * sizeof(GLfloat), (GLvoid*)0);					 // Vertex position
 	vao.linkAttrib(1, 3, GL_FLOAT, 6 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat))); // Normal
 
-	VBO instaceVBO(trimed_voxels);
+	VBO instaceVBO(trimmed);
 	vao.linkAttrib(2, 1, GL_UNSIGNED_BYTE, sizeof(MV_Voxel), (GLvoid*)(3 * sizeof(uint8_t))); // Palette index
 	vao.linkAttrib(3, 3, GL_UNSIGNED_BYTE, sizeof(MV_Voxel), (GLvoid*)0);					  // Voxel position
 	glVertexAttribDivisor(2, 1);

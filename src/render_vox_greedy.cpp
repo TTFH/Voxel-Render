@@ -1,22 +1,95 @@
+#include <stdexcept>
+#include <unordered_map>
+
 #include "ebo.h"
 #include "vbo.h"
 #include "utils.h"
 #include "render_vox_greedy.h"
 
+/*
+                                             __----~~~~~~~~~~~------___
+                                  .  .   ~~//====......          __--~ ~~
+                  -.            \_|//     |||\\  ~~~~~~::::... /~
+               ___-==_       _-~o~  \/    |||  \\            _/~~-
+       __---~~~.==~||\=_    -_--~/_-~|-   |\\   \\        _/~
+   _-~~     .=~    |  \\-_    '-~7  /-   /  ||    \      /
+ .~       .~       |   \\ -_    /  /-   /   ||      \   /
+/  ____  /         |     \\ ~-_/  /|- _/   .||       \ /
+|~~    ~~|--~~~~--_ \     ~==-/   | \~--===~~        .\
+         '         ~-|      /|    |-~\~~       __--~~
+                     |-~~-_/ |    |   ~\_   _-~            /\
+                          /  \     \__   \/~                \__
+                      _--~ _/ | .-~~____--~-/                  ~~==.
+                     ((->/~   '.|||' -_|    ~~-/ ,              . _||
+                                -_     ~\      ~~---l__i__i__i--~~_/
+                                _-~-__   ~)  \--______________--~~
+                              //.-~~~-~_--~- |-------~~~~~~~~
+                                     //.-~~~--\
+   _  _ ___ ___ ___   ___ ___   ___  ___    _   ___  ___  _  _ ___ 
+  | || | __| _ \ __| | _ ) __| |   \| _ \  /_\ / __|/ _ \| \| / __|
+  | __ | _||   / _|  | _ \ _|  | |) |   / / _ \ (_ | (_) | .` \__ \
+  |_||_|___|_|_\___| |___/___| |___/|_|_\/_/ \_\___|\___/|_|\_|___/
+*/
+
+struct GM_Vertex {
+	vec3 position;
+	vec3 normal;
+	uint8_t index;
+};
+
+class GreedyMesh {
+private:
+	vector<GM_Vertex> vertices;
+	vector<GLuint> indices;
+	unordered_map<tuple<uint8_t, uint8_t, uint8_t>, uint8_t, VoxelHash> voxels;
+	uint8_t GetVoxelAt(uint8_t x, uint8_t y, uint8_t z);
+	void AddFace(vec3 p0, vec3 p1, vec3 p2, vec3 p3, vec3 normal, uint8_t index);
+public:
+	const vector<GM_Vertex>& getVertices() const;
+	const vector<GLuint>& getIndices() const;
+	GreedyMesh(const MV_Shape& shape);
+	void SaveOBJ(string path, int palette_id) const;
+};
+
+const vector<GM_Vertex>& GreedyMesh::getVertices() const {
+	return vertices;
+}
+
+const vector<GLuint>& GreedyMesh::getIndices() const {
+	return indices;
+}
+
+uint8_t GreedyMesh::GetVoxelAt(uint8_t x, uint8_t y, uint8_t z) {
+	const tuple<uint8_t, uint8_t, uint8_t> voxel_pos = make_tuple(x, y, z);
+	if (voxels.find(voxel_pos) == voxels.end())
+		return 0;
+	return voxels[voxel_pos];
+}
+
+void GreedyMesh::AddFace(vec3 p0, vec3 p1, vec3 p2, vec3 p3, vec3 normal, uint8_t index) {
+	int start_index = vertices.size();
+	indices.push_back(start_index + 1);
+	indices.push_back(start_index + 2);
+	indices.push_back(start_index + 3);
+
+	indices.push_back(start_index + 2);
+	indices.push_back(start_index + 1);
+	indices.push_back(start_index + 0);
+
+	vertices.push_back({ p0, normal, index });
+	vertices.push_back({ p1, normal, index });
+	vertices.push_back({ p2, normal, index });
+	vertices.push_back({ p3, normal, index });
+}
+
 // Based on: https://0fps.net/2012/07/07/meshing-minecraft-part-2/
-GreedyMesh generateGreedyMesh(const MV_Shape& shape) {
-	uint8_t*** voxels = MatrixInit(shape);
-	//TrimShape(voxels, shape.sizex, shape.sizey, shape.sizez);
+GreedyMesh::GreedyMesh(const MV_Shape& shape) {
+	for (vector<MV_Voxel>::const_iterator it = shape.voxels.begin(); it != shape.voxels.end(); it++) {
+		const MV_Voxel& voxel = *it;
+		if (voxel.index != HOLE_INDEX)
+			voxels.insert({ make_tuple(voxel.x, voxel.y, voxel.z), voxel.index });
+	}
 
-	auto GetVoxelAt = [&](int x, int y, int z) -> uint8_t {
-		if (x < 0 || x >= shape.sizex || y < 0 || y >= shape.sizey || z < 0 || z >= shape.sizez) {
-			printf("[ERROR] Out of bounds.");
-			return 0;
-		}
-		return voxels[x][y][z];
-	};
-
-	GreedyMesh mesh;
 	int dims[3] = { shape.sizex, shape.sizey, shape.sizez };
 
 	// For each axis
@@ -25,10 +98,10 @@ GreedyMesh generateGreedyMesh(const MV_Shape& shape) {
 		int v = (d + 2) % 3; // index axis v
 		int x[3] = { 0, 0, 0 }; // current voxel
 		int q[3] = { 0, 0, 0 }; q[d] = 1; // next voxel
-		int16_t* mask = new int16_t[dims[u] * dims[v]]; // 2D slice
+		int16_t* mask = new int16_t[dims[u] * dims[v]]; // 2D slice for index and direction
 
 		// For each slice
-		for (x[d] = -1; x[d] < dims[d]; ) {
+		for (x[d] = -1; x[d] < dims[d];) {
 			int n = 0; // slice index (linear)
 			for (x[v] = 0; x[v] < dims[v]; x[v]++) {
 				for (x[u] = 0; x[u] < dims[u]; x[u]++) {
@@ -86,21 +159,9 @@ GreedyMesh generateGreedyMesh(const MV_Shape& shape) {
 						normal = normalize(normal);
 						uint8_t index = c > 0 ? c : -c;
 
-						// Generate the indices first
-						int start_index = mesh.vertices.size();
-						mesh.indices.push_back(start_index + 1);
-						mesh.indices.push_back(start_index + 2);
-						mesh.indices.push_back(start_index + 3);
-						mesh.indices.push_back(start_index + 2);
-						mesh.indices.push_back(start_index + 1);
-						mesh.indices.push_back(start_index + 0);
+						AddFace(p0, p1, p2, p3, normal, index);
 
-						mesh.vertices.push_back({ p0, normal, index });
-						mesh.vertices.push_back({ p1, normal, index });
-						mesh.vertices.push_back({ p2, normal, index });
-						mesh.vertices.push_back({ p3, normal, index });
-
-						// Clear part of the mask to avoid duplicated faces
+						// Clear the used part of the mask
 						for (int l = 0; l < h; l++)
 							for (int k = 0; k < w; k++)
 								mask[n + k + l * dims[u]] = 0;
@@ -114,39 +175,41 @@ GreedyMesh generateGreedyMesh(const MV_Shape& shape) {
 		}
 		delete[] mask;
 	}
-
-	MatrixDelete(voxels, shape);
-	return mesh;
 }
 
-void SaveOBJ(string path, const GreedyMesh& mesh, int palette_id) {
+void GreedyMesh::SaveOBJ(string path, int palette_id) const {
 	FILE* output = fopen(path.c_str(), "w");
-	for (unsigned int i = 0; i < mesh.vertices.size(); i++)
-		fprintf(output, "v %d %d %d\n", (int)mesh.vertices[i].position.x, (int)mesh.vertices[i].position.y, (int)mesh.vertices[i].position.z);
-	for (unsigned int i = 0; i < mesh.vertices.size(); i++)
-		fprintf(output, "vn %d %d %d\n", (int)mesh.vertices[i].normal.x, (int)mesh.vertices[i].normal.y, (int)mesh.vertices[i].normal.z);
-	for (unsigned int i = 0; i < mesh.vertices.size(); i++)
-		fprintf(output, "vt %f %f\n", (mesh.vertices[i].index + 0.5) / 256.0, 1.0 - (palette_id + 0.5) / 512.0);
-	for (unsigned int i = 0; i < mesh.vertices.size(); i += 4) {
-		fprintf(output, "f %d/%d/%d %d/%d/%d %d/%d/%d\n", i + 2, i + 2, i + 2, i + 3, i + 3, i + 3, i + 4, i + 4, i + 4);
-		fprintf(output, "f %d/%d/%d %d/%d/%d %d/%d/%d\n", i + 3, i + 3, i + 3, i + 2, i + 2, i + 2, i + 1, i + 1, i + 1);
+	for (unsigned int i = 0; i < vertices.size(); i++)
+		fprintf(output, "v %d %d %d\n", (int)vertices[i].position.x, (int)vertices[i].position.y, (int)vertices[i].position.z);
+	for (unsigned int i = 0; i < vertices.size(); i++)
+		fprintf(output, "vn %d %d %d\n", (int)vertices[i].normal.x, (int)vertices[i].normal.y, (int)vertices[i].normal.z);
+	for (unsigned int i = 0; i < vertices.size(); i++) {
+		float du = (vertices[i].index + 0.5f) / 256.0f;
+		float dv = 1.0f - (palette_id + 0.5f) / (float)VoxRender::MAX_PALETTES;
+		fprintf(output, "vt %.5f %.5f\n", du, dv);
+	}
+	for (unsigned int j = 0; j < indices.size(); j += 3) {
+		int i0 = indices[j + 0] + 1;
+		int i1 = indices[j + 1] + 1;
+		int i2 = indices[j + 2] + 1;
+		fprintf(output, "f %d/%d/%d %d/%d/%d %d/%d/%d\n", i0, i0, i0, i1, i1, i1, i2, i2, i2);
 	}
 	fclose(output);
 	printf("[INFO] Saved shape to %s\n", path.c_str());
 }
 
 GreedyRender::GreedyRender(const MV_Shape& shape, int palette_id) {
-	GreedyMesh mesh = generateGreedyMesh(shape);
+	GreedyMesh mesh(shape);
 	this->palette_id = palette_id;
-	index_count = mesh.indices.size();
+	index_count = mesh.getIndices().size();
 	shape_size = vec3(shape.sizex, shape.sizey, shape.sizez);
 
 #ifdef _BLENDER
-	SaveOBJ(shape.id + ".obj", mesh, palette_id);
+	mesh.SaveOBJ(shape.id + ".obj", palette_id);
 #endif
 
-	VBO vbo(mesh.vertices);
-	EBO ebo(mesh.indices);
+	VBO vbo(mesh.getVertices());
+	EBO ebo(mesh.getIndices());
 
 	vao.linkAttrib(0, 3, GL_FLOAT, sizeof(GM_Vertex), (GLvoid*)0);							   // Vertex position
 	vao.linkAttrib(1, 3, GL_FLOAT, sizeof(GM_Vertex), (GLvoid*)(3 * sizeof(GLfloat)));		   // Normal

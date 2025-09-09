@@ -21,8 +21,8 @@ void Mesh::loadSimpleOBJ(const char* path) {
 		return;
 	}
 
-	positions.push_back({0, 0, 0});
-	normals.push_back({0, 0, 0});
+	positions.push_back({ 0, 0, 0 });
+	normals.push_back({ 0, 0, 0 });
 	do {
 		char line[128];
 		fscanf(file, "%s", line);
@@ -75,9 +75,9 @@ void Mesh::loadOBJ(const char* path) {
 	}
 
 	// OBJ indices start at 1
-	positions.push_back({0, 0, 0});
-	normals.push_back({0, 0, 0});
-	tex_coords.push_back({0, 0});
+	positions.push_back({ 0, 0, 0 });
+	normals.push_back({ 0, 0, 0 });
+	tex_coords.push_back({ 0, 0 });
 	do {
 		char line[128];
 		fscanf(file, "%s", line);
