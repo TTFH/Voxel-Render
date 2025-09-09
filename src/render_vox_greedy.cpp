@@ -39,10 +39,12 @@ struct GM_Vertex {
 
 class GreedyMesh {
 private:
+	int sizex, sizey, sizez;
 	vector<GM_Vertex> vertices;
 	vector<GLuint> indices;
 	unordered_map<tuple<uint8_t, uint8_t, uint8_t>, uint8_t, VoxelHash> voxels;
-	uint8_t GetVoxelAt(uint8_t x, uint8_t y, uint8_t z);
+	void ComputeMesh();
+	uint8_t GetVoxelAt(int x, int y, int z);
 	void AddFace(vec3 p0, vec3 p1, vec3 p2, vec3 p3, vec3 normal, uint8_t index);
 public:
 	const vector<GM_Vertex>& getVertices() const;
@@ -59,7 +61,10 @@ const vector<GLuint>& GreedyMesh::getIndices() const {
 	return indices;
 }
 
-uint8_t GreedyMesh::GetVoxelAt(uint8_t x, uint8_t y, uint8_t z) {
+uint8_t GreedyMesh::GetVoxelAt(int x, int y, int z) {
+	if (x < 0 || x >= sizex || y < 0 || y >= sizey || z < 0 || z >= sizez)
+		throw out_of_range("Voxel position out of range");
+
 	const tuple<uint8_t, uint8_t, uint8_t> voxel_pos = make_tuple(x, y, z);
 	if (voxels.find(voxel_pos) == voxels.end())
 		return 0;
@@ -82,15 +87,22 @@ void GreedyMesh::AddFace(vec3 p0, vec3 p1, vec3 p2, vec3 p3, vec3 normal, uint8_
 	vertices.push_back({ p3, normal, index });
 }
 
-// Based on: https://0fps.net/2012/07/07/meshing-minecraft-part-2/
 GreedyMesh::GreedyMesh(const MV_Shape& shape) {
 	for (vector<MV_Voxel>::const_iterator it = shape.voxels.begin(); it != shape.voxels.end(); it++) {
 		const MV_Voxel& voxel = *it;
 		if (voxel.index != HOLE_INDEX)
 			voxels.insert({ make_tuple(voxel.x, voxel.y, voxel.z), voxel.index });
 	}
+	sizex = shape.sizex;
+	sizey = shape.sizey;
+	sizez = shape.sizez;
+	ComputeMesh();
+}
 
-	int dims[3] = { shape.sizex, shape.sizey, shape.sizez };
+// Based on: https://0fps.net/2012/07/07/meshing-minecraft-part-2/
+// https://github.com/mikolalysenko/mikolalysenko.github.com/blob/gh-pages/MinecraftMeshes/js/greedy.js
+void GreedyMesh::ComputeMesh() {
+	int dims[3] = { sizex, sizey, sizez };
 
 	// For each axis
 	for (int d = 0; d < 3; d++) {
@@ -102,17 +114,15 @@ GreedyMesh::GreedyMesh(const MV_Shape& shape) {
 
 		// For each slice
 		for (x[d] = -1; x[d] < dims[d];) {
-			int n = 0; // slice index (linear)
+			int n = 0; // slice index
 			for (x[v] = 0; x[v] < dims[v]; x[v]++) {
 				for (x[u] = 0; x[u] < dims[u]; x[u]++) {
 					int16_t a = x[d] >= 0		   ? GetVoxelAt(x[0],		 x[1],		  x[2]		 ) : 0;
 					int16_t b = x[d] < dims[d] - 1 ? GetVoxelAt(x[0] + q[0], x[1] + q[1], x[2] + q[2]) : 0;
-					if ((a != 0) == (b != 0))
+					if (!(a ^ b)) // Told you so, those dragons are scary
 						mask[n] = 0;
-					else if (a != 0)
-						mask[n] = a;
 					else
-						mask[n] = -b;
+						mask[n] = a != 0 ? a : -b;
 					n++;
 				}
 			}
